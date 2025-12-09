@@ -1,4 +1,0 @@
-@Composable
-fun <spot>UserProfile</spot>(user: User) {
-    Text(user.name)
-}

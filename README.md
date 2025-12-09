@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
-  <a href="https://github.com/aspect1512"><img alt="Profile" src="https://img.shields.io/badge/GitHub-androidpoet-blue"/></a>
+  <a href="https://github.com/androidpoet"><img alt="Profile" src="https://img.shields.io/badge/GitHub-androidpoet-blue"/></a>
 </p>
 
 <p align="center">
@@ -58,7 +58,7 @@ ComposeGuard implements comprehensive rules across 6 categories:
 
 ### From ZIP File
 
-1. Download the latest `compose-guard-idea-x.x.x.zip` from [Releases](https://github.com/aspect1512/compose-guard/releases)
+1. Download the latest `compose-guard-idea-x.x.x.zip` from [Releases](https://github.com/androidpoet/compose-guard/releases)
 2. Open Android Studio/IntelliJ IDEA
 3. Go to **Settings** → **Plugins** → **⚙️** (gear icon) → **Install Plugin from Disk...**
 4. Select the downloaded ZIP file
@@ -200,5 +200,5 @@ limitations under the License.
 ---
 
 <p align="center">
-Made with ❤️ by <a href="https://github.com/aspect1512">androidpoet</a>
+Made with ❤️ by <a href="https://github.com/androidpoet">androidpoet</a>
 </p>

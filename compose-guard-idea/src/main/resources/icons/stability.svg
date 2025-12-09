@@ -1,7 +1,9 @@
-<svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="40" height="40" rx="8" fill="#7A7E85"/>
-  <path d="M20 8L26 14L20 20L14 14L20 8Z" fill="#FFFFFF" opacity="0.9"/>
-  <path d="M26 14L32 20L26 26L20 20L26 14Z" fill="#FFFFFF" opacity="0.7"/>
-  <path d="M14 14L20 20L14 26L8 20L14 14Z" fill="#FFFFFF" opacity="0.7"/>
-  <path d="M20 20L26 26L20 32L14 26L20 20Z" fill="#FFFFFF" opacity="0.5"/>
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- group scales original artwork to fit a 40x40 canvas and centers it horizontally -->
+  <g transform="translate(3.167496 0) scale(0.0859075)">
+    <path d="M195.938 465.617C195.938 465.617 391.875 391.641 391.875 217.578V65.2734L195.938 130.547V465.617Z" fill="#0B57D0"/>
+    <path d="M195.938 465.617C195.938 465.617 0 391.641 0 217.578V65.2734L195.938 0V465.617Z" fill="#4285F4"/>
+    <path d="M195.938 0L391.875 65.2734L195.938 130.547L0 65.2734L195.938 0Z" fill="#8AB4F8"/>
+    <path opacity="0.9" d="M159.199 315.488L85.7227 250.215L110.215 228.457L159.199 271.973L281.66 163.184L306.152 184.941L159.199 315.488Z" fill="white"/>
+  </g>
 </svg>

@@ -17,7 +17,7 @@
 <idea-plugin>
     <id>io.androidpoet.composeguard</id>
     <name>ComposeGuard</name>
-    <vendor email="aspect1512@gmail.com" url="https://github.com/aspect1512">androidpoet (Ranbir Singh)</vendor>
+    <vendor email="poetdroid2@gmail.com" url="https://github.com/androidpoet">androidpoet (Ranbir Singh)</vendor>
 
     <description><![CDATA[
         <p>Real-time detection of Compose best practices and rule violations in Android Studio.</p>

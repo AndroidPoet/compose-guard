@@ -34,6 +34,6 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
 ## Links
 
-- [Plugin Repository](https://github.com/aspect1512/compose-guard)
-- [Issue Tracker](https://github.com/aspect1512/compose-guard/issues)
+- [Plugin Repository](https://github.com/androidpoet/compose-guard)
+- [Issue Tracker](https://github.com/androidpoet/compose-guard/issues)
 - [Compose Rules Documentation](https://mrmans0n.github.io/compose-rules/)
