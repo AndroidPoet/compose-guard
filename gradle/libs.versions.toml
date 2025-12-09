@@ -1,0 +1,53 @@
+[versions]
+compiler = "1.5.15"
+junit = "4.13.2"
+kotlin = "2.2.21"
+dokka = "2.1.0"
+jvmTarget = "17"
+kotlinxCollectionsImmutable = "0.4.0"
+kotlinxSerialization = "1.9.0"
+kotlinBinaryCompatibility = "0.18.1"
+lintApi = "31.13.1"
+nexusPlugin = "0.35.0"
+androidGradlePlugin = "8.13.1"
+androidxActivity = "1.11.0"
+androidxComposeBom = "2025.12.00"
+jetbrains-compose = "1.9.3"
+compose-stability-analyzer = "0.6.0"
+spotless = "6.21.0"
+shadow = "8.1.1"
+
+[libraries]
+androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compiler" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+lint-tests = { module = "com.android.tools.lint:lint-tests", version.ref = "lintApi" }
+lint = { module = "com.android.tools.lint:lint", version.ref = "lintApi" }
+lint-checks = { module = "com.android.tools.lint:lint-checks", version.ref = "lintApi" }
+lint-api = { module = "com.android.tools.lint:lint-api", version.ref = "lintApi" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-binary-compatibility = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinBinaryCompatibility" }
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "compose-stability-analyzer"}
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+nexus-plugin = { id = "com.vanniktech.maven.publish", version.ref = "nexusPlugin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }

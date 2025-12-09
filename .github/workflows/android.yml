@@ -1,0 +1,86 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  lint:
+    name: Spotless check
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5.0.0
+      - name: Set up JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - name: spotless
+        run: ./gradlew spotlessCheck
+
+  api_check:
+    name: API check
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5.0.0
+      - name: Set up JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - name: API check
+        run: ./gradlew apiCheck
+
+  build:
+    name: Build and Tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5.0.0
+
+      - name: set up JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          distribution: 'zulu'
+          java-version: 21
+
+      - name: Cache Gradle and wrapper
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: |
+          ./gradlew --scan --stacktrace \
+              assemble
+
+      - name: Run unit tests
+        run: |
+          ./gradlew --scan --stacktrace \
+              testDebugUnitTest
+
+  stability_check:
+    name: Compose Stability Check
+    runs-on: macos-latest
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5.0.0
+      - name: Set up JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - name: compose stability check
+        run: ./gradlew stabilityCheck
