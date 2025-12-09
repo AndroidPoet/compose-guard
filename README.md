@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="art/logo.png" width="120px"/>
+  <img src="art/logo.svg" width="120px"/>
 </p>
 
 <h1 align="center">ComposeGuard</h1>
@@ -14,6 +14,12 @@ Real-time detection of Jetpack Compose best practices and rule violations direct
 </p>
 
 ---
+
+## Preview
+
+<p align="center">
+  <img src="art/preview.png" alt="ComposeGuard Preview"/>
+</p>
 
 ## Overview
 
