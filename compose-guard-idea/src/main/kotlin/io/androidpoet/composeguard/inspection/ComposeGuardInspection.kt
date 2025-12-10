@@ -19,10 +19,14 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElementVisitor
 import io.androidpoet.composeguard.rules.AnalysisContext
+import io.androidpoet.composeguard.rules.AnnotationClassRule
+import io.androidpoet.composeguard.rules.AnyFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.isComposable
 import io.androidpoet.composeguard.rules.isCompositionLocal
+import io.androidpoet.composeguard.rules.isSuppressed
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
@@ -56,16 +60,27 @@ public class ComposeGuardInspection : LocalInspectionTool() {
       override fun visitNamedFunction(function: KtNamedFunction) {
         super.visitNamedFunction(function)
 
-        // Only analyze composable functions
-        if (!function.isComposable()) {
-          return
-        }
+        val isComposable = function.isComposable()
 
         // Run all enabled rules on this function
         for (rule in enabledRules) {
           try {
+            // Check if the rule should run on this function
+            val shouldRun = when {
+              // AnyFunctionRule with requiresComposable=false runs on all functions
+              rule is AnyFunctionRule && !rule.requiresComposable -> true
+              // Other rules only run on composable functions
+              isComposable -> true
+              else -> false
+            }
+
+            if (!shouldRun) continue
+
             val violations = rule.analyzeFunction(function, context)
             for (violation in violations) {
+              // Skip suppressed violations
+              if (isSuppressed(violation.element, rule.id)) continue
+
               holder.registerProblem(
                 violation.element,
                 "[${rule.id}] ${violation.message}",
@@ -92,6 +107,41 @@ public class ComposeGuardInspection : LocalInspectionTool() {
           try {
             val violations = rule.analyzeProperty(property, context)
             for (violation in violations) {
+              // Skip suppressed violations
+              if (isSuppressed(violation.element, rule.id)) continue
+
+              holder.registerProblem(
+                violation.element,
+                "[${rule.id}] ${violation.message}",
+                violation.highlightType,
+                *violation.quickFixes.toTypedArray(),
+              )
+            }
+          } catch (e: Exception) {
+            // Silently skip rules that fail
+          }
+        }
+      }
+
+      override fun visitClass(klass: KtClass) {
+        super.visitClass(klass)
+
+        // Only analyze annotation classes for now
+        if (!klass.isAnnotation()) {
+          return
+        }
+
+        // Run class-level rules (annotation class rules)
+        for (rule in enabledRules) {
+          try {
+            // Only run AnnotationClassRule instances on classes
+            if (rule !is AnnotationClassRule) continue
+
+            val violations = rule.analyzeClass(klass, context)
+            for (violation in violations) {
+              // Skip suppressed violations
+              if (isSuppressed(violation.element, rule.id)) continue
+
               holder.registerProblem(
                 violation.element,
                 "[${rule.id}] ${violation.message}",

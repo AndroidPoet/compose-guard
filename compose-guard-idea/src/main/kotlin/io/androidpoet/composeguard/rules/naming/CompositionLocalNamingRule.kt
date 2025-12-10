@@ -1,8 +1,22 @@
 /*
  * Designed and developed by 2025 androidpoet (Ranbir Singh)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.androidpoet.composeguard.rules.naming
 
+import io.androidpoet.composeguard.quickfix.AddLocalPrefixFix
+import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.PropertyRule
@@ -13,6 +27,11 @@ import org.jetbrains.kotlin.psi.KtProperty
 
 /**
  * Rule: CompositionLocal should be named with "Local" prefix.
+ *
+ * CompositionLocal instances should follow the naming convention of
+ * starting with "Local" prefix to make their purpose clear.
+ *
+ * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#naming-compositionlocals-properly">Naming CompositionLocals</a>
  */
 public class CompositionLocalNamingRule : PropertyRule() {
   override val id: String = "CompositionLocalNaming"
@@ -27,10 +46,24 @@ public class CompositionLocalNamingRule : PropertyRule() {
   override fun doAnalyze(property: KtProperty, context: AnalysisContext): List<ComposeRuleViolation> {
     val name = property.name ?: return emptyList()
     if (!name.startsWith("Local")) {
+      val suggestedName = "Local$name"
       return listOf(createViolation(
         element = property.nameIdentifier ?: property,
         message = "CompositionLocal '$name' should start with 'Local' prefix",
-        tooltip = "Rename to 'Local$name' to follow naming convention."
+        tooltip = """
+          CompositionLocal instances should follow naming convention with 'Local' prefix.
+
+          Change: $name
+          To: $suggestedName
+
+          Example:
+          ❌ val CurrentUser = compositionLocalOf { ... }
+          ✅ val LocalCurrentUser = compositionLocalOf { ... }
+        """.trimIndent(),
+        quickFixes = listOf(
+          AddLocalPrefixFix(suggestedName),
+          SuppressComposeRuleFix(id),
+        ),
       ))
     }
     return emptyList()

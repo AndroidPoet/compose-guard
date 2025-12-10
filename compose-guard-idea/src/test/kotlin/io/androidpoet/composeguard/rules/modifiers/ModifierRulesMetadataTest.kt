@@ -103,7 +103,7 @@ class ModifierRulesMetadataTest {
     assertEquals("Modifier at Top-Most Layout", rule.name)
     assertTrue(rule.description.isNotBlank())
     assertEquals(RuleCategory.MODIFIER, rule.category)
-    assertEquals(RuleSeverity.WEAK_WARNING, rule.severity)
+    assertEquals(RuleSeverity.WARNING, rule.severity)
     assertTrue(rule.enabledByDefault)
     assertNotNull(rule.documentationUrl)
   }
@@ -132,7 +132,7 @@ class ModifierRulesMetadataTest {
     assertEquals("Modifier Order Matters", rule.name)
     assertTrue(rule.description.isNotBlank())
     assertEquals(RuleCategory.MODIFIER, rule.category)
-    assertEquals(RuleSeverity.INFO, rule.severity)
+    assertEquals(RuleSeverity.WARNING, rule.severity)
     assertTrue(rule.enabledByDefault)
     assertNotNull(rule.documentationUrl)
   }

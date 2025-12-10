@@ -122,11 +122,64 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
       }
     }
 
+    // Check if lambda parameters appear before non-lambda parameters
+    // Lambdas should typically be at the end for trailing lambda syntax
+    checkLambdaOrdering(params, violations)
+
     return violations
+  }
+
+  private fun checkLambdaOrdering(
+    params: List<KtParameter>,
+    violations: MutableList<ComposeRuleViolation>,
+  ) {
+    for ((index, param) in params.withIndex()) {
+      if (!isLambdaParam(param)) continue
+      if (isModifierParam(param)) continue // Skip modifier params
+
+      // Check if there are non-lambda, non-modifier params after this lambda
+      val paramsAfter = params.drop(index + 1)
+      val nonLambdaAfter = paramsAfter.filter { !isLambdaParam(it) && !isModifierParam(it) }
+
+      if (nonLambdaAfter.isNotEmpty()) {
+        violations.add(
+          createViolation(
+            element = param.nameIdentifier ?: param,
+            message = "Lambda parameter '${param.name}' should be placed at the end",
+            tooltip = """
+              Lambda parameters should typically be at the end of the parameter list.
+              This allows callers to use trailing lambda syntax:
+
+              ❌ fun MyComposable(onClick: () -> Unit, title: String)
+              ✅ fun MyComposable(title: String, onClick: () -> Unit)
+
+              With trailing lambda syntax:
+              MyComposable(title = "Hello") {
+                  // onClick code here
+              }
+            """.trimIndent(),
+            quickFixes = listOf(
+              ReorderParametersFix(),
+              SuppressComposeRuleFix(id),
+            ),
+          ),
+        )
+        // Only report once per function
+        break
+      }
+    }
   }
 
   private fun isModifierParam(param: KtParameter): Boolean {
     val typeName = param.typeReference?.text ?: return false
     return typeName == "Modifier" || typeName.endsWith(".Modifier")
+  }
+
+  private fun isLambdaParam(param: KtParameter): Boolean {
+    val typeText = param.typeReference?.text ?: return false
+    // Check for lambda types: () -> Unit, (Int) -> String, @Composable () -> Unit, etc.
+    return typeText.contains("->") ||
+      typeText.startsWith("@Composable") ||
+      typeText.contains("Function")
   }
 }

@@ -15,6 +15,7 @@
  */
 package io.androidpoet.composeguard.rules.modifiers
 
+import com.intellij.psi.util.PsiTreeUtil
 import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposableFunctionRule
@@ -22,7 +23,10 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.getModifierParameter
+import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtValueArgument
 
 /**
  * Rule: Don't re-use modifiers across multiple layout nodes.
@@ -57,13 +61,46 @@ public class ModifierReuseRule : ComposableFunctionRule() {
     val modifierParam = function.getModifierParameter() ?: return emptyList()
     val modifierName = modifierParam.name ?: return emptyList()
 
-    val bodyText = function.bodyExpression?.text
-      ?: function.bodyBlockExpression?.text
-      ?: return emptyList()
+    val body = function.bodyExpression ?: function.bodyBlockExpression ?: return emptyList()
 
-    // Look for modifier being passed to multiple composables
-    // Pattern: modifier = modifierName
-    val modifierUsages = Regex("""modifier\s*=\s*$modifierName\b""").findAll(bodyText).toList()
+    // Track all names that refer to the modifier (including reassignments)
+    val modifierNames = mutableSetOf(modifierName)
+
+    // Find reassignments: val newMod = modifier or val newMod = modifier.something()
+    val properties = PsiTreeUtil.findChildrenOfType(body, KtProperty::class.java)
+    for (prop in properties) {
+      val initializerText = prop.initializer?.text ?: continue
+      if (modifierNames.any { initializerText.startsWith(it) }) {
+        prop.name?.let { modifierNames.add(it) }
+      }
+    }
+
+    // Also check for reassignments via binary expressions
+    val assignments = PsiTreeUtil.findChildrenOfType(body, KtBinaryExpression::class.java)
+    for (assignment in assignments) {
+      if (assignment.operationReference.text == "=") {
+        val rightText = assignment.right?.text ?: continue
+        if (modifierNames.any { rightText.startsWith(it) }) {
+          val leftText = assignment.left?.text
+          if (leftText != null && !leftText.contains(".")) {
+            modifierNames.add(leftText)
+          }
+        }
+      }
+    }
+
+    // Find all usages of any modifier name in value arguments
+    val valueArgs = PsiTreeUtil.findChildrenOfType(body, KtValueArgument::class.java)
+    val modifierUsages = valueArgs.filter { arg ->
+      val argName = arg.getArgumentName()?.asName?.asString()
+      val argValue = arg.getArgumentExpression()?.text ?: return@filter false
+
+      // Check if this is a modifier = someModifierName argument
+      (argName == "modifier" || argName == null) &&
+        modifierNames.any { name ->
+          argValue == name || argValue.startsWith("$name.")
+        }
+    }
 
     if (modifierUsages.size > 1) {
       return listOf(
@@ -78,8 +115,18 @@ public class ModifierReuseRule : ComposableFunctionRule() {
             - Modifier effects are designed for a single node
             - State inside modifiers may conflict
 
-            Solution: Only pass the modifier to the root layout, and create
-            separate Modifier chains for other layouts if needed.
+            Solution: Only pass the modifier to the root layout, and use
+            Modifier (with capital M) to create new chains for other layouts.
+
+            ❌ Bad:
+            Column(modifier = modifier) {
+                Text("A", modifier = modifier)  // Reused!
+            }
+
+            ✅ Good:
+            Column(modifier = modifier) {
+                Text("A", modifier = Modifier.padding(8.dp))
+            }
           """.trimIndent(),
           quickFixes = listOf(
             SuppressComposeRuleFix(id),

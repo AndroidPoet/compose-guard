@@ -1,8 +1,21 @@
 /*
  * Designed and developed by 2025 androidpoet (Ranbir Singh)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.androidpoet.composeguard.quickfix
 
+import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
@@ -17,7 +30,7 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
  * 3. Optional parameters (with defaults)
  * 4. Content lambda (trailing, with default)
  */
-public class ReorderParametersFix : LocalQuickFix {
+public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Reorder parameters"
 
@@ -56,7 +69,7 @@ public class ReorderParametersFix : LocalQuickFix {
     for (param in params) {
       when {
         isModifierParam(param) -> modifier.add(param)
-        isComposableLambda(param) -> trailing.add(param)
+        isLambdaParam(param) -> trailing.add(param)
         param.hasDefaultValue() -> optional.add(param)
         else -> required.add(param)
       }
@@ -70,8 +83,11 @@ public class ReorderParametersFix : LocalQuickFix {
     return typeName == "Modifier" || typeName.endsWith(".Modifier")
   }
 
-  private fun isComposableLambda(param: KtParameter): Boolean {
+  private fun isLambdaParam(param: KtParameter): Boolean {
     val typeText = param.typeReference?.text ?: return false
-    return typeText.contains("@Composable") && typeText.contains("->")
+    // Check for lambda types: () -> Unit, (Int) -> String, @Composable () -> Unit, etc.
+    return typeText.contains("->") ||
+      typeText.startsWith("@Composable") ||
+      typeText.contains("Function")
   }
 }

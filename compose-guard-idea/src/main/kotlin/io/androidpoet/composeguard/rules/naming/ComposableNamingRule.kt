@@ -55,12 +55,39 @@ public class ComposableNamingRule : ComposableFunctionRule() {
   override val documentationUrl: String =
     "https://mrmans0n.github.io/compose-rules/latest/rules/#naming-composable-functions-properly"
 
+  // Names that are allowed to deviate from naming rules
+  private val allowedNames = setOf(
+    "remember",
+    "rememberSaveable",
+    "rememberCoroutineScope",
+    "rememberUpdatedState",
+    "derivedStateOf",
+    "produceState",
+    "collectAsState",
+    "collectAsStateWithLifecycle",
+  )
+
   override fun doAnalyze(
     function: KtNamedFunction,
     context: AnalysisContext,
   ): List<ComposeRuleViolation> {
     val name = function.name ?: return emptyList()
     if (name.isEmpty()) return emptyList()
+
+    // Skip operator functions (fixed naming requirements)
+    if (function.hasModifier(org.jetbrains.kotlin.lexer.KtTokens.OPERATOR_KEYWORD)) {
+      return emptyList()
+    }
+
+    // Skip override functions (constrained by parent implementation)
+    if (function.hasModifier(org.jetbrains.kotlin.lexer.KtTokens.OVERRIDE_KEYWORD)) {
+      return emptyList()
+    }
+
+    // Skip explicitly allowed names
+    if (name in allowedNames || allowedNames.any { name.startsWith(it) }) {
+      return emptyList()
+    }
 
     val firstChar = name.first()
     val isUpperCase = firstChar.isUpperCase()

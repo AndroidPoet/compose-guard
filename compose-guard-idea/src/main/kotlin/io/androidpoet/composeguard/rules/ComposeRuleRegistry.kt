@@ -16,10 +16,12 @@
 package io.androidpoet.composeguard.rules
 
 import io.androidpoet.composeguard.rules.composables.ContentEmissionRule
+import io.androidpoet.composeguard.rules.composables.ContentSlotReusedRule
 import io.androidpoet.composeguard.rules.composables.EffectKeysRule
 import io.androidpoet.composeguard.rules.composables.MovableContentRule
 import io.androidpoet.composeguard.rules.composables.MultipleContentRule
 import io.androidpoet.composeguard.rules.composables.PreviewVisibilityRule
+import io.androidpoet.composeguard.rules.effects.LambdaParameterInEffectRule
 import io.androidpoet.composeguard.rules.modifiers.AvoidComposedRule
 import io.androidpoet.composeguard.rules.modifiers.ModifierDefaultValueRule
 import io.androidpoet.composeguard.rules.modifiers.ModifierNamingRule
@@ -37,6 +39,7 @@ import io.androidpoet.composeguard.rules.parameters.ExplicitDependenciesRule
 import io.androidpoet.composeguard.rules.parameters.MutableParameterRule
 import io.androidpoet.composeguard.rules.parameters.ParameterOrderingRule
 import io.androidpoet.composeguard.rules.parameters.TrailingLambdaRule
+import io.androidpoet.composeguard.rules.parameters.ViewModelForwardingRule
 import io.androidpoet.composeguard.rules.state.HoistStateRule
 import io.androidpoet.composeguard.rules.state.MutableStateParameterRule
 import io.androidpoet.composeguard.rules.state.RememberStateRule
@@ -74,6 +77,7 @@ public object ComposeRuleRegistry {
     register(MutableParameterRule())
     register(MutableStateParameterRule())
     register(ExplicitDependenciesRule())
+    register(ViewModelForwardingRule())
 
     // Phase 3: Naming Convention Rules
     register(CompositionLocalNamingRule())
@@ -85,7 +89,9 @@ public object ComposeRuleRegistry {
     // Phase 4: Composable Structure Rules
     register(ContentEmissionRule())
     register(MultipleContentRule())
+    register(ContentSlotReusedRule())
     register(EffectKeysRule())
+    register(LambdaParameterInEffectRule())
     register(MovableContentRule())
     register(PreviewVisibilityRule())
 

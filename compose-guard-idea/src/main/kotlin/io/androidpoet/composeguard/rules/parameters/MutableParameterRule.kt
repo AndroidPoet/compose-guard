@@ -1,10 +1,21 @@
 /*
  * Designed and developed by 2025 androidpoet (Ranbir Singh)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.androidpoet.composeguard.rules.parameters
 
 import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
-import io.androidpoet.composeguard.quickfix.UseImmutableCollectionFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
@@ -15,6 +26,14 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 
 /**
  * Rule: Don't use inherently mutable types as parameters.
+ *
+ * Mutable types like MutableList, ArrayList, HashMap, etc. are not stable
+ * and won't trigger recomposition when their contents change. Consider using:
+ * - @Immutable annotation for your custom classes
+ * - kotlinx.collections.immutable library for collections (ImmutableList, etc.)
+ *
+ * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#do-not-use-inherently-mutable-types-as-parameters">Don't Use Mutable Types</a>
+ * @see <a href="https://github.com/Kotlin/kotlinx.collections.immutable">kotlinx.collections.immutable</a>
  */
 public class MutableParameterRule : ComposableFunctionRule() {
   override val id: String = "MutableParameter"
@@ -28,21 +47,32 @@ public class MutableParameterRule : ComposableFunctionRule() {
     return function.valueParameters.mapNotNull { param ->
       val typeText = param.typeReference?.text ?: return@mapNotNull null
       if (typeText.isMutableType()) {
-        val baseType = typeText.substringBefore("<").trim()
-        val quickFix = when {
-          baseType.contains("MutableList") || baseType == "ArrayList" ->
-            UseImmutableCollectionFix("MutableList", "ImmutableList")
-          baseType.contains("MutableSet") || baseType == "HashSet" || baseType == "LinkedHashSet" ->
-            UseImmutableCollectionFix("MutableSet", "ImmutableSet")
-          baseType.contains("MutableMap") || baseType == "HashMap" || baseType == "LinkedHashMap" ->
-            UseImmutableCollectionFix("MutableMap", "ImmutableMap")
-          else -> null
-        }
         createViolation(
           element = param.typeReference ?: param,
-          message = "Don't use mutable type '$typeText' as parameter",
-          tooltip = "Mutable types don't trigger recomposition. Use immutable alternatives (ImmutableList, etc.).",
-          quickFixes = listOfNotNull(quickFix, SuppressComposeRuleFix(id)),
+          message = "Mutable type '$typeText' is not stable for Compose",
+          tooltip = """
+            Mutable types like $typeText are not stable and won't trigger
+            recomposition when their contents change.
+
+            Consider these alternatives:
+
+            1. Use @Immutable annotation for custom classes:
+               @Immutable
+               data class MyData(val items: List<String>)
+
+            2. Use kotlinx.collections.immutable library:
+               - ImmutableList, ImmutableSet, ImmutableMap
+               - PersistentList, PersistentSet, PersistentMap
+
+               Add dependency:
+               implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
+
+               See: https://github.com/Kotlin/kotlinx.collections.immutable
+
+            3. Use @Stable annotation if the type is mutable but Compose
+               should treat it as stable (use with caution).
+          """.trimIndent(),
+          quickFixes = listOf(SuppressComposeRuleFix(id)),
         )
       } else null
     }

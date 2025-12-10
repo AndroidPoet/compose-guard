@@ -54,11 +54,47 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
   override val documentationUrl: String =
     "https://mrmans0n.github.io/compose-rules/latest/rules/#use-mutablestateof-type-specific-variants-when-possible"
 
+  // Basic primitive type mappings
   private val typeSpecificVariants = mapOf(
     "Int" to "mutableIntStateOf",
     "Long" to "mutableLongStateOf",
     "Float" to "mutableFloatStateOf",
     "Double" to "mutableDoubleStateOf",
+  )
+
+  // Extended mappings for primitive collections (from androidx.collection)
+  private val collectionVariants = mapOf(
+    // Primitive Lists
+    "IntList" to "mutableIntListOf",
+    "LongList" to "mutableLongListOf",
+    "FloatList" to "mutableFloatListOf",
+    "DoubleList" to "mutableDoubleListOf",
+    // Primitive Sets
+    "IntSet" to "mutableIntSetOf",
+    "LongSet" to "mutableLongSetOf",
+    "FloatSet" to "mutableFloatSetOf",
+    "DoubleSet" to "mutableDoubleSetOf",
+    // Primitive-to-Primitive Maps
+    "IntIntMap" to "mutableIntIntMapOf",
+    "IntLongMap" to "mutableIntLongMapOf",
+    "IntFloatMap" to "mutableIntFloatMapOf",
+    "IntDoubleMap" to "mutableIntDoubleMapOf",
+    "LongIntMap" to "mutableLongIntMapOf",
+    "LongLongMap" to "mutableLongLongMapOf",
+    "LongFloatMap" to "mutableLongFloatMapOf",
+    "LongDoubleMap" to "mutableLongDoubleMapOf",
+    "FloatIntMap" to "mutableFloatIntMapOf",
+    "FloatLongMap" to "mutableFloatLongMapOf",
+    "FloatFloatMap" to "mutableFloatFloatMapOf",
+    "FloatDoubleMap" to "mutableFloatDoubleMapOf",
+    // Primitive-to-Object Maps
+    "IntObjectMap" to "mutableIntObjectMapOf",
+    "LongObjectMap" to "mutableLongObjectMapOf",
+    "FloatObjectMap" to "mutableFloatObjectMapOf",
+    // Object-to-Primitive Maps
+    "ObjectIntMap" to "mutableObjectIntMapOf",
+    "ObjectLongMap" to "mutableObjectLongMapOf",
+    "ObjectFloatMap" to "mutableObjectFloatMapOf",
   )
 
   override fun doAnalyze(
@@ -74,6 +110,13 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
     for (call in callExpressions) {
       val calleeName = call.calleeExpression?.text ?: continue
 
+      // Check for primitive collection factories
+      if (calleeName in setOf("mutableListOf", "mutableSetOf", "mutableMapOf")) {
+        checkCollectionFactory(call, calleeName, violations)
+        continue
+      }
+
+      // Check for mutableStateOf with primitive types
       if (calleeName == "mutableStateOf") {
         // Check for explicit type argument
         val typeArgumentList = call.typeArgumentList
@@ -139,11 +182,76 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
 
   private fun inferPrimitiveType(argText: String): String? {
     return when {
-      argText.matches(Regex("""\d+L""")) -> "Long"
-      argText.matches(Regex("""\d+\.\d*[fF]""")) -> "Float"
-      argText.matches(Regex("""\d+\.\d*""")) -> "Double"
-      argText.matches(Regex("""\d+""")) -> "Int"
+      argText.matches(Regex("""-?\d+L""")) -> "Long"
+      argText.matches(Regex("""-?\d+\.\d*[fF]""")) -> "Float"
+      argText.matches(Regex("""-?\d+\.\d+""")) -> "Double"
+      argText.matches(Regex("""-?\d+""")) -> "Int"
       else -> null
+    }
+  }
+
+  /**
+   * Checks if using a generic collection factory when a primitive-specific one exists.
+   * For example: mutableListOf<Int>() should be mutableIntListOf()
+   */
+  private fun checkCollectionFactory(
+    call: KtCallExpression,
+    calleeName: String,
+    violations: MutableList<ComposeRuleViolation>,
+  ) {
+    val typeArgumentList = call.typeArgumentList ?: return
+    val typeArgs = typeArgumentList.arguments.map { it.text }
+
+    val suggestion = when (calleeName) {
+      "mutableListOf" -> {
+        when (typeArgs.firstOrNull()) {
+          "Int" -> "mutableIntListOf"
+          "Long" -> "mutableLongListOf"
+          "Float" -> "mutableFloatListOf"
+          "Double" -> "mutableDoubleListOf"
+          else -> null
+        }
+      }
+      "mutableSetOf" -> {
+        when (typeArgs.firstOrNull()) {
+          "Int" -> "mutableIntSetOf"
+          "Long" -> "mutableLongSetOf"
+          "Float" -> "mutableFloatSetOf"
+          "Double" -> "mutableDoubleSetOf"
+          else -> null
+        }
+      }
+      "mutableMapOf" -> {
+        if (typeArgs.size == 2) {
+          val keyType = typeArgs[0]
+          val valueType = typeArgs[1]
+          collectionVariants["${keyType}${valueType}Map"]
+        } else null
+      }
+      else -> null
+    }
+
+    if (suggestion != null) {
+      val typeArgsStr = typeArgs.joinToString(", ")
+      violations.add(
+        createViolation(
+          element = call,
+          message = "Consider using '$suggestion' instead of '$calleeName<$typeArgsStr>'",
+          tooltip = """
+            For primitive types, using type-specific collection factories avoids
+            autoboxing overhead and improves memory efficiency.
+
+            Change:
+              $calleeName<$typeArgsStr>()
+
+            To:
+              $suggestion()
+
+            These primitive collections are from androidx.collection library.
+          """.trimIndent(),
+          quickFixes = listOf(SuppressComposeRuleFix(id)),
+        ),
+      )
     }
   }
 }

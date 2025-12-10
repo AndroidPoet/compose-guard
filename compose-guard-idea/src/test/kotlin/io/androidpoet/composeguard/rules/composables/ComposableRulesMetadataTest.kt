@@ -59,11 +59,11 @@ class ComposableRulesMetadataTest {
   fun testMultipleContentRule_metadata() {
     val rule = MultipleContentRule()
 
-    assertEquals("MultipleContent", rule.id)
-    assertEquals("Don't Emit Multiple Content Pieces", rule.name)
+    assertEquals("MultipleContentEmitters", rule.id)
+    assertEquals("Multiple Content Emitters", rule.name)
     assertTrue(rule.description.isNotBlank())
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
-    assertEquals(RuleSeverity.INFO, rule.severity)
+    assertEquals(RuleSeverity.WARNING, rule.severity)
     assertTrue(rule.enabledByDefault)
     assertNotNull(rule.documentationUrl)
   }
@@ -73,9 +73,9 @@ class ComposableRulesMetadataTest {
     val rule = MultipleContentRule()
 
     assertTrue(
-      rule.description.contains("multiple") ||
-        rule.description.contains("Multiple") ||
-        rule.description.contains("content"),
+      rule.description.contains("emit") ||
+        rule.description.contains("content") ||
+        rule.description.contains("Content"),
     )
   }
 

@@ -15,6 +15,7 @@
  */
 package io.androidpoet.composeguard.rules.state
 
+import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
@@ -78,6 +79,7 @@ public class MutableStateParameterRule : ComposableFunctionRule() {
                   onValueChange: (String) -> Unit
                 ) { ... }
             """.trimIndent(),
+            quickFixes = listOf(SuppressComposeRuleFix(id)),
           ),
         )
       }

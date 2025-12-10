@@ -76,9 +76,13 @@ public class RememberStateRule : ComposableFunctionRule() {
     val properties = PsiTreeUtil.findChildrenOfType(body, KtProperty::class.java)
 
     for (property in properties) {
-      val initializer = property.initializer ?: continue
-      val callExpression = initializer as? KtCallExpression
-        ?: PsiTreeUtil.findChildOfType(initializer, KtCallExpression::class.java)
+      // Check both regular initializer and delegate expression (for 'by' syntax)
+      val expression = property.initializer
+        ?: property.delegateExpression
+        ?: continue
+
+      val callExpression = expression as? KtCallExpression
+        ?: PsiTreeUtil.findChildOfType(expression, KtCallExpression::class.java)
         ?: continue
 
       val calleeName = callExpression.calleeExpression?.text ?: continue
@@ -86,6 +90,18 @@ public class RememberStateRule : ComposableFunctionRule() {
       if (calleeName in stateBuilders) {
         // Check if this is inside a remember block
         if (!isInsideRemember(callExpression)) {
+          val isDelegate = property.delegateExpression != null
+          val changeFrom = if (isDelegate) {
+            "var ${property.name} by $calleeName(...)"
+          } else {
+            "val ${property.name} = $calleeName(...)"
+          }
+          val changeTo = if (isDelegate) {
+            "var ${property.name} by remember { $calleeName(...) }"
+          } else {
+            "val ${property.name} = remember { $calleeName(...) }"
+          }
+
           violations.add(
             createViolation(
               element = callExpression,
@@ -95,13 +111,10 @@ public class RememberStateRule : ComposableFunctionRule() {
                 without remember {}, losing the previous value.
 
                 Change:
-                  val ${property.name} = $calleeName(...)
+                  $changeFrom
 
                 To:
-                  val ${property.name} = remember { $calleeName(...) }
-
-                Or use the shorthand:
-                  var ${property.name} by remember { $calleeName(...) }
+                  $changeTo
               """.trimIndent(),
               quickFixes = listOf(
                 WrapInRememberFix(),

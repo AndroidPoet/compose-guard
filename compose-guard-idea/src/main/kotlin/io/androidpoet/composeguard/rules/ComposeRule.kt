@@ -18,6 +18,9 @@ package io.androidpoet.composeguard.rules
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -138,6 +141,18 @@ public interface ComposeRule {
   }
 
   /**
+   * Analyze a class for violations.
+   * Override this for class-level rules (e.g., annotation class naming).
+   *
+   * @param ktClass The class to analyze
+   * @param context Analysis context
+   * @return List of violations found
+   */
+  public fun analyzeClass(ktClass: KtClass, context: AnalysisContext): List<ComposeRuleViolation> {
+    return emptyList()
+  }
+
+  /**
    * Analyze any element for violations.
    * Override this for element-agnostic rules.
    *
@@ -238,4 +253,124 @@ public abstract class PropertyRule : ComposeRule {
     property: KtProperty,
     context: AnalysisContext,
   ): List<ComposeRuleViolation>
+}
+
+/**
+ * Base class for rules that analyze ANY function (not just composables).
+ * Use this for rules like AvoidComposed that need to check Modifier extension functions.
+ */
+public abstract class AnyFunctionRule : ComposeRule {
+
+  /**
+   * Whether this rule requires composable annotation.
+   * Override to return false for rules that analyze non-composable functions.
+   */
+  public open val requiresComposable: Boolean = false
+
+  /**
+   * Check if a function should be analyzed by this rule.
+   */
+  protected open fun shouldAnalyze(function: KtNamedFunction): Boolean {
+    return true
+  }
+
+  final override fun analyzeFunction(
+    function: KtNamedFunction,
+    context: AnalysisContext,
+  ): List<ComposeRuleViolation> {
+    if (!shouldAnalyze(function)) {
+      return emptyList()
+    }
+    return doAnalyze(function, context)
+  }
+
+  /**
+   * Perform the actual analysis.
+   */
+  protected abstract fun doAnalyze(
+    function: KtNamedFunction,
+    context: AnalysisContext,
+  ): List<ComposeRuleViolation>
+}
+
+/**
+ * Base class for rules that analyze annotation classes.
+ * Use this for rules like ComposableAnnotationNaming.
+ */
+public abstract class AnnotationClassRule : ComposeRule {
+
+  /**
+   * Check if a class should be analyzed by this rule.
+   */
+  protected open fun shouldAnalyze(ktClass: KtClass): Boolean {
+    return ktClass.isAnnotation()
+  }
+
+  final override fun analyzeClass(
+    ktClass: KtClass,
+    context: AnalysisContext,
+  ): List<ComposeRuleViolation> {
+    if (!shouldAnalyze(ktClass)) {
+      return emptyList()
+    }
+    return doAnalyze(ktClass, context)
+  }
+
+  /**
+   * Perform the actual analysis.
+   */
+  protected abstract fun doAnalyze(
+    ktClass: KtClass,
+    context: AnalysisContext,
+  ): List<ComposeRuleViolation>
+}
+
+/**
+ * Checks if a rule is suppressed for the given element.
+ * Looks for @Suppress annotations on the element itself and its parent function/property/class.
+ *
+ * @param element The PSI element to check
+ * @param ruleId The rule ID to check for suppression
+ * @return true if the rule is suppressed, false otherwise
+ */
+public fun isSuppressed(element: PsiElement, ruleId: String): Boolean {
+  var current: PsiElement? = element
+
+  while (current != null) {
+    // Check @Suppress annotations on KtAnnotated elements
+    if (current is KtAnnotated) {
+      val suppressAnnotation = current.annotationEntries.find {
+        it.shortName?.asString() == "Suppress"
+      }
+      if (suppressAnnotation != null) {
+        val valueArguments = suppressAnnotation.valueArgumentList?.arguments ?: emptyList()
+        for (arg in valueArguments) {
+          val argText = arg.getArgumentExpression()?.text?.trim('"') ?: continue
+          if (argText == ruleId) {
+            return true
+          }
+        }
+      }
+    }
+
+    // Check for NOINSPECTION comments (IntelliJ-style suppression)
+    if (current is KtAnnotated) {
+      val prevSibling = current.prevSibling
+      if (prevSibling is PsiComment) {
+        val commentText = prevSibling.text
+        if (commentText.contains("noinspection", ignoreCase = true) &&
+          commentText.contains(ruleId)
+        ) {
+          return true
+        }
+      }
+    }
+
+    // Stop at file level
+    if (current is KtFile) break
+
+    current = current.parent
+  }
+
+  return false
 }

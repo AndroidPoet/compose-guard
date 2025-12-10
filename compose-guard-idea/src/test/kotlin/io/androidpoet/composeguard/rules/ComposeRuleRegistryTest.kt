@@ -27,15 +27,15 @@ import kotlin.test.assertTrue
 class ComposeRuleRegistryTest {
 
   @Test
-  fun testGetAllRules_returns28Rules() {
+  fun testGetAllRules_returns31Rules() {
     val rules = ComposeRuleRegistry.getAllRules()
 
-    assertEquals(28, rules.size)
+    assertEquals(31, rules.size)
   }
 
   @Test
-  fun testGetRuleCount_returns28() {
-    assertEquals(28, ComposeRuleRegistry.getRuleCount())
+  fun testGetRuleCount_returns31() {
+    assertEquals(31, ComposeRuleRegistry.getRuleCount())
   }
 
   @Test
@@ -84,6 +84,7 @@ class ComposeRuleRegistryTest {
       "TypeSpecificState",
       "MutableStateParameter",
       "HoistState",
+      "LambdaParameterInEffect",
     )
 
     stateRuleIds.forEach { id ->
@@ -100,6 +101,7 @@ class ComposeRuleRegistryTest {
       "TrailingLambda",
       "MutableParameter",
       "ExplicitDependencies",
+      "ViewModelForwarding",
     )
 
     parameterRuleIds.forEach { id ->
@@ -113,7 +115,8 @@ class ComposeRuleRegistryTest {
 
     val composableRuleIds = listOf(
       "ContentEmission",
-      "MultipleContent",
+      "MultipleContentEmitters",
+      "ContentSlotReused",
       "EffectKeys",
       "MovableContent",
       "PreviewVisibility",
@@ -158,7 +161,7 @@ class ComposeRuleRegistryTest {
   fun testGetRulesByCategory_stateCategory() {
     val stateRules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.STATE)
 
-    assertEquals(4, stateRules.size)
+    assertEquals(5, stateRules.size)
     assertTrue(stateRules.all { it.category == RuleCategory.STATE })
   }
 
@@ -166,7 +169,7 @@ class ComposeRuleRegistryTest {
   fun testGetRulesByCategory_parameterCategory() {
     val parameterRules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.PARAMETER)
 
-    assertEquals(4, parameterRules.size)
+    assertEquals(5, parameterRules.size)
     assertTrue(parameterRules.all { it.category == RuleCategory.PARAMETER })
   }
 
@@ -174,7 +177,7 @@ class ComposeRuleRegistryTest {
   fun testGetRulesByCategory_composableCategory() {
     val composableRules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.COMPOSABLE)
 
-    assertEquals(5, composableRules.size)
+    assertEquals(6, composableRules.size)
     assertTrue(composableRules.all { it.category == RuleCategory.COMPOSABLE })
   }
 
@@ -222,9 +225,9 @@ class ComposeRuleRegistryTest {
 
     assertEquals(6, rulesByCategories[RuleCategory.NAMING]?.size)
     assertEquals(7, rulesByCategories[RuleCategory.MODIFIER]?.size)
-    assertEquals(4, rulesByCategories[RuleCategory.STATE]?.size)
-    assertEquals(4, rulesByCategories[RuleCategory.PARAMETER]?.size)
-    assertEquals(5, rulesByCategories[RuleCategory.COMPOSABLE]?.size)
+    assertEquals(5, rulesByCategories[RuleCategory.STATE]?.size)
+    assertEquals(5, rulesByCategories[RuleCategory.PARAMETER]?.size)
+    assertEquals(6, rulesByCategories[RuleCategory.COMPOSABLE]?.size)
     assertEquals(2, rulesByCategories[RuleCategory.STRICTER]?.size)
   }
 
