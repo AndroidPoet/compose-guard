@@ -9,8 +9,40 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 - **Disable rules feature** - Added settings UI to enable/disable individual rules or entire categories
 - **Documentation** - Added disable rules screenshot and documentation
 
+---
+
+## [1.0.4] - 2025-12-10
+
 ### Fixed
-- Bug fixes and improvements
+- Fixed Suppress action not working for ModifierRequired, MultipleContentEmitters, ParameterOrdering rules
+- SuppressComposeRuleFix now correctly handles name identifier elements
+
+### Added
+- AddLambdaAsEffectKeyFix and UseRememberUpdatedStateFix quick fixes
+
+### Improved
+- ModifierReuseRule, ParameterOrderingRule, and LambdaParameterInEffectRule
+
+---
+
+## [1.0.3] - 2025-12-10
+
+### Improved
+- Quick fix behavior - only actionable fixes provided
+
+---
+
+## [1.0.2] - 2025-12-09
+
+### Added
+- Smart rules improvements
+
+---
+
+## [1.0.1] - 2025-12-09
+
+### Fixed
+- Bug fixes and stability improvements
 
 ---
 

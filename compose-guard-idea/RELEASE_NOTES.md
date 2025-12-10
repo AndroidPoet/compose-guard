@@ -1,8 +1,25 @@
 # ComposeGuard IntelliJ Plugin
 
-## Version 1.0.1
+## Version 1.0.5
 
-**Release Date:** December 2025
+**Release Date:** December 10, 2025
+
+### What's New in 1.0.5
+
+- **AvoidComposed rule** - Detects usage of `Modifier.composed {}` and suggests using `Modifier.Node` instead
+- **Disable rules feature** - Added settings UI to enable/disable individual rules or entire categories
+- **Documentation** - Added disable rules screenshot and documentation
+
+### Previous Releases
+
+#### 1.0.4
+- Fixed Suppress action not working for ModifierRequired, MultipleContentEmitters, ParameterOrdering rules
+- SuppressComposeRuleFix now correctly handles name identifier elements
+- Added AddLambdaAsEffectKeyFix and UseRememberUpdatedStateFix quick fixes
+- Improved ModifierReuseRule, ParameterOrderingRule, and LambdaParameterInEffectRule
+
+#### 1.0.3
+- Improved quick fix behavior - only actionable fixes provided
 
 ### Overview
 
@@ -15,13 +32,14 @@ ComposeGuard is an IntelliJ/Android Studio plugin that provides real-time detect
 - **Gutter Icons** - Visual indicators for composable rule status
 - **Inline Hints** - Parameter-level rule violation hints
 - **Quick Fixes** - One-click fixes for common issues
+- **Configurable Rules** - Enable/disable rules per category or individually
 
 ### Rule Categories
 
 | Category | Description |
 |----------|-------------|
 | **Naming** | Composable naming, modifier naming, CompositionLocal naming, preview naming |
-| **Modifiers** | Required modifiers, default values, ordering, reuse |
+| **Modifiers** | Required modifiers, default values, ordering, reuse, avoid composed |
 | **State** | Remember state, type-specific state, state hoisting |
 | **Parameters** | Ordering, trailing lambdas, mutable types |
 | **Composables** | Content emission, preview visibility, effect keys |
@@ -29,18 +47,11 @@ ComposeGuard is an IntelliJ/Android Studio plugin that provides real-time detect
 
 ### Installation
 
-#### From Disk
-
-1. Download: [compose-guard-idea-1.0.2.zip](https://github.com/androidpoet/compose-guard/releases)
-2. Open **Android Studio** or **IntelliJ IDEA**
-3. Go to **Settings → Plugins**
-4. Click **⚙️ (gear icon) → Install Plugin from Disk...**
-5. Select the downloaded `.zip` file
-6. Restart IDE
-
-#### From JetBrains Marketplace (Coming Soon)
+#### From JetBrains Marketplace
 
 **Settings → Plugins → Marketplace → Search "ComposeGuard"**
+
+Or visit: [JetBrains Marketplace - ComposeGuard](https://plugins.jetbrains.com/plugin/29308-composeguard)
 
 ### Compatibility
 
@@ -59,5 +70,5 @@ Based on the [Compose Rules](https://mrmans0n.github.io/compose-rules/) document
 
 ---
 
-**Plugin Version:** 1.0.1
+**Plugin Version:** 1.0.5
 **License:** Apache 2.0

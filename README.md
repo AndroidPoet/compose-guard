@@ -59,6 +59,20 @@ ComposeGuard implements comprehensive rules across 6 categories:
 
 ### From JetBrains Marketplace
 
+<!-- Plugin Card Widget -->
+<script src="https://plugins.jetbrains.com/assets/scripts/mp-widget.js"></script>
+<script>
+  MarketplaceWidget.setupMarketplaceWidget('card', 29308, "#composeguard-card");
+</script>
+<div id="composeguard-card"></div>
+
+<!-- Install Button Widget -->
+<script src="https://plugins.jetbrains.com/assets/scripts/mp-widget.js"></script>
+<script>
+  MarketplaceWidget.setupMarketplaceWidget('install', 29308, "#composeguard-install");
+</script>
+<div id="composeguard-install"></div>
+
 <a href="https://plugins.jetbrains.com/plugin/29308-composeguard"><img src="https://img.shields.io/badge/Install-JetBrains%20Marketplace-blue?style=for-the-badge&logo=jetbrains" alt="Install from Marketplace"/></a>
 
 1. Open Android Studio/IntelliJ IDEA

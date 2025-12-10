@@ -1,20 +1,15 @@
 name: IntelliJ Plugin
 
 on:
-  push:
-    branches: [ main, master ]
-    paths:
-      - 'compose-guard-idea/**'
-      - '.github/workflows/intellij-plugin.yml'
-  pull_request:
-    branches: [ '*' ]
-    paths:
-      - 'compose-guard-idea/**'
-      - '.github/workflows/intellij-plugin.yml'
   workflow_dispatch:
     inputs:
       publish:
         description: 'Publish to JetBrains Marketplace'
+        required: false
+        default: 'false'
+        type: boolean
+      create_release:
+        description: 'Create GitHub Release'
         required: false
         default: 'false'
         type: boolean
@@ -101,16 +96,12 @@ jobs:
           name: plugin-test-results
           path: compose-guard-idea/build/reports/tests/
 
-  # Publish to JetBrains Marketplace
+  # Publish to JetBrains Marketplace (manual only)
   publish-to-marketplace:
     name: Publish to JetBrains Marketplace
     runs-on: ubuntu-latest
     needs: [build-plugin, test-plugin]
-    if: |
-      (github.event_name == 'push' &&
-       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
-       needs.build-plugin.outputs.is_release == 'true') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true')
+    if: github.event.inputs.publish == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -135,15 +126,12 @@ jobs:
           echo "✅ Successfully published version ${{ needs.build-plugin.outputs.version }} to JetBrains Marketplace!"
           echo "View at: https://plugins.jetbrains.com/plugin/YOUR_PLUGIN_ID"
 
-  # Create GitHub Release
+  # Create GitHub Release (manual only)
   github-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: [build-plugin, test-plugin]
-    if: |
-      github.event_name == 'push' &&
-      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
-      needs.build-plugin.outputs.is_release == 'true'
+    if: github.event.inputs.create_release == 'true'
     permissions:
       contents: write
     steps:
