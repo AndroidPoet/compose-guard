@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.0.5-test"
+version = "1.0.4"
 
 repositories {
   mavenCentral()
