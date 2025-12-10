@@ -161,17 +161,18 @@ jobs:
         run: |
           VERSION="${{ needs.build-plugin.outputs.version }}"
 
-          # Extract changelog and convert HTML to markdown
+          # Extract only the LATEST version block from changeNotes
+          # Gets first <b>X.X.X</b> block with its <ul>...</ul> content
           NOTES=$(sed -n '/changeNotes = """/,/""".trimIndent()/p' compose-guard-idea/build.gradle.kts | \
             sed '1d;$d' | \
+            awk '/<b>[0-9]+\.[0-9]+\.[0-9]+<\/b>/{if(found) exit; found=1} found' | \
             sed 's/<b>\(.*\)<\/b>/## \1/g' | \
             sed 's/<ul>//g' | \
             sed 's/<\/ul>//g' | \
             sed 's/<li>/- /g' | \
             sed 's/<\/li>//g' | \
             sed 's/^[[:space:]]*//' | \
-            grep -v '^$' | \
-            head -20)
+            grep -v '^$')
 
           # Create release notes file
           cat > release_notes.md << EOF
@@ -210,22 +211,38 @@ jobs:
           echo "Release notes created:"
           cat release_notes.md
 
-      - name: Check if release exists
+      - name: Check if should create release
         id: check-release
         run: |
           VERSION="${{ needs.build-plugin.outputs.version }}"
-          if gh release view "v$VERSION" &>/dev/null; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Release v$VERSION already exists"
+
+          # Get latest release version (strip 'v' prefix)
+          LATEST=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // ""' | sed 's/^v//')
+          echo "Current version: $VERSION"
+          echo "Latest release: $LATEST"
+
+          if [ -z "$LATEST" ]; then
+            echo "No existing releases, will create first release"
+            echo "should_create=true" >> $GITHUB_OUTPUT
+          elif [ "$VERSION" = "$LATEST" ]; then
+            echo "Version $VERSION already released"
+            echo "should_create=false" >> $GITHUB_OUTPUT
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Release v$VERSION does not exist"
+            # Compare versions - only create if VERSION > LATEST
+            HIGHER=$(printf '%s\n%s' "$VERSION" "$LATEST" | sort -V | tail -n1)
+            if [ "$HIGHER" = "$VERSION" ] && [ "$VERSION" != "$LATEST" ]; then
+              echo "Version $VERSION is newer than $LATEST, will create release"
+              echo "should_create=true" >> $GITHUB_OUTPUT
+            else
+              echo "Version $VERSION is not newer than $LATEST, skipping"
+              echo "should_create=false" >> $GITHUB_OUTPUT
+            fi
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
-        if: steps.check-release.outputs.exists == 'false'
+        if: steps.check-release.outputs.should_create == 'true'
         run: |
           VERSION="${{ needs.build-plugin.outputs.version }}"
           gh release create "v$VERSION" \
@@ -235,7 +252,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Skip existing release
-        if: steps.check-release.outputs.exists == 'true'
+      - name: Skip release
+        if: steps.check-release.outputs.should_create == 'false'
         run: |
-          echo "⚠️ Release v${{ needs.build-plugin.outputs.version }} already exists. Skipping."
+          echo "⚠️ Skipping release - version ${{ needs.build-plugin.outputs.version }} is not newer than latest."
