@@ -21,13 +21,14 @@ import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 import io.androidpoet.composeguard.rules.AnalysisContext
+import io.androidpoet.composeguard.rules.AnyFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isComposable
 import io.androidpoet.composeguard.rules.isCompositionLocal
+import io.androidpoet.composeguard.rules.isSuppressed
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
-import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
@@ -53,10 +54,7 @@ public class ComposeGuardAnnotator : Annotator {
   }
 
   private fun annotateFunction(function: KtNamedFunction, holder: AnnotationHolder) {
-    // Only analyze composable functions
-    if (!function.isComposable()) {
-      return
-    }
+    val isComposable = function.isComposable()
 
     val file = function.containingKtFile
     val context = AnalysisContext(file, isOnTheFly = true)
@@ -64,8 +62,21 @@ public class ComposeGuardAnnotator : Annotator {
 
     for (rule in enabledRules) {
       try {
+        // Check if the rule should run on this function
+        val shouldRun = when {
+          // AnyFunctionRule with requiresComposable=false runs on all functions
+          rule is AnyFunctionRule && !rule.requiresComposable -> true
+          // Other rules only run on composable functions
+          isComposable -> true
+          else -> false
+        }
+
+        if (!shouldRun) continue
+
         val violations = rule.analyzeFunction(function, context)
         for (violation in violations) {
+          // Skip suppressed violations
+          if (isSuppressed(violation.element, rule.id)) continue
           createAnnotation(violation, holder)
         }
       } catch (e: Exception) {
@@ -88,6 +99,8 @@ public class ComposeGuardAnnotator : Annotator {
       try {
         val violations = rule.analyzeProperty(property, context)
         for (violation in violations) {
+          // Skip suppressed violations
+          if (isSuppressed(violation.element, rule.id)) continue
           createAnnotation(violation, holder)
         }
       } catch (e: Exception) {
@@ -100,17 +113,13 @@ public class ComposeGuardAnnotator : Annotator {
     val severity = mapSeverity(violation.rule.severity)
     val message = "[${violation.rule.id}] ${violation.message}"
 
-    val builder = holder.newAnnotation(severity, message)
+    // Note: Quick fixes are provided by the inspection, not the annotator
+    // to avoid duplicates in the quick fix menu
+    holder.newAnnotation(severity, message)
       .range(violation.element)
       .tooltip(buildTooltip(violation))
       .highlightType(mapHighlightType(violation.highlightType))
-
-    // Add quick fixes as intention actions
-    for (quickFix in violation.quickFixes) {
-      builder.withFix(QuickFixIntentionWrapper(quickFix, violation.element))
-    }
-
-    builder.create()
+      .create()
   }
 
   private fun mapSeverity(severity: RuleSeverity): HighlightSeverity {
@@ -142,44 +151,4 @@ public class ComposeGuardAnnotator : Annotator {
       append("</body></html>")
     }
   }
-}
-
-/**
- * Wrapper to convert LocalQuickFix to IntentionAction for use in annotations.
- */
-private class QuickFixIntentionWrapper(
-  private val quickFix: com.intellij.codeInspection.LocalQuickFix,
-  private val element: PsiElement,
-) : com.intellij.codeInsight.intention.IntentionAction {
-
-  override fun getText(): String = quickFix.name
-
-  override fun getFamilyName(): String = quickFix.familyName
-
-  override fun isAvailable(
-    project: com.intellij.openapi.project.Project,
-    editor: com.intellij.openapi.editor.Editor?,
-    file: com.intellij.psi.PsiFile?,
-  ): Boolean {
-    return element.isValid
-  }
-
-  override fun invoke(
-    project: com.intellij.openapi.project.Project,
-    editor: com.intellij.openapi.editor.Editor?,
-    file: com.intellij.psi.PsiFile?,
-  ) {
-    // Create a synthetic ProblemDescriptor to invoke the quick fix
-    val descriptor = com.intellij.codeInspection.InspectionManager.getInstance(project)
-      .createProblemDescriptor(
-        element,
-        "",
-        quickFix,
-        com.intellij.codeInspection.ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-        true,
-      )
-    quickFix.applyFix(project, descriptor)
-  }
-
-  override fun startInWriteAction(): Boolean = true
 }

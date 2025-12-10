@@ -69,7 +69,9 @@ public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
     for (param in params) {
       when {
         isModifierParam(param) -> modifier.add(param)
-        isLambdaParam(param) -> trailing.add(param)
+        // Only content lambdas with defaults should be trailing
+        isContentLambda(param) && param.hasDefaultValue() -> trailing.add(param)
+        // Required lambdas (no default) are required parameters
         param.hasDefaultValue() -> optional.add(param)
         else -> required.add(param)
       }
@@ -78,16 +80,23 @@ public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
     return required + modifier + optional + trailing
   }
 
+  /**
+   * Checks if a parameter is a content slot lambda (typically @Composable () -> Unit).
+   * Event handlers like onClick should NOT be treated as content lambdas.
+   */
+  private fun isContentLambda(param: KtParameter): Boolean {
+    val typeText = param.typeReference?.text ?: return false
+    val name = param.name ?: return false
+    // Content slots are typically @Composable lambdas named "content" or similar
+    // Event handlers (onClick, onEdit, etc.) should NOT be trailing
+    if (name.startsWith("on") && name.length > 2 && name[2].isUpperCase()) {
+      return false // This is an event handler, not a content slot
+    }
+    return typeText.contains("@Composable") && typeText.contains("->")
+  }
+
   private fun isModifierParam(param: KtParameter): Boolean {
     val typeName = param.typeReference?.text ?: return false
     return typeName == "Modifier" || typeName.endsWith(".Modifier")
-  }
-
-  private fun isLambdaParam(param: KtParameter): Boolean {
-    val typeText = param.typeReference?.text ?: return false
-    // Check for lambda types: () -> Unit, (Int) -> String, @Composable () -> Unit, etc.
-    return typeText.contains("->") ||
-      typeText.startsWith("@Composable") ||
-      typeText.contains("Function")
   }
 }

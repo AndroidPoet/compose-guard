@@ -39,9 +39,8 @@ public class SuppressComposeRuleFix(
   override fun getName(): String = "Suppress '$ruleId'"
 
   override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
-    val psiElement = descriptor.psiElement
-    val ktElement = psiElement as? KtElement ?: return
-    val element = findAnnotatableElement(ktElement) ?: return
+    val psiElement = descriptor.psiElement ?: return
+    val element = findAnnotatableElement(psiElement) ?: return
 
     val existingSuppress = when (element) {
       is KtNamedFunction -> element.annotationEntries.find {
@@ -62,7 +61,7 @@ public class SuppressComposeRuleFix(
     }
   }
 
-  private fun findAnnotatableElement(element: KtElement): KtElement? {
+  private fun findAnnotatableElement(element: PsiElement): KtElement? {
     var current: PsiElement? = element
     while (current != null) {
       when (current) {

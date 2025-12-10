@@ -16,7 +16,9 @@
 package io.androidpoet.composeguard.rules.effects
 
 import com.intellij.psi.util.PsiTreeUtil
+import io.androidpoet.composeguard.quickfix.AddLambdaAsEffectKeyFix
 import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
+import io.androidpoet.composeguard.quickfix.UseRememberUpdatedStateFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
@@ -126,6 +128,8 @@ public class LambdaParameterInEffectRule : ComposableFunctionRule() {
                   the lambda parameter changes.
                 """.trimIndent(),
                 quickFixes = listOf(
+                  AddLambdaAsEffectKeyFix(refName, calleeName),
+                  UseRememberUpdatedStateFix(refName),
                   SuppressComposeRuleFix(id),
                 ),
               ),

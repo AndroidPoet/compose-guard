@@ -125,6 +125,25 @@ fun CardWithModifierReuse(modifier: Modifier = Modifier) {
     }
 }
 
+// Rule 11b: ModifierReuse with multiline chained modifiers
+@Composable
+fun NoItemsPlaceHolder(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier, // WARNING: Modifier reused (used again in Text below)
+    ) {
+        Text(
+            modifier = modifier  // Reused here with multiline chain
+                .fillMaxWidth()
+                .height(162.dp),
+            text = ""
+        )
+        Text(text = text)
+    }
+}
+
 // Rule 12: ModifierOrder - Modifier chain order matters
 @Composable
 fun CardWithWrongModifierOrder(modifier: Modifier = Modifier) {

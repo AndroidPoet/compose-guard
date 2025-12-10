@@ -88,5 +88,12 @@
         <notificationGroup
                 id="ComposeGuard"
                 displayType="BALLOON"/>
+
+        <!-- ComposeGuard Settings UI -->
+        <applicationConfigurable
+                id="io.androidpoet.composeguard.settings"
+                displayName="ComposeGuard"
+                groupId="tools"
+                instance="io.androidpoet.composeguard.settings.ComposeGuardSettingsConfigurable"/>
     </extensions>
 </idea-plugin>

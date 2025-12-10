@@ -133,30 +133,27 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     params: List<KtParameter>,
     violations: MutableList<ComposeRuleViolation>,
   ) {
+    // Only check content lambdas (not event handlers like onClick)
+    // Content lambdas should be trailing, but event handlers are just regular params
     for ((index, param) in params.withIndex()) {
-      if (!isLambdaParam(param)) continue
-      if (isModifierParam(param)) continue // Skip modifier params
+      if (!isContentLambda(param)) continue
+      if (isModifierParam(param)) continue
 
-      // Check if there are non-lambda, non-modifier params after this lambda
+      // Check if there are non-content-lambda, non-modifier params after this content lambda
       val paramsAfter = params.drop(index + 1)
-      val nonLambdaAfter = paramsAfter.filter { !isLambdaParam(it) && !isModifierParam(it) }
+      val nonLambdaAfter = paramsAfter.filter { !isContentLambda(it) && !isModifierParam(it) }
 
       if (nonLambdaAfter.isNotEmpty()) {
         violations.add(
           createViolation(
             element = param.nameIdentifier ?: param,
-            message = "Lambda parameter '${param.name}' should be placed at the end",
+            message = "Content lambda '${param.name}' should be placed at the end for trailing lambda syntax",
             tooltip = """
-              Lambda parameters should typically be at the end of the parameter list.
-              This allows callers to use trailing lambda syntax:
+              Content slot lambdas (@Composable () -> Unit) should be at the end of the parameter list.
+              This allows callers to use trailing lambda syntax.
 
-              ❌ fun MyComposable(onClick: () -> Unit, title: String)
-              ✅ fun MyComposable(title: String, onClick: () -> Unit)
-
-              With trailing lambda syntax:
-              MyComposable(title = "Hello") {
-                  // onClick code here
-              }
+              Note: Event handlers (onClick, onEdit, etc.) are NOT content lambdas and follow
+              normal parameter ordering rules based on whether they have defaults.
             """.trimIndent(),
             quickFixes = listOf(
               ReorderParametersFix(),
@@ -164,22 +161,28 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
             ),
           ),
         )
-        // Only report once per function
         break
       }
     }
   }
 
+  /**
+   * Checks if a parameter is a content slot lambda (typically @Composable () -> Unit).
+   * Event handlers like onClick should NOT be treated as content lambdas.
+   */
+  private fun isContentLambda(param: KtParameter): Boolean {
+    val typeText = param.typeReference?.text ?: return false
+    val name = param.name ?: return false
+    // Event handlers (onClick, onEdit, etc.) are NOT content slots
+    if (name.startsWith("on") && name.length > 2 && name[2].isUpperCase()) {
+      return false
+    }
+    // Content slots are @Composable lambdas
+    return typeText.contains("@Composable") && typeText.contains("->")
+  }
+
   private fun isModifierParam(param: KtParameter): Boolean {
     val typeName = param.typeReference?.text ?: return false
     return typeName == "Modifier" || typeName.endsWith(".Modifier")
-  }
-
-  private fun isLambdaParam(param: KtParameter): Boolean {
-    val typeText = param.typeReference?.text ?: return false
-    // Check for lambda types: () -> Unit, (Int) -> String, @Composable () -> Unit, etc.
-    return typeText.contains("->") ||
-      typeText.startsWith("@Composable") ||
-      typeText.contains("Function")
   }
 }

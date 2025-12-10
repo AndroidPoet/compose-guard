@@ -95,10 +95,17 @@ public class ModifierReuseRule : ComposableFunctionRule() {
       val argName = arg.getArgumentName()?.asName?.asString()
       val argValue = arg.getArgumentExpression()?.text ?: return@filter false
 
+      // Normalize: remove whitespace/newlines for multiline chains like:
+      // modifier = modifier
+      //     .fillMaxWidth()
+      //     .height(162.dp)
+      val normalizedArgValue = argValue.replace(Regex("\\s+"), "")
+
       // Check if this is a modifier = someModifierName argument
       (argName == "modifier" || argName == null) &&
         modifierNames.any { name ->
-          argValue == name || argValue.startsWith("$name.")
+          // Check for exact match or chained call (e.g., "modifier.fillMaxWidth()")
+          normalizedArgValue == name || normalizedArgValue.startsWith("$name.")
         }
     }
 
