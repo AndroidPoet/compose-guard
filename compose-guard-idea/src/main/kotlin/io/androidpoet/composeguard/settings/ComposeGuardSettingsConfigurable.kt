@@ -15,7 +15,10 @@
  */
 package io.androidpoet.composeguard.settings
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.project.ProjectManager
+import com.intellij.psi.PsiManager
 import com.intellij.ui.CheckBoxList
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBCheckBox
@@ -400,6 +403,15 @@ public class ComposeGuardSettingsConfigurable : Configurable {
 
     for ((ruleId, checkbox) in ruleCheckboxes) {
       settings.setRuleEnabled(ruleId, checkbox.isSelected)
+    }
+
+    // Restart code analysis to apply changes in real-time
+    for (project in ProjectManager.getInstance().openProjects) {
+      // Drop all PSI caches to ensure fresh analysis
+      PsiManager.getInstance(project).dropPsiCaches()
+
+      // Restart daemon to refresh all highlighting (inspections, annotators, line markers, inlay hints)
+      DaemonCodeAnalyzer.getInstance(project).restart()
     }
   }
 

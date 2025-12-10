@@ -82,7 +82,9 @@ public class ComposeGuardInlayHintsProvider :
     sink: InlayHintsSink,
   ): InlayHintsCollector {
     return object : FactoryInlayHintsCollector(editor) {
-      private val globalSettings = ComposeGuardSettingsState.getInstance()
+      // Use getter to always fetch fresh settings
+      private val globalSettings: ComposeGuardSettingsState
+        get() = ComposeGuardSettingsState.getInstance()
 
       override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
         if (!globalSettings.isComposeRulesEnabled || !globalSettings.showRuleInlayHints) {

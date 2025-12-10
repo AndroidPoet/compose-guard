@@ -178,34 +178,7 @@ jobs:
           cat > release_notes.md << EOF
           # ComposeGuard v${VERSION}
 
-          Real-time detection of Compose best practices and rule violations in Android Studio.
-
-          ## What's New
-
           ${NOTES}
-
-          ## Installation
-
-          ### From JetBrains Marketplace (Recommended)
-          1. In Android Studio: **Settings → Plugins → Marketplace**
-          2. Search for "ComposeGuard"
-          3. Click **Install**
-
-          ### Manual Installation
-          1. Download the \`.zip\` file from this release
-          2. In Android Studio: **Settings → Plugins → ⚙️ → Install Plugin from Disk**
-          3. Select the downloaded \`.zip\` file
-          4. Restart Android Studio
-
-          ## Features
-
-          - 🔍 **32 Compose Rules**: Naming, modifiers, state, parameters, effects, and more
-          - ⚡ **Real-time Highlighting**: See violations as you type
-          - 🎯 **Gutter Icons**: Visual indicators for composable rule status
-          - 💡 **Quick Fixes**: One-click fixes shown directly in popup
-          - ⚙️ **Settings UI**: Enable/disable individual rules (Settings → Tools → ComposeGuard)
-
-          Based on [Compose Rules](https://mrmans0n.github.io/compose-rules/) documentation.
           EOF
 
           echo "Release notes created:"

@@ -5,6 +5,7 @@
 <h1 align="center">ComposeGuard</h1>
 
 <p align="center">
+  <a href="https://plugins.jetbrains.com/plugin/29308-composeguard"><img alt="JetBrains Plugin" src="https://img.shields.io/jetbrains/plugin/v/29308-composeguard?label=JetBrains%20Marketplace"/></a>
   <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
   <a href="https://github.com/androidpoet"><img alt="Profile" src="https://img.shields.io/badge/GitHub-androidpoet-blue"/></a>
 </p>
@@ -56,20 +57,16 @@ ComposeGuard implements comprehensive rules across 6 categories:
 
 ## Installation
 
-### From ZIP File
+### From JetBrains Marketplace
 
-1. Download the latest `compose-guard-idea-x.x.x.zip` from [Releases](https://github.com/androidpoet/compose-guard/releases)
-2. Open Android Studio/IntelliJ IDEA
-3. Go to **Settings** → **Plugins** → **⚙️** (gear icon) → **Install Plugin from Disk...**
-4. Select the downloaded ZIP file
-5. Restart the IDE
-
-### From JetBrains Marketplace (Coming Soon)
+<a href="https://plugins.jetbrains.com/plugin/29308-composeguard"><img src="https://img.shields.io/badge/Install-JetBrains%20Marketplace-blue?style=for-the-badge&logo=jetbrains" alt="Install from Marketplace"/></a>
 
 1. Open Android Studio/IntelliJ IDEA
 2. Go to **Settings** → **Plugins** → **Marketplace**
 3. Search for "ComposeGuard"
 4. Click **Install**
+
+Or install directly from: [JetBrains Marketplace - ComposeGuard](https://plugins.jetbrains.com/plugin/29308-composeguard)
 
 ## Usage
 
@@ -150,7 +147,34 @@ fun ItemList(items: List<Item>) { }  // Warning: Use ImmutableList
 
 ComposeGuard settings can be configured per-category. Access settings at:
 
-**Settings** → **Tools** → **ComposeGuard** (coming soon)
+**Settings** → **Tools** → **ComposeGuard**
+
+<p align="center">
+  <img src="art/disablerules.png" alt="ComposeGuard Settings - Disable Rules"/>
+</p>
+
+### Disabling Rules for Existing Codebases
+
+If you're adding ComposeGuard to an existing project with legacy code, you may want to disable certain rules to avoid overwhelming violations. Here's how:
+
+1. Go to **Settings** → **Tools** → **ComposeGuard**
+2. You'll see all rule categories with checkboxes:
+   - **Enable ComposeGuard**: Master toggle to enable/disable the entire plugin
+   - **Display Options**: Toggle gutter icons and inlay hints
+   - **Rule Configuration**: Enable/disable individual rules or entire categories
+
+3. **Recommended approach for legacy codebases:**
+   - Start by disabling stricter rules (Material 2 Usage, Unstable Collections)
+   - Gradually enable rules as you refactor code
+   - Use the category checkboxes to quickly toggle entire rule groups
+   - Individual rules can be fine-tuned within each category
+
+4. **Per-file suppression**: You can also suppress specific rules in code using:
+   ```kotlin
+   @Suppress("ComposeGuard:RuleName")
+   @Composable
+   fun MyComposable() { }
+   ```
 
 Toggle individual rules or entire categories on/off based on your project's needs.
 
@@ -163,7 +187,7 @@ Toggle individual rules or entire categories on/off based on your project's need
 
 | ComposeGuard | IDE Version |
 |--------------|-------------|
-| 1.0.0 | 2024.2 - 2025.3 |
+| 1.0.5 | 2024.2 - 2025.3 |
 
 ## Contributing
 

@@ -2,6 +2,18 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
+## [1.0.5] - 2025-12-10
+
+### Added
+- **AvoidComposed rule** - Detects usage of `Modifier.composed {}` and suggests using `Modifier.Node` instead
+- **Disable rules feature** - Added settings UI to enable/disable individual rules or entire categories
+- **Documentation** - Added disable rules screenshot and documentation
+
+### Fixed
+- Bug fixes and improvements
+
+---
+
 ## [1.0.0] - 2025-12-09
 
 ### Added
