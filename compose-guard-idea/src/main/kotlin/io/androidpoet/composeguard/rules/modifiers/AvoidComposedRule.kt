@@ -52,10 +52,20 @@ public class AvoidComposedRule : AnyFunctionRule() {
 
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
     val body = function.bodyExpression ?: function.bodyBlockExpression ?: return emptyList()
-    val calls = PsiTreeUtil.findChildrenOfType(body, KtCallExpression::class.java)
     val violations = mutableListOf<ComposeRuleViolation>()
 
-    for (call in calls) {
+    // Collect all call expressions to check
+    val callsToCheck = mutableListOf<KtCallExpression>()
+
+    // Check if the body itself is a composed call (expression body: = composed { })
+    if (body is KtCallExpression) {
+      callsToCheck.add(body)
+    }
+
+    // Also check for composed calls within the body
+    callsToCheck.addAll(PsiTreeUtil.findChildrenOfType(body, KtCallExpression::class.java))
+
+    for (call in callsToCheck) {
       val calleeName = call.calleeExpression?.text ?: continue
       if (calleeName == "composed") {
         violations.add(createViolation(
