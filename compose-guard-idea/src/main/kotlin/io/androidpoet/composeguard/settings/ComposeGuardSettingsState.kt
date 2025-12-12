@@ -86,6 +86,12 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
    */
   public var enableStricterRules: Boolean = true
 
+  /**
+   * Enable experimental rules (LazyList optimizations, etc.).
+   * Disabled by default as these rules are still being refined.
+   */
+  public var enableExperimentalRules: Boolean = false
+
   // ===== Per-rule settings =====
 
   /**
@@ -97,14 +103,17 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
   /**
    * Check if a specific rule is enabled.
    * Returns the rule's default state if not explicitly set.
+   *
+   * @param ruleId The ID of the rule to check
+   * @param defaultEnabled The rule's default enabled state (from rule.enabledByDefault)
    */
-  public fun isRuleEnabled(ruleId: String): Boolean {
+  public fun isRuleEnabled(ruleId: String, defaultEnabled: Boolean = true): Boolean {
     // First check if master switch is enabled
     if (!isComposeRulesEnabled) {
       return false
     }
-    // Then check per-rule setting
-    return ruleEnabledStates.getOrDefault(ruleId, true)
+    // Then check per-rule setting, using the rule's default if not explicitly set
+    return ruleEnabledStates.getOrDefault(ruleId, defaultEnabled)
   }
 
   /**
@@ -139,6 +148,7 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
       "PARAMETER" -> enableParameterRules = true
       "COMPOSABLE" -> enableComposableRules = true
       "STRICTER" -> enableStricterRules = true
+      "EXPERIMENTAL" -> enableExperimentalRules = true
     }
   }
 
@@ -153,6 +163,7 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
       "PARAMETER" -> enableParameterRules = false
       "COMPOSABLE" -> enableComposableRules = false
       "STRICTER" -> enableStricterRules = false
+      "EXPERIMENTAL" -> enableExperimentalRules = false
     }
   }
 

@@ -29,6 +29,7 @@
             <li>Gutter icons showing violation status</li>
             <li>Inline hints for rule violations</li>
             <li>Quick fixes for common issues</li>
+            <li><b>NEW:</b> Statistics Dashboard - View violation counts by category, file, and rule</li>
         </ul>
 
         <h3>Rule Categories</h3>
@@ -95,5 +96,16 @@
                 displayName="ComposeGuard"
                 groupId="tools"
                 instance="io.androidpoet.composeguard.settings.ComposeGuardSettingsConfigurable"/>
+
+        <!-- ComposeGuard Statistics Tool Window -->
+        <toolWindow
+                id="ComposeGuard"
+                anchor="bottom"
+                icon="AllIcons.Toolwindows.ToolWindowProblemsEmpty"
+                factoryClass="io.androidpoet.composeguard.toolwindow.ComposeGuardToolWindowFactory"/>
+
+        <!-- ComposeGuard Statistics Service (Project-level) -->
+        <projectService
+                serviceImplementation="io.androidpoet.composeguard.statistics.ComposeGuardStatisticsService"/>
     </extensions>
 </idea-plugin>

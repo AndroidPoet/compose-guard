@@ -1,7 +1,7 @@
 /*
  * ComposeGuard Test Sample
  *
- * This file contains one example for each of the 31 ComposeGuard rules.
+ * This file contains examples for each of the 38 ComposeGuard rules.
  * Open this file in Android Studio with ComposeGuard installed to verify all rules are working.
  *
  * Rules by Category:
@@ -11,6 +11,14 @@
  * - PARAMETER: 5 rules (19-23)
  * - COMPOSABLE: 6 rules (24-29)
  * - STRICTER: 2 rules (30-31)
+ * - EXPERIMENTAL: 7 rules (32-38) - Disabled by default
+ *
+ * Additional Experimental Tests:
+ * - LazyRow/LazyVerticalGrid without key
+ * - DerivedStateOf candidates (map, groupBy, joinToString, distinct)
+ * - State in DisposableEffect
+ * - Collection creation (mapOf, setOf, Pair, BorderStroke)
+ * - Method reference candidates for code clarity
  */
 
 @file:Suppress("unused", "UNUSED_PARAMETER", "RedundantNullableReturnType")
@@ -29,18 +37,24 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -414,14 +428,494 @@ fun UnstableCollectionParams(
 }
 
 // =============================================================================
+// EXPERIMENTAL RULES (7 Rules) - Disabled by default, enable in settings
+// =============================================================================
+
+// Rule 32: LazyListMissingKey - items() should have a key parameter
+@Composable
+fun LazyListWithoutKey(users: List<User>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        items(users) { user -> // WARNING: Missing key parameter
+            Text(user.name)
+        }
+    }
+}
+
+// Rule 32b: LazyListMissingKey - itemsIndexed without key
+@Composable
+fun LazyListIndexedWithoutKey(users: List<User>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        itemsIndexed(users) { index, user -> // WARNING: Missing key parameter
+            Text("$index: ${user.name}")
+        }
+    }
+}
+
+// Rule 33: UnstableLazyListItems - Mutable collection in LazyList
+@Composable
+fun LazyListWithMutableItems(
+    users: MutableList<User>, // WARNING: Should use List or ImmutableList
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(modifier = modifier) {
+        items(users, key = { it.id }) { user ->
+            Text(user.name)
+        }
+    }
+}
+
+// Rule 34: LazyListContentType - Heterogeneous items without contentType
+@Composable
+fun HeterogeneousLazyList(users: List<User>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) { // WARNING: Missing contentType for heterogeneous items
+        item { Text("Header") }
+        items(users, key = { it.id }) { user ->
+            Text(user.name)
+        }
+        item { Text("Footer") }
+    }
+}
+
+// Rule 35: DerivedStateOfCandidate - Computed value should use derivedStateOf
+@Composable
+fun FilteredListWithoutDerivedState(
+    items: List<String>,
+    searchQuery: String,
+    modifier: Modifier = Modifier,
+) {
+    // WARNING: This filters on EVERY recomposition
+    val filteredItems = items.filter { it.contains(searchQuery) }
+    Column(modifier = modifier) {
+        filteredItems.forEach { Text(it) }
+    }
+}
+
+// Rule 36b: DerivedStateOfCandidate - Sorted list without derivedStateOf
+@Composable
+fun SortedListWithoutDerivedState(
+    items: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    // WARNING: Consider using derivedStateOf for 'sortedItems'
+    val sortedItems = items.sortedBy { it.length }
+    Column(modifier = modifier) {
+        sortedItems.forEach { Text(it) }
+    }
+}
+
+// Rule 37: StateReadInComposition - State read inside remember without key
+@Composable
+fun StateReadInRemember(countState: State<Int>, modifier: Modifier = Modifier) {
+    // WARNING: State 'countState' read inside remember without being a key
+    val doubled = remember {
+        countState.value * 2
+    }
+    Text("Doubled: $doubled", modifier = modifier)
+}
+
+// Rule 37b: StateReadInComposition - State read in SideEffect
+@Composable
+fun StateReadInSideEffect(countState: State<Int>, modifier: Modifier = Modifier) {
+    SideEffect {
+        // WARNING: State read in SideEffect - runs on every recomposition
+        println("Count is: ${countState.value}")
+    }
+    Text("Count: ${countState.value}", modifier = modifier)
+}
+
+// Rule 38: FrequentRecomposition - Object created every recomposition
+@Composable
+fun ObjectCreationInComposition(modifier: Modifier = Modifier) {
+    // WARNING: New 'TextStyle' instance created on every recomposition
+    val style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    Text("Hello", style = style, modifier = modifier)
+}
+
+// Rule 38b: FrequentRecomposition - Collection created every recomposition
+@Composable
+fun CollectionCreationInComposition(modifier: Modifier = Modifier) {
+    // WARNING: Collection created with 'listOf' on every recomposition
+    val items = listOf("Apple", "Banana", "Cherry")
+    Column(modifier = modifier) {
+        items.forEach { Text(it) }
+    }
+}
+
+// Rule 38c: FrequentRecomposition - collectAsState without lifecycle awareness
+@Composable
+fun FlowCollectionWithoutLifecycle(
+    flow: kotlinx.coroutines.flow.Flow<String>,
+    modifier: Modifier = Modifier,
+) {
+    // INFO: Consider using collectAsStateWithLifecycle for lifecycle awareness
+    val state by flow.collectAsState(initial = "")
+    Text(state, modifier = modifier)
+}
+
+// =============================================================================
+// ADDITIONAL EXPERIMENTAL TESTS
+// =============================================================================
+
+// Rule 32c: LazyListMissingKey - LazyRow without key
+@Composable
+fun LazyRowWithoutKey(users: List<User>, modifier: Modifier = Modifier) {
+    LazyRow(modifier = modifier) {
+        items(users) { user -> // WARNING: Missing key parameter
+            Text(user.name)
+        }
+    }
+}
+
+// Rule 32d: LazyListMissingKey - LazyVerticalGrid without key
+@Composable
+fun LazyGridWithoutKey(users: List<User>, modifier: Modifier = Modifier) {
+    LazyVerticalGrid(modifier = modifier) {
+        items(users) { user -> // WARNING: Missing key parameter
+            Text(user.name)
+        }
+    }
+}
+
+// Rule 35c: DerivedStateOfCandidate - map operation without derivedStateOf
+@Composable
+fun MappedListWithoutDerivedState(
+    items: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    // WARNING: Consider using derivedStateOf for 'mappedItems'
+    val mappedItems = items.map { it.uppercase() }
+    Column(modifier = modifier) {
+        mappedItems.forEach { Text(it) }
+    }
+}
+
+// Rule 36d: DerivedStateOfCandidate - groupBy operation without derivedStateOf
+@Composable
+fun GroupedListWithoutDerivedState(
+    items: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    // WARNING: Consider using derivedStateOf for 'groupedItems'
+    val groupedItems = items.groupBy { it.first() }
+    Column(modifier = modifier) {
+        groupedItems.forEach { (key, values) -> Text("$key: ${values.size}") }
+    }
+}
+
+// Rule 36e: DerivedStateOfCandidate - joinToString without derivedStateOf
+@Composable
+fun JoinedStringWithoutDerivedState(
+    items: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    // WARNING: Consider using derivedStateOf for 'joinedString'
+    val joinedString = items.joinToString(", ")
+    Text(joinedString, modifier = modifier)
+}
+
+// Rule 36f: DerivedStateOfCandidate - distinct without derivedStateOf
+@Composable
+fun DistinctListWithoutDerivedState(
+    items: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    // WARNING: Consider using derivedStateOf for 'distinctItems'
+    val distinctItems = items.distinct()
+    Column(modifier = modifier) {
+        distinctItems.forEach { Text(it) }
+    }
+}
+
+// Rule 37c: StateReadInComposition - State in DisposableEffect
+@Composable
+fun StateInDisposableEffect(enabledState: State<Boolean>, modifier: Modifier = Modifier) {
+    DisposableEffect(Unit) {
+        // Note: This pattern may need proper key handling
+        val isEnabled = enabledState.value
+        println("Enabled: $isEnabled")
+        onDispose { }
+    }
+    Box(modifier = modifier) { Text("DisposableEffect test") }
+}
+
+// Rule 38d: FrequentRecomposition - Map created every recomposition
+@Composable
+fun MapCreationInComposition(modifier: Modifier = Modifier) {
+    // WARNING: Collection created with 'mapOf' on every recomposition
+    val config = mapOf("theme" to "dark", "language" to "en")
+    Column(modifier = modifier) {
+        config.forEach { (key, value) -> Text("$key: $value") }
+    }
+}
+
+// Rule 38e: FrequentRecomposition - Set created every recomposition
+@Composable
+fun SetCreationInComposition(modifier: Modifier = Modifier) {
+    // WARNING: Collection created with 'setOf' on every recomposition
+    val tags = setOf("kotlin", "compose", "android")
+    Column(modifier = modifier) {
+        tags.forEach { Text(it) }
+    }
+}
+
+// Rule 38f: FrequentRecomposition - Pair created every recomposition
+@Composable
+fun PairCreationInComposition(modifier: Modifier = Modifier) {
+    // WARNING: New 'Pair' instance created on every recomposition
+    val dimensions = Pair(100, 200)
+    Text("${dimensions.first} x ${dimensions.second}", modifier = modifier)
+}
+
+// Rule 38g: FrequentRecomposition - BorderStroke created every recomposition
+@Composable
+fun BorderStrokeCreationInComposition(modifier: Modifier = Modifier) {
+    // WARNING: New 'BorderStroke' instance created on every recomposition
+    val stroke = BorderStroke(2.dp, Color.Red)
+    Box(modifier = modifier) { Text("Bordered: $stroke") }
+}
+
+// Rule 39: MethodReferenceCandidate - Lambda can be replaced with method reference
+@Composable
+fun MethodReferenceCandidateExample(viewModel: SampleViewModel, modifier: Modifier = Modifier) {
+    Button(
+        onClick = { viewModel.doSomething() }, // INFO: Can be simplified to viewModel::doSomething
+        modifier = modifier,
+    ) {
+        Text("Click Me")
+    }
+}
+
+// Rule 39b: MethodReferenceCandidate - onValueChange with single method call
+@Composable
+fun MethodReferenceCandidateTextField(viewModel: SampleViewModel, modifier: Modifier = Modifier) {
+    TextField(
+        value = "",
+        onValueChange = { viewModel.onTextChanged(it) }, // INFO: Can be viewModel::onTextChanged
+        modifier = modifier,
+    )
+}
+
+// =============================================================================
+// CORRECT EXPERIMENTAL EXAMPLES (No warnings expected)
+// =============================================================================
+
+// Correct: LazyList with key parameter
+@Composable
+fun ProperLazyListWithKey(users: List<User>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        items(users, key = { it.id }) { user ->
+            Text(user.name)
+        }
+    }
+}
+
+// Correct: LazyList with immutable collection
+@Composable
+fun ProperLazyListWithImmutableItems(
+    users: List<User>, // Using List, not MutableList
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(modifier = modifier) {
+        items(users, key = { it.id }) { user ->
+            Text(user.name)
+        }
+    }
+}
+
+// Correct: Heterogeneous LazyList with contentType
+@Composable
+fun ProperHeterogeneousLazyList(users: List<User>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        item(contentType = "header") { Text("Header") }
+        items(users, key = { it.id }, contentType = { "user" }) { user ->
+            Text(user.name)
+        }
+        item(contentType = "footer") { Text("Footer") }
+    }
+}
+
+// Correct: Using derivedStateOf for computed values
+@Composable
+fun ProperDerivedState(
+    items: List<String>,
+    searchQuery: String,
+    modifier: Modifier = Modifier,
+) {
+    val filteredItems by remember(items, searchQuery) {
+        derivedStateOf { items.filter { it.contains(searchQuery) } }
+    }
+    Column(modifier = modifier) {
+        filteredItems.forEach { Text(it) }
+    }
+}
+
+// Correct: State as remember key
+@Composable
+fun ProperStateInRemember(countState: State<Int>, modifier: Modifier = Modifier) {
+    val doubled = remember(countState.value) {
+        countState.value * 2
+    }
+    Text("Doubled: $doubled", modifier = modifier)
+}
+
+// Correct: Remembered object
+@Composable
+fun ProperRememberedObject(modifier: Modifier = Modifier) {
+    val style = remember {
+        TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    }
+    Text("Hello", style = style, modifier = modifier)
+}
+
+// Correct: LazyRow with key parameter
+@Composable
+fun ProperLazyRowWithKey(users: List<User>, modifier: Modifier = Modifier) {
+    LazyRow(modifier = modifier) {
+        items(users, key = { it.id }) { user ->
+            Text(user.name)
+        }
+    }
+}
+
+// Correct: Using derivedStateOf for map operation
+@Composable
+fun ProperMappedList(
+    items: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    val mappedItems by remember(items) {
+        derivedStateOf { items.map { it.uppercase() } }
+    }
+    Column(modifier = modifier) {
+        mappedItems.forEach { Text(it) }
+    }
+}
+
+// Correct: Remembered map collection
+@Composable
+fun ProperRememberedMap(modifier: Modifier = Modifier) {
+    val config = remember {
+        mapOf("theme" to "dark", "language" to "en")
+    }
+    Column(modifier = modifier) {
+        config.forEach { (key, value) -> Text("$key: $value") }
+    }
+}
+
+// Correct: Remembered BorderStroke
+@Composable
+fun ProperRememberedBorderStroke(modifier: Modifier = Modifier) {
+    val stroke = remember {
+        BorderStroke(2.dp, Color.Red)
+    }
+    Box(modifier = modifier) { Text("Bordered: $stroke") }
+}
+
+// Correct: Using method reference instead of lambda
+@Composable
+fun ProperMethodReference(viewModel: SampleViewModel, modifier: Modifier = Modifier) {
+    Button(
+        onClick = viewModel::doSomething, // Clean method reference
+        modifier = modifier,
+    ) {
+        Text("Click Me")
+    }
+}
+
+// =============================================================================
 // HELPER CLASSES AND FUNCTIONS
 // =============================================================================
 
-class SampleViewModel : ViewModel()
+class SampleViewModel : ViewModel() {
+    fun doSomething() {}
+    fun onTextChanged(text: String) {}
+}
+
+data class User(val id: String, val name: String)
 
 interface ColumnScope
 
 fun Modifier.border(width: androidx.compose.ui.unit.Dp, color: Color): Modifier = this
+
+// LazyColumn helpers
+@Composable
+fun LazyColumn(
+    modifier: Modifier = Modifier,
+    content: LazyListScope.() -> Unit,
+) {
+    Column(modifier = modifier) { LazyListScopeImpl().content() }
+}
+
+@Composable
+fun LazyRow(
+    modifier: Modifier = Modifier,
+    content: LazyListScope.() -> Unit,
+) {
+    Column(modifier = modifier) { LazyListScopeImpl().content() }
+}
+
+@Composable
+fun LazyVerticalGrid(
+    modifier: Modifier = Modifier,
+    content: LazyListScope.() -> Unit,
+) {
+    Column(modifier = modifier) { LazyListScopeImpl().content() }
+}
+
+// Checkbox helper
+@Composable
+fun Checkbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier) { Text("Checkbox: $checked") }
+}
+
+// TextField helper (overload for sample)
+@Composable
+fun TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier) { Text("TextField: $value") }
+}
+
+// BorderStroke helper
+data class BorderStroke(val width: androidx.compose.ui.unit.Dp, val color: Color)
+
+interface LazyListScope {
+    fun item(contentType: Any? = null, content: @Composable () -> Unit)
+    fun items(
+        items: List<Any>,
+        key: ((Any) -> Any)? = null,
+        contentType: ((Any) -> Any)? = null,
+        itemContent: @Composable (Any) -> Unit,
+    )
+    fun itemsIndexed(
+        items: List<Any>,
+        key: ((Int, Any) -> Any)? = null,
+        contentType: ((Int, Any) -> Any)? = null,
+        itemContent: @Composable (Int, Any) -> Unit,
+    )
+}
+
+private class LazyListScopeImpl : LazyListScope {
+    override fun item(contentType: Any?, content: @Composable () -> Unit) {}
+    override fun items(
+        items: List<Any>,
+        key: ((Any) -> Any)?,
+        contentType: ((Any) -> Any)?,
+        itemContent: @Composable (Any) -> Unit,
+    ) {}
+    override fun itemsIndexed(
+        items: List<Any>,
+        key: ((Int, Any) -> Any)?,
+        contentType: ((Int, Any) -> Any)?,
+        itemContent: @Composable (Int, Any) -> Unit,
+    ) {}
+}
 
 // =============================================================================
 // CORRECT EXAMPLES (No warnings expected)
@@ -495,5 +989,8 @@ fun ProperEventNaming(
     Button(onClick = onClick, modifier = modifier) { Text("Click") }
 }
 
-// Placeholder
+// Placeholder functions
 fun mutableIntStateOf(value: Int): Any = mutableStateOf(value)
+
+fun Modifier.fillMaxWidth(): Modifier = this
+fun Modifier.height(height: androidx.compose.ui.unit.Dp): Modifier = this

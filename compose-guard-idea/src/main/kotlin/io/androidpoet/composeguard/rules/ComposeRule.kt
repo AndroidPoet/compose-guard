@@ -36,6 +36,7 @@ public enum class RuleCategory(public val displayName: String) {
   PARAMETER("Parameter Rules"),
   COMPOSABLE("Composable Structure"),
   STRICTER("Stricter Rules"),
+  EXPERIMENTAL("Experimental (Disabled by Default)"),
 }
 
 /**

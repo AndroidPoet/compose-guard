@@ -19,6 +19,8 @@ import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
@@ -37,25 +39,25 @@ public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
   override fun getName(): String = "Reorder parameters to recommended order"
 
   override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
-    val element = descriptor.psiElement
-    val function = when (element) {
-      is KtNamedFunction -> element
-      else -> generateSequence(element) { it.parent }
-        .filterIsInstance<KtNamedFunction>()
-        .firstOrNull()
-    } ?: return
+    val element = descriptor.psiElement ?: return
+    val function = findParentFunction(element) ?: return
 
     val parameterList = function.valueParameterList ?: return
     val params = parameterList.parameters.toList()
     if (params.size <= 1) return
 
     val sortedParams = sortParameters(params)
-    if (sortedParams == params) return
+
+    // Compare by name to check if order actually changed
+    val originalNames = params.map { it.name }
+    val sortedNames = sortedParams.map { it.name }
+    if (originalNames == sortedNames) return
 
     val factory = KtPsiFactory(project)
     val newParamTexts = sortedParams.map { it.text }
-    val newParamListText = newParamTexts.joinToString(", ", "(", ")")
-    val newParamList = factory.createParameterList(newParamListText)
+    // Create a dummy function to get a properly formed parameter list
+    val dummyFunction = factory.createFunction("fun dummy(${newParamTexts.joinToString(", ")}) {}")
+    val newParamList = dummyFunction.valueParameterList ?: return
 
     parameterList.replace(newParamList)
   }
@@ -98,5 +100,13 @@ public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
   private fun isModifierParam(param: KtParameter): Boolean {
     val typeName = param.typeReference?.text ?: return false
     return typeName == "Modifier" || typeName.endsWith(".Modifier")
+  }
+
+  private fun findParentFunction(element: PsiElement): KtNamedFunction? {
+    // Try direct cast first
+    if (element is KtNamedFunction) return element
+
+    // Use PsiTreeUtil for reliable parent traversal
+    return PsiTreeUtil.getParentOfType(element, KtNamedFunction::class.java)
   }
 }

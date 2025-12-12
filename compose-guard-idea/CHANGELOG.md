@@ -2,6 +2,27 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
+## [1.0.6] - 2025-12-12
+
+### Added
+- **4 New Experimental Rules** (disabled by default, enable in settings):
+  - `LazyListMissingKey` - items() should have key parameter
+  - `LazyListContentType` - heterogeneous items need contentType
+  - `DerivedStateOfCandidate` - computed values should use remember with keys
+  - `FrequentRecomposition` - suggest collectAsStateWithLifecycle for flows
+
+- **Statistics Dashboard** - New tool window showing:
+  - Real-time violation statistics across your project
+  - Rule category breakdown and trends
+  - Visual dashboard for tracking code quality
+
+- **Quick Fixes** for experimental rules:
+  - `AddKeyParameterFix` - Adds key parameter to lazy list items
+  - `AddContentTypeFix` - Adds contentType to lazy list items
+  - `UseLifecycleAwareCollectorFix` - Replaces collectAsState with collectAsStateWithLifecycle
+
+---
+
 ## [1.0.5] - 2025-12-10
 
 ### Added

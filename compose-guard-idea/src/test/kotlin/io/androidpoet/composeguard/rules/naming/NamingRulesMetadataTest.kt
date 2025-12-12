@@ -145,4 +145,31 @@ class NamingRulesMetadataTest {
 
     assertTrue(rule.description.contains("on"))
   }
+
+  @Test
+  fun testEventParameterNamingRule_pastTenseConversion() {
+    val rule = EventParameterNamingRule()
+
+    // Use reflection to test the private function
+    val method = rule.javaClass.getDeclaredMethod("convertPastTenseToPresent", String::class.java)
+    method.isAccessible = true
+
+    // Test doubled consonant cases
+    assertEquals("onSubmit", method.invoke(rule, "onSubmitted"))
+    assertEquals("onStop", method.invoke(rule, "onStopped"))
+    assertEquals("onDrop", method.invoke(rule, "onDropped"))
+    assertEquals("onSkip", method.invoke(rule, "onSkipped"))
+
+    // Test simple -ed removal
+    assertEquals("onClick", method.invoke(rule, "onClicked"))
+    assertEquals("onStart", method.invoke(rule, "onStarted"))
+    assertEquals("onSelect", method.invoke(rule, "onSelected"))
+    assertEquals("onLoad", method.invoke(rule, "onLoaded"))
+
+    // Test words ending in 'e' (only 'd' was added)
+    assertEquals("onChange", method.invoke(rule, "onChanged"))
+    assertEquals("onClose", method.invoke(rule, "onClosed"))
+    assertEquals("onSave", method.invoke(rule, "onSaved"))
+    assertEquals("onComplete", method.invoke(rule, "onCompleted"))
+  }
 }

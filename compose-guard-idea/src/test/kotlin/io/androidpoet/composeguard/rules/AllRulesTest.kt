@@ -52,7 +52,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * Comprehensive tests for all 31 ComposeGuard rules.
+ * Comprehensive tests for all 38 ComposeGuard rules (31 core + 7 experimental).
  * Tests rule metadata, categories, severities, and documentation URLs.
  */
 class AllRulesTest {

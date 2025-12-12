@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.0.5"
+version = "1.0.6"
 
 repositories {
   mavenCentral()
@@ -62,16 +62,42 @@ intellijPlatform {
             <br/><br/>
             <b>Features:</b>
             <ul>
-                <li>32 Compose Rules: Naming, modifiers, state, parameters, effects, and more</li>
+                <li>35 Compose Rules: Naming, modifiers, state, parameters, effects, and 4 experimental rules</li>
                 <li>Real-time Highlighting: See violations as you type</li>
                 <li>Gutter Icons: Visual indicators for composable rule status</li>
                 <li>Inline Hints: Parameter-level rule violation hints</li>
                 <li>Quick Fixes: One-click fixes shown directly in popup</li>
+                <li>Configurable Settings: Enable/disable rules by category or individually</li>
+                <li>Experimental Rules: LazyList optimizations and lifecycle-aware collection (opt-in)</li>
             </ul>
             <br/>
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.0.6</b>
+            <ul>
+                <li><b>4 New Experimental Rules</b> (disabled by default, enable in settings):</li>
+                <ul>
+                    <li>LazyListMissingKey - items() should have key parameter</li>
+                    <li>LazyListContentType - heterogeneous items need contentType</li>
+                    <li>DerivedStateOfCandidate - computed values should use remember with keys</li>
+                    <li>FrequentRecomposition - suggest collectAsStateWithLifecycle for flows</li>
+                </ul>
+                <li><b>Statistics Dashboard</b> - New tool window with violation analytics</li>
+                <li><b>Quick Fixes</b> for experimental rules:</li>
+                <ul>
+                    <li>AddKeyParameterFix - adds key = { it.id } to items()</li>
+                    <li>AddContentTypeFix - adds contentType to LazyList items</li>
+                    <li>UseLifecycleAwareCollectorFix - replaces collectAsState with collectAsStateWithLifecycle</li>
+                </ul>
+            </ul>
+            <b>1.0.5</b>
+            <ul>
+                <li>Added Statistics Tool Window with rule violation analytics</li>
+                <li>Added EventParameterNaming rule with past tense detection</li>
+                <li>Improved settings UI with category toggles</li>
+                <li>Performance improvements for large codebases</li>
+            </ul>
             <b>1.0.4</b>
             <ul>
                 <li>Fixed Suppress action not working for ModifierRequired, MultipleContentEmitters, ParameterOrdering rules</li>

@@ -25,6 +25,7 @@ import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
+import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.RuleCategory
 import java.awt.BorderLayout
 import java.awt.Component
@@ -62,6 +63,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
   private var parameterCategoryCheckbox: JBCheckBox? = null
   private var composableCategoryCheckbox: JBCheckBox? = null
   private var stricterCategoryCheckbox: JBCheckBox? = null
+  private var experimentalCategoryCheckbox: JBCheckBox? = null
 
   // Rule checkboxes organized by category
   private val ruleCheckboxes = mutableMapOf<String, JBCheckBox>()
@@ -110,6 +112,14 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     RuleCategory.STRICTER to listOf(
       RuleInfo("Material2Usage", "Material 2 Usage", "Don't use Material 2 (use Material 3 instead)"),
       RuleInfo("UnstableCollections", "Unstable Collections", "Avoid unstable collections"),
+    ),
+    RuleCategory.EXPERIMENTAL to listOf(
+      // LazyList Optimization Rules
+      RuleInfo("LazyListMissingKey", "LazyList Missing Key", "LazyList items() should have a key parameter"),
+      RuleInfo("LazyListContentType", "LazyList ContentType", "Heterogeneous LazyLists should use contentType"),
+      // Performance Rules
+      RuleInfo("DerivedStateOfCandidate", "Remember with Keys", "Computed values should use remember with keys"),
+      RuleInfo("FrequentRecomposition", "Lifecycle-Aware Collection", "Suggest collectAsStateWithLifecycle for flows"),
     ),
   )
 
@@ -266,6 +276,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
         RuleCategory.PARAMETER -> parameterCategoryCheckbox = categoryCheckbox
         RuleCategory.COMPOSABLE -> composableCategoryCheckbox = categoryCheckbox
         RuleCategory.STRICTER -> stricterCategoryCheckbox = categoryCheckbox
+        RuleCategory.EXPERIMENTAL -> experimentalCategoryCheckbox = categoryCheckbox
       }
 
       val categoryPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)).apply {
@@ -277,7 +288,9 @@ public class ComposeGuardSettingsConfigurable : Configurable {
 
       // Rules in this category
       for (rule in rules) {
-        val ruleCheckbox = JBCheckBox(rule.displayName, settings.isRuleEnabled(rule.id)).apply {
+        val actualRule = ComposeRuleRegistry.getRuleById(rule.id)
+        val defaultEnabled = actualRule?.enabledByDefault ?: true
+        val ruleCheckbox = JBCheckBox(rule.displayName, settings.isRuleEnabled(rule.id, defaultEnabled)).apply {
           toolTipText = rule.description
           addActionListener {
             updateCategoryCheckboxState(category)
@@ -302,6 +315,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
       RuleCategory.PARAMETER -> settings.enableParameterRules
       RuleCategory.COMPOSABLE -> settings.enableComposableRules
       RuleCategory.STRICTER -> settings.enableStricterRules
+      RuleCategory.EXPERIMENTAL -> settings.enableExperimentalRules
     }
   }
 
@@ -322,6 +336,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
       RuleCategory.PARAMETER -> parameterCategoryCheckbox
       RuleCategory.COMPOSABLE -> composableCategoryCheckbox
       RuleCategory.STRICTER -> stricterCategoryCheckbox
+      RuleCategory.EXPERIMENTAL -> experimentalCategoryCheckbox
     }
     categoryCheckbox?.isSelected = allEnabled
   }
@@ -340,10 +355,16 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     parameterCategoryCheckbox?.isSelected = enabled
     composableCategoryCheckbox?.isSelected = enabled
     stricterCategoryCheckbox?.isSelected = enabled
+    // Note: Experimental rules are not affected by master switch toggle
+    // experimentalCategoryCheckbox?.isSelected = enabled
 
-    // Update all rule checkboxes
-    for ((_, checkbox) in ruleCheckboxes) {
-      checkbox.isSelected = enabled
+    // Update all rule checkboxes (except experimental)
+    for ((ruleId, checkbox) in ruleCheckboxes) {
+      // Don't auto-enable experimental rules when master switch is toggled
+      val isExperimental = rulesByCategory[RuleCategory.EXPERIMENTAL]?.any { it.id == ruleId } == true
+      if (!isExperimental) {
+        checkbox.isSelected = enabled
+      }
     }
   }
 
@@ -359,10 +380,13 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     parameterCategoryCheckbox?.isSelected = true
     composableCategoryCheckbox?.isSelected = true
     stricterCategoryCheckbox?.isSelected = true
+    experimentalCategoryCheckbox?.isSelected = false // Experimental disabled by default
 
     // Reset all rule checkboxes
-    for ((_, checkbox) in ruleCheckboxes) {
-      checkbox.isSelected = true
+    for ((ruleId, checkbox) in ruleCheckboxes) {
+      // Experimental rules are disabled by default
+      val isExperimental = rulesByCategory[RuleCategory.EXPERIMENTAL]?.any { it.id == ruleId } == true
+      checkbox.isSelected = !isExperimental
     }
   }
 
@@ -379,9 +403,12 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     if (parameterCategoryCheckbox?.isSelected != settings.enableParameterRules) return true
     if (composableCategoryCheckbox?.isSelected != settings.enableComposableRules) return true
     if (stricterCategoryCheckbox?.isSelected != settings.enableStricterRules) return true
+    if (experimentalCategoryCheckbox?.isSelected != settings.enableExperimentalRules) return true
 
     for ((ruleId, checkbox) in ruleCheckboxes) {
-      if (checkbox.isSelected != settings.isRuleEnabled(ruleId)) return true
+      val rule = ComposeRuleRegistry.getRuleById(ruleId)
+      val defaultEnabled = rule?.enabledByDefault ?: true
+      if (checkbox.isSelected != settings.isRuleEnabled(ruleId, defaultEnabled)) return true
     }
 
     return false
@@ -400,6 +427,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     settings.enableParameterRules = parameterCategoryCheckbox?.isSelected ?: true
     settings.enableComposableRules = composableCategoryCheckbox?.isSelected ?: true
     settings.enableStricterRules = stricterCategoryCheckbox?.isSelected ?: true
+    settings.enableExperimentalRules = experimentalCategoryCheckbox?.isSelected ?: false
 
     for ((ruleId, checkbox) in ruleCheckboxes) {
       settings.setRuleEnabled(ruleId, checkbox.isSelected)
@@ -428,9 +456,12 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     parameterCategoryCheckbox?.isSelected = settings.enableParameterRules
     composableCategoryCheckbox?.isSelected = settings.enableComposableRules
     stricterCategoryCheckbox?.isSelected = settings.enableStricterRules
+    experimentalCategoryCheckbox?.isSelected = settings.enableExperimentalRules
 
     for ((ruleId, checkbox) in ruleCheckboxes) {
-      checkbox.isSelected = settings.isRuleEnabled(ruleId)
+      val rule = ComposeRuleRegistry.getRuleById(ruleId)
+      val defaultEnabled = rule?.enabledByDefault ?: true
+      checkbox.isSelected = settings.isRuleEnabled(ruleId, defaultEnabled)
     }
 
     updateCategoryCheckboxStates()
@@ -447,6 +478,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     parameterCategoryCheckbox = null
     composableCategoryCheckbox = null
     stricterCategoryCheckbox = null
+    experimentalCategoryCheckbox = null
     ruleCheckboxes.clear()
   }
 

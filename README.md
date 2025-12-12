@@ -30,9 +30,9 @@ Instead of waiting for build-time lint checks or runtime issues, you get instant
 
 ## Features
 
-### 27 Compose Rules
+### 35 Compose Rules
 
-ComposeGuard implements comprehensive rules across 6 categories:
+ComposeGuard implements comprehensive rules across 7 categories:
 
 | Category | Rules |
 |----------|-------|
@@ -42,6 +42,7 @@ ComposeGuard implements comprehensive rules across 6 categories:
 | **Parameters** | Parameter ordering, trailing lambda for content, mutable types as parameters, explicit dependencies |
 | **Composables** | Content emission rules, multiple content slots, effect keys, movable content, preview visibility |
 | **Stricter** | Material 2 usage detection, unstable collections (enabled by default) |
+| **Experimental** | LazyList missing key, LazyList contentType, derivedStateOf candidate, lifecycle-aware collection (opt-in) |
 
 ### IDE Integration
 
@@ -146,6 +147,34 @@ fun ItemList(items: List<Item>) { }  // Warning: Use ImmutableList
 | Material2Usage | Detects Material 2 imports, suggests migration to Material 3 |
 | UnstableCollections | Flags `List`, `Set`, `Map` parameters, suggests `ImmutableList`, etc. |
 
+### Experimental Rules (Opt-in)
+
+Enable in **Settings** → **Tools** → **ComposeGuard** → **Experimental Rules**
+
+| Rule | Description |
+|------|-------------|
+| LazyListMissingKey | LazyColumn/LazyRow items() should have a `key` parameter for efficient recomposition |
+| LazyListContentType | Heterogeneous LazyLists should use `contentType` for composition reuse |
+| DerivedStateOfCandidate | Computed values should use `remember(keys)` to avoid recalculation |
+| FrequentRecomposition | Suggests `collectAsStateWithLifecycle` instead of `collectAsState` |
+
+## Statistics Dashboard
+
+ComposeGuard includes a Statistics Dashboard to track rule violations across your project.
+
+<p align="center">
+  <img src="art/dashboard.png" alt="ComposeGuard Statistics Dashboard"/>
+</p>
+
+### Dashboard Features
+
+- **Real-time Statistics**: View violation counts as you code
+- **Category Breakdown**: See violations grouped by rule category
+- **Rule-level Details**: Drill down into specific rule violations
+- **Project Overview**: Track overall code quality trends
+
+Access the dashboard from **View** → **Tool Windows** → **ComposeGuard Statistics**
+
 ## Configuration
 
 ComposeGuard settings can be configured per-category. Access settings at:
@@ -190,7 +219,7 @@ Toggle individual rules or entire categories on/off based on your project's need
 
 | ComposeGuard | IDE Version |
 |--------------|-------------|
-| 1.0.5 | 2024.2 - 2025.3 |
+| 1.0.6 | 2024.2 - 2025.3 |
 
 ## Contributing
 

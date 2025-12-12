@@ -44,6 +44,10 @@ import io.androidpoet.composeguard.rules.state.HoistStateRule
 import io.androidpoet.composeguard.rules.state.MutableStateParameterRule
 import io.androidpoet.composeguard.rules.state.RememberStateRule
 import io.androidpoet.composeguard.rules.state.TypeSpecificStateRule
+import io.androidpoet.composeguard.rules.experimental.DerivedStateOfCandidateRule
+import io.androidpoet.composeguard.rules.experimental.FrequentRecompositionRule
+import io.androidpoet.composeguard.rules.experimental.LazyListContentTypeRule
+import io.androidpoet.composeguard.rules.experimental.LazyListMissingKeyRule
 import io.androidpoet.composeguard.rules.stricter.Material2Rule
 import io.androidpoet.composeguard.rules.stricter.UnstableCollectionsRule
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
@@ -103,6 +107,14 @@ public object ComposeRuleRegistry {
     // Phase 5: Stricter Rules (enabled by default per user requirement)
     register(Material2Rule())
     register(UnstableCollectionsRule())
+
+    // Phase 6: Experimental Rules (disabled by default)
+    // LazyList Optimization Rules
+    register(LazyListMissingKeyRule())
+    register(LazyListContentTypeRule())
+    // Performance Rules
+    register(DerivedStateOfCandidateRule())
+    register(FrequentRecompositionRule())
   }
 
   /**
@@ -125,7 +137,7 @@ public object ComposeRuleRegistry {
   public fun getEnabledRules(): List<ComposeRule> {
     val settings = ComposeGuardSettingsState.getInstance()
     return rules.filter { rule ->
-      settings.isRuleEnabled(rule.id) && isCategoryEnabled(rule.category, settings)
+      settings.isRuleEnabled(rule.id, rule.enabledByDefault) && isCategoryEnabled(rule.category, settings)
     }
   }
 
@@ -171,6 +183,7 @@ public object ComposeRuleRegistry {
       RuleCategory.PARAMETER -> settings.enableParameterRules
       RuleCategory.COMPOSABLE -> settings.enableComposableRules
       RuleCategory.STRICTER -> settings.enableStricterRules
+      RuleCategory.EXPERIMENTAL -> settings.enableExperimentalRules
     }
   }
 }
