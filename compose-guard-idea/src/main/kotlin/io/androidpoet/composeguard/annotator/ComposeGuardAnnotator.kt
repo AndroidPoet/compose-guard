@@ -110,7 +110,7 @@ public class ComposeGuardAnnotator : Annotator {
   }
 
   private fun createAnnotation(violation: ComposeRuleViolation, holder: AnnotationHolder) {
-    val severity = mapSeverity(violation.rule.severity)
+    val severity = mapHighlightTypeToSeverity(violation.highlightType)
     val message = "[${violation.rule.id}] ${violation.message}"
 
     // Note: Quick fixes are provided by the inspection, not the annotator
@@ -118,21 +118,18 @@ public class ComposeGuardAnnotator : Annotator {
     holder.newAnnotation(severity, message)
       .range(violation.element)
       .tooltip(buildTooltip(violation))
-      .highlightType(mapHighlightType(violation.highlightType))
+      .highlightType(violation.highlightType)
       .create()
   }
 
-  private fun mapSeverity(severity: RuleSeverity): HighlightSeverity {
-    return when (severity) {
-      RuleSeverity.ERROR -> HighlightSeverity.ERROR
-      RuleSeverity.WARNING -> HighlightSeverity.WARNING
-      RuleSeverity.WEAK_WARNING -> HighlightSeverity.WEAK_WARNING
-      RuleSeverity.INFO -> HighlightSeverity.INFORMATION
+  private fun mapHighlightTypeToSeverity(type: ProblemHighlightType): HighlightSeverity {
+    return when (type) {
+      ProblemHighlightType.ERROR -> HighlightSeverity.ERROR
+      ProblemHighlightType.WARNING -> HighlightSeverity.WARNING
+      ProblemHighlightType.WEAK_WARNING -> HighlightSeverity.WEAK_WARNING
+      ProblemHighlightType.INFORMATION -> HighlightSeverity.INFORMATION
+      else -> HighlightSeverity.WARNING
     }
-  }
-
-  private fun mapHighlightType(type: ProblemHighlightType): ProblemHighlightType {
-    return type
   }
 
   private fun buildTooltip(violation: ComposeRuleViolation): String {

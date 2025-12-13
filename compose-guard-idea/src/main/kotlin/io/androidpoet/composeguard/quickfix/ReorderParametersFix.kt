@@ -26,17 +26,46 @@ import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
 /**
- * Quick fix that reorders composable parameters to follow the recommended order:
- * 1. Required parameters (no defaults)
- * 2. Modifier parameter (with default)
- * 3. Optional parameters (with defaults)
- * 4. Content lambda (trailing, with default)
+ * Quick fix that reorders composable parameters to follow Compose API guidelines.
+ *
+ * Official Compose API parameter order:
+ * 1. Required parameters (no defaults) - data first, then metadata
+ * 2. Modifier parameter (FIRST optional - easily accessible at call site)
+ * 3. Other optional parameters (with defaults)
+ * 4. Trailing @Composable lambda (if any)
+ *
+ * From the official Compose Component API Guidelines:
+ * "Since the modifier is recommended for any component and is used often,
+ * placing it first ensures that it can be set without a named parameter
+ * and provides a consistent place for this parameter in any component."
+ *
+ * Examples:
+ * ```kotlin
+ * @Composable
+ * fun Card(
+ *     title: String,                              // 1. required
+ *     modifier: Modifier = Modifier,              // 2. modifier (FIRST optional)
+ *     elevation: Dp = 4.dp,                       // 3. other optional
+ *     content: @Composable () -> Unit             // 4. content (trailing)
+ * )
+ *
+ * @Composable
+ * fun FormField(
+ *     label: String,                              // 1. required
+ *     value: String,                              // 1. required
+ *     onValueChange: (String) -> Unit,            // 1. required
+ *     modifier: Modifier = Modifier,              // 2. modifier (FIRST optional)
+ *     isError: Boolean = false,                   // 3. optional
+ *     enabled: Boolean = true,                    // 3. optional
+ *     placeholder: String = ""                    // 3. optional
+ * )
+ * ```
  */
 public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Reorder parameters"
 
-  override fun getName(): String = "Reorder parameters to recommended order"
+  override fun getName(): String = "Reorder parameters (Compose API guidelines)"
 
   override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
     val element = descriptor.psiElement ?: return
@@ -62,24 +91,43 @@ public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
     parameterList.replace(newParamList)
   }
 
+  /**
+   * Sorts parameters according to Compose API guidelines.
+   *
+   * Order: required → modifier (FIRST optional) → optionals → content lambda
+   */
   private fun sortParameters(params: List<KtParameter>): List<KtParameter> {
     val required = mutableListOf<KtParameter>()
-    val modifier = mutableListOf<KtParameter>()
     val optional = mutableListOf<KtParameter>()
-    val trailing = mutableListOf<KtParameter>()
+    val modifier = mutableListOf<KtParameter>()
+    val contentLambdas = mutableListOf<KtParameter>()
 
     for (param in params) {
       when {
+        // Modifier is always in its own category
         isModifierParam(param) -> modifier.add(param)
-        // Only content lambdas with defaults should be trailing
-        isContentLambda(param) && param.hasDefaultValue() -> trailing.add(param)
-        // Required lambdas (no default) are required parameters
+
+        // Content lambdas go at the end (trailing)
+        isContentLambda(param) -> contentLambdas.add(param)
+
+        // Regular params: required vs optional
         param.hasDefaultValue() -> optional.add(param)
         else -> required.add(param)
       }
     }
 
-    return required + modifier + optional + trailing
+    // Sort content lambdas: optional slots first, primary content last
+    val sortedContentLambdas = contentLambdas.sortedWith(
+      compareBy(
+        // Content with defaults (optional slots) come before content without defaults
+        { !it.hasDefaultValue() },
+        // "content" named lambda should be last among content lambdas
+        { it.name == "content" },
+      ),
+    )
+
+    // Official order: required → modifier (FIRST optional) → optionals → content
+    return required + modifier + optional + sortedContentLambdas
   }
 
   /**
@@ -89,11 +137,13 @@ public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
   private fun isContentLambda(param: KtParameter): Boolean {
     val typeText = param.typeReference?.text ?: return false
     val name = param.name ?: return false
-    // Content slots are typically @Composable lambdas named "content" or similar
+
     // Event handlers (onClick, onEdit, etc.) should NOT be trailing
     if (name.startsWith("on") && name.length > 2 && name[2].isUpperCase()) {
-      return false // This is an event handler, not a content slot
+      return false
     }
+
+    // Content slots are @Composable lambdas
     return typeText.contains("@Composable") && typeText.contains("->")
   }
 
@@ -103,10 +153,7 @@ public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
   }
 
   private fun findParentFunction(element: PsiElement): KtNamedFunction? {
-    // Try direct cast first
     if (element is KtNamedFunction) return element
-
-    // Use PsiTreeUtil for reliable parent traversal
     return PsiTreeUtil.getParentOfType(element, KtNamedFunction::class.java)
   }
 }

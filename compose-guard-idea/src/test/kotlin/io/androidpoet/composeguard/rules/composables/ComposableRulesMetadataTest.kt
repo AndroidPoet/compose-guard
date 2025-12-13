@@ -157,6 +157,58 @@ class ComposableRulesMetadataTest {
     )
   }
 
+  // ===== LazyListContentTypeRule tests =====
+
+  @Test
+  fun testLazyListContentTypeRule_metadata() {
+    val rule = LazyListContentTypeRule()
+
+    assertEquals("LazyListContentType", rule.id)
+    assertEquals("LazyList Missing ContentType", rule.name)
+    assertTrue(rule.description.isNotBlank())
+    assertEquals(RuleCategory.COMPOSABLE, rule.category)
+    assertEquals(RuleSeverity.INFO, rule.severity)
+    assertTrue(rule.enabledByDefault)
+    assertNotNull(rule.documentationUrl)
+  }
+
+  @Test
+  fun testLazyListContentTypeRule_descriptionMentionsContentType() {
+    val rule = LazyListContentTypeRule()
+
+    assertTrue(
+      rule.description.contains("contentType") ||
+        rule.description.contains("heterogeneous") ||
+        rule.description.contains("LazyColumn"),
+    )
+  }
+
+  // ===== LazyListMissingKeyRule tests =====
+
+  @Test
+  fun testLazyListMissingKeyRule_metadata() {
+    val rule = LazyListMissingKeyRule()
+
+    assertEquals("LazyListMissingKey", rule.id)
+    assertEquals("LazyList Missing Key Parameter", rule.name)
+    assertTrue(rule.description.isNotBlank())
+    assertEquals(RuleCategory.COMPOSABLE, rule.category)
+    assertEquals(RuleSeverity.WARNING, rule.severity)
+    assertTrue(rule.enabledByDefault)
+    assertNotNull(rule.documentationUrl)
+  }
+
+  @Test
+  fun testLazyListMissingKeyRule_descriptionMentionsKey() {
+    val rule = LazyListMissingKeyRule()
+
+    assertTrue(
+      rule.description.contains("key") ||
+        rule.description.contains("Key") ||
+        rule.description.contains("LazyColumn"),
+    )
+  }
+
   // ===== All composable rules have documentation URLs =====
 
   @Test
@@ -167,6 +219,8 @@ class ComposableRulesMetadataTest {
       EffectKeysRule(),
       MovableContentRule(),
       PreviewVisibilityRule(),
+      LazyListContentTypeRule(),
+      LazyListMissingKeyRule(),
     )
 
     rules.forEach { rule ->

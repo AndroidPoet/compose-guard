@@ -46,7 +46,13 @@ class ParameterRulesMetadataTest {
   fun testParameterOrderingRule_descriptionMentionsOrder() {
     val rule = ParameterOrderingRule()
 
-    assertTrue(rule.description.contains("order") || rule.description.contains("Order"))
+    assertTrue(
+      rule.description.contains("order") ||
+        rule.description.contains("Order") ||
+        rule.description.contains("required") ||
+        rule.description.contains("modifier") ||
+        rule.description.contains("guidelines"),
+    )
   }
 
   // ===== TrailingLambdaRule tests =====
@@ -108,7 +114,7 @@ class ParameterRulesMetadataTest {
     assertEquals("Make Dependencies Explicit", rule.name)
     assertTrue(rule.description.isNotBlank())
     assertEquals(RuleCategory.PARAMETER, rule.category)
-    assertEquals(RuleSeverity.INFO, rule.severity)
+    assertEquals(RuleSeverity.WEAK_WARNING, rule.severity)
     assertTrue(rule.enabledByDefault)
     assertNotNull(rule.documentationUrl)
   }

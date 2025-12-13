@@ -28,15 +28,25 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 
 /**
- * Rule: Order composable parameters properly.
+ * Rule: Order composable parameters following Compose API guidelines.
  *
- * Parameter order should be:
- * 1. Required parameters (no defaults)
- * 2. Modifier parameter (with default)
- * 3. Optional parameters (with defaults)
- * 4. Content lambda (trailing, with default)
+ * Official Compose API parameter order:
+ * 1. Required parameters (no defaults) - data first, then metadata
+ * 2. Modifier parameter (FIRST optional - easily accessible at call site)
+ * 3. Other optional parameters (with defaults)
+ * 4. Trailing @Composable lambda (if any)
  *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#ordering-composable-parameters-properly">Ordering Parameters Properly</a>
+ * From the official Compose Component API Guidelines:
+ * > "Since the modifier is recommended for any component and is used often,
+ * > placing it first ensures that it can be set without a named parameter
+ * > and provides a consistent place for this parameter in any component."
+ *
+ * Key conventions:
+ * - Keep state and its callback paired: (value: T, onValueChange: (T) -> Unit)
+ * - Modifier is always `modifier: Modifier = Modifier`
+ * - Content lambda enables trailing lambda syntax
+ *
+ * @see <a href="https://developer.android.com/develop/ui/compose/components">Compose Components</a>
  */
 public class ParameterOrderingRule : ComposableFunctionRule() {
 
@@ -45,7 +55,8 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
   override val name: String = "Parameter Ordering"
 
   override val description: String = """
-    Composable parameters should be ordered: required → modifier → optional → content.
+    Composable parameters should follow Compose API guidelines.
+    Order: required → modifier (first optional) → optionals → content lambda.
   """.trimIndent()
 
   override val category: RuleCategory = RuleCategory.PARAMETER
@@ -53,7 +64,7 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
   override val severity: RuleSeverity = RuleSeverity.WEAK_WARNING
 
   override val documentationUrl: String =
-    "https://mrmans0n.github.io/compose-rules/latest/rules/#ordering-composable-parameters-properly"
+    "https://developer.android.com/develop/ui/compose/components"
 
   override fun doAnalyze(
     function: KtNamedFunction,
@@ -64,104 +75,210 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
 
     val violations = mutableListOf<ComposeRuleViolation>()
 
-    // Check if required parameters come before optional ones
+    // Rule 1: Required parameters must come before optional ones
+    checkRequiredBeforeOptional(params, violations)
+
+    // Rule 2: Modifier should be the first optional parameter
+    checkModifierPosition(params, violations)
+
+    // Rule 3: Content lambdas should be at the end (trailing lambda syntax)
+    checkContentLambdaTrailing(params, violations)
+
+    // Rule 4: State and callback should be paired together
+    checkStateCallbackPairing(params, violations)
+
+    return violations
+  }
+
+  /**
+   * Rule 1: Required parameters (no defaults) must come before optional ones.
+   */
+  private fun checkRequiredBeforeOptional(
+    params: List<KtParameter>,
+    violations: MutableList<ComposeRuleViolation>,
+  ) {
     var foundOptional = false
     for (param in params) {
       val hasDefault = param.hasDefaultValue()
       val isModifier = isModifierParam(param)
-      val isContentLambda = param.isComposableLambda()
+      val isContentLambda = isContentLambda(param)
 
-      if (!hasDefault && foundOptional && !isModifier && !isContentLambda) {
+      // Skip modifier and content lambdas for this check
+      if (isModifier || isContentLambda) continue
+
+      if (!hasDefault && foundOptional) {
         violations.add(
           createViolation(
             element = param.nameIdentifier ?: param,
             message = "Required parameter '${param.name}' should come before optional parameters",
             tooltip = """
-              Composable parameters should be ordered:
+              Compose API guidelines require this parameter order:
               1. Required parameters (no defaults)
-              2. Modifier parameter (with default)
+              2. Modifier parameter (first optional)
               3. Optional parameters (with defaults)
-              4. Content lambda (trailing, with default)
+              4. Content lambda (trailing, if any)
 
-              Parameter '${param.name}' has no default value but appears after optional parameters.
+              '${param.name}' has no default value but appears after optional parameters.
             """.trimIndent(),
-            quickFixes = listOf(
-              ReorderParametersFix(),
-              SuppressComposeRuleFix(id),
-            ),
+            quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
           ),
         )
       }
 
-      if (hasDefault && !isModifier && !isContentLambda) {
+      if (hasDefault) {
         foundOptional = true
       }
     }
-
-    // Check if modifier is reasonably early (after required params)
-    val modifierIndex = params.indexOfFirst { isModifierParam(it) }
-    if (modifierIndex > 0) {
-      val paramsBeforeModifier = params.take(modifierIndex)
-      val optionalBeforeModifier = paramsBeforeModifier.count { it.hasDefaultValue() && !it.isComposableLambda() }
-
-      if (optionalBeforeModifier > 0) {
-        violations.add(
-          createViolation(
-            element = params[modifierIndex].nameIdentifier ?: params[modifierIndex],
-            message = "Modifier parameter should come before other optional parameters",
-            tooltip = """
-              The modifier parameter should appear after required parameters
-              but before other optional parameters.
-            """.trimIndent(),
-            quickFixes = listOf(
-              ReorderParametersFix(),
-              SuppressComposeRuleFix(id),
-            ),
-          ),
-        )
-      }
-    }
-
-    // Check if lambda parameters appear before non-lambda parameters
-    // Lambdas should typically be at the end for trailing lambda syntax
-    checkLambdaOrdering(params, violations)
-
-    return violations
   }
 
-  private fun checkLambdaOrdering(
+  /**
+   * Rule 2: Modifier must be the FIRST optional parameter.
+   *
+   * From the official Compose Component API Guidelines:
+   * "Since the modifier is recommended for any component and is used often,
+   * placing it first ensures that it can be set without a named parameter
+   * and provides a consistent place for this parameter in any component."
+   */
+  private fun checkModifierPosition(
     params: List<KtParameter>,
     violations: MutableList<ComposeRuleViolation>,
   ) {
-    // Only check content lambdas (not event handlers like onClick)
-    // Content lambdas should be trailing, but event handlers are just regular params
+    val modifierIndex = params.indexOfFirst { isModifierParam(it) }
+    if (modifierIndex < 0) return
+
+    val modifierParam = params[modifierIndex]
+
+    // Check for optional parameters BEFORE modifier (they should come AFTER)
+    val paramsBeforeModifier = params.take(modifierIndex)
+    val optionalBeforeModifier = paramsBeforeModifier.filter { param ->
+      param.hasDefaultValue() && !isContentLambda(param)
+    }
+
+    if (optionalBeforeModifier.isNotEmpty()) {
+      val wrongParams = optionalBeforeModifier.mapNotNull { it.name }.joinToString(", ")
+      violations.add(
+        createViolation(
+          element = modifierParam.nameIdentifier ?: modifierParam,
+          message = "Modifier parameter should be the first optional parameter",
+          tooltip = """
+            Modifier must be the FIRST optional parameter (right after required params).
+
+            These optional parameters appear before modifier but should come after:
+            $wrongParams
+
+            Correct order:
+            fun FormField(
+                label: String,                      // 1. Required params
+                value: String,                      // 1. Required params
+                onValueChange: (String) -> Unit,    // 1. Required callback
+                modifier: Modifier = Modifier,      // 2. Modifier (FIRST optional)
+                isError: Boolean = false,           // 3. Other optional params
+                enabled: Boolean = true,
+                placeholder: String = ""
+            )
+
+            From official guidelines: "Since the modifier is recommended for any
+            component and is used often, placing it first ensures that it can be
+            set without a named parameter and provides a consistent place for
+            this parameter in any component."
+          """.trimIndent(),
+          quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
+        ),
+      )
+    }
+  }
+
+  /**
+   * Rule 3: Content lambdas should be at the end for trailing lambda syntax.
+   */
+  private fun checkContentLambdaTrailing(
+    params: List<KtParameter>,
+    violations: MutableList<ComposeRuleViolation>,
+  ) {
     for ((index, param) in params.withIndex()) {
       if (!isContentLambda(param)) continue
-      if (isModifierParam(param)) continue
 
-      // Check if there are non-content-lambda, non-modifier params after this content lambda
+      // Check if there are non-content-lambda, non-modifier params after this
       val paramsAfter = params.drop(index + 1)
-      val nonLambdaAfter = paramsAfter.filter { !isContentLambda(it) && !isModifierParam(it) }
+      val wrongParamsAfter = paramsAfter.filter { !isContentLambda(it) && !isModifierParam(it) }
 
-      if (nonLambdaAfter.isNotEmpty()) {
+      if (wrongParamsAfter.isNotEmpty()) {
         violations.add(
           createViolation(
             element = param.nameIdentifier ?: param,
-            message = "Content lambda '${param.name}' should be placed at the end for trailing lambda syntax",
+            message = "Content lambda '${param.name}' should be at the end",
             tooltip = """
-              Content slot lambdas (@Composable () -> Unit) should be at the end of the parameter list.
-              This allows callers to use trailing lambda syntax.
+              Content slot lambdas (@Composable () -> Unit) should be at the
+              end of the parameter list for trailing lambda syntax.
 
-              Note: Event handlers (onClick, onEdit, etc.) are NOT content lambdas and follow
-              normal parameter ordering rules based on whether they have defaults.
+              Example:
+              fun Card(
+                  title: String,
+                  modifier: Modifier = Modifier,
+                  content: @Composable () -> Unit  // Last for trailing lambda
+              )
+
+              Call site: Card("Title") { Text("Content") }
             """.trimIndent(),
-            quickFixes = listOf(
-              ReorderParametersFix(),
-              SuppressComposeRuleFix(id),
-            ),
+            quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
           ),
         )
         break
+      }
+    }
+  }
+
+  /**
+   * Rule 4: State values and their callbacks should be paired together.
+   *
+   * Pattern: (value: T, onValueChange: (T) -> Unit) should be adjacent.
+   */
+  private fun checkStateCallbackPairing(
+    params: List<KtParameter>,
+    violations: MutableList<ComposeRuleViolation>,
+  ) {
+    val stateCallbackPairs = mapOf(
+      "value" to "onValueChange",
+      "checked" to "onCheckedChange",
+      "selected" to "onSelectedChange",
+      "expanded" to "onExpandedChange",
+      "text" to "onTextChange",
+      "query" to "onQueryChange",
+    )
+
+    for ((stateName, callbackName) in stateCallbackPairs) {
+      val stateIndex = params.indexOfFirst { it.name == stateName }
+      val callbackIndex = params.indexOfFirst { it.name == callbackName }
+
+      if (stateIndex >= 0 && callbackIndex >= 0) {
+        // They should be adjacent (callback right after state)
+        if (callbackIndex != stateIndex + 1) {
+          violations.add(
+            createViolation(
+              element = params[callbackIndex].nameIdentifier ?: params[callbackIndex],
+              message = "'$callbackName' should immediately follow '$stateName'",
+              tooltip = """
+                State and callback parameters should be paired together:
+
+                ✅ Correct:
+                fun TextField(
+                    value: String,
+                    onValueChange: (String) -> Unit,  // Right after value
+                    ...
+                )
+
+                ❌ Wrong:
+                fun TextField(
+                    value: String,
+                    label: String,
+                    onValueChange: (String) -> Unit,  // Separated from value
+                    ...
+                )
+              """.trimIndent(),
+              quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
+            ),
+          )
+        }
       }
     }
   }
@@ -173,10 +290,12 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
   private fun isContentLambda(param: KtParameter): Boolean {
     val typeText = param.typeReference?.text ?: return false
     val name = param.name ?: return false
+
     // Event handlers (onClick, onEdit, etc.) are NOT content slots
     if (name.startsWith("on") && name.length > 2 && name[2].isUpperCase()) {
       return false
     }
+
     // Content slots are @Composable lambdas
     return typeText.contains("@Composable") && typeText.contains("->")
   }

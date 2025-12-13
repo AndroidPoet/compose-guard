@@ -14,7 +14,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<idea-plugin>
+<idea-plugin require-restart="false">
     <id>io.androidpoet.composeguard</id>
     <name>ComposeGuard</name>
     <vendor email="poetdroid2@gmail.com" url="https://github.com/androidpoet">androidpoet (Ranbir Singh)</vendor>

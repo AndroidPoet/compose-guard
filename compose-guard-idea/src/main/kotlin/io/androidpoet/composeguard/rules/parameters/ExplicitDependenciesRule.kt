@@ -16,6 +16,7 @@
 package io.androidpoet.composeguard.rules.parameters
 
 import com.intellij.psi.util.PsiTreeUtil
+import io.androidpoet.composeguard.quickfix.AddExplicitParameterFix
 import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposableFunctionRule
@@ -45,7 +46,7 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
   override val name: String = "Make Dependencies Explicit"
   override val description: String = "ViewModels and CompositionLocals acquired in body should be parameters."
   override val category: RuleCategory = RuleCategory.PARAMETER
-  override val severity: RuleSeverity = RuleSeverity.INFO
+  override val severity: RuleSeverity = RuleSeverity.WEAK_WARNING
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#make-dependencies-explicit-viewmodels"
 
   // ViewModel factory functions from various DI frameworks
@@ -94,6 +95,17 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
         // Skip if the call has arguments (may need specific configuration)
         if (call.valueArguments.isNotEmpty()) continue
 
+        // Extract ViewModel type from type arguments (e.g., viewModel<SampleViewModel>())
+        val viewModelType = extractViewModelType(call)
+        val quickFixes = if (viewModelType != null) {
+          listOf(
+            AddExplicitParameterFix(viewModelType, viewModelType),
+            SuppressComposeRuleFix(id),
+          )
+        } else {
+          listOf(SuppressComposeRuleFix(id))
+        }
+
         violations.add(
           createViolation(
             element = call,
@@ -122,7 +134,7 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
               - Works better in @Preview functions
               - More explicit dependencies
             """.trimIndent(),
-            quickFixes = listOf(SuppressComposeRuleFix(id)),
+            quickFixes = quickFixes,
           ),
         )
       }
@@ -132,6 +144,7 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
         // LocalContext is very commonly used and often acceptable
         val dotExpr = call.parent
         if (dotExpr?.text?.endsWith(".current") == true) {
+          val paramType = inferParameterType(calleeName)
           violations.add(
             createViolation(
               element = call,
@@ -150,12 +163,15 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
                 ✅ Better:
                 @Composable
                 fun MyComposable(
-                    value: ${inferParameterType(calleeName)} = $calleeName.current
+                    value: $paramType = $calleeName.current
                 ) {
                     // Use value
                 }
               """.trimIndent(),
-              quickFixes = listOf(SuppressComposeRuleFix(id)),
+              quickFixes = listOf(
+                AddExplicitParameterFix(calleeName, paramType),
+                SuppressComposeRuleFix(id),
+              ),
             ),
           )
         }
@@ -194,5 +210,19 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
       "LocalClipboardManager" -> "ClipboardManager"
       else -> calleeName.removePrefix("Local")
     }
+  }
+
+  /**
+   * Extracts the ViewModel type from a call expression like viewModel<SampleViewModel>().
+   * Returns null if the type cannot be determined.
+   */
+  private fun extractViewModelType(call: KtCallExpression): String? {
+    // Check for type arguments: viewModel<SampleViewModel>()
+    val typeArguments = call.typeArguments
+    if (typeArguments.isNotEmpty()) {
+      val typeArg = typeArguments.firstOrNull()
+      return typeArg?.typeReference?.text
+    }
+    return null
   }
 }

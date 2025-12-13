@@ -27,15 +27,15 @@ import kotlin.test.assertTrue
 class ComposeRuleRegistryTest {
 
   @Test
-  fun testGetAllRules_returns31Rules() {
+  fun testGetAllRules_returns36Rules() {
     val rules = ComposeRuleRegistry.getAllRules()
 
-    assertEquals(31, rules.size)
+    assertEquals(36, rules.size)
   }
 
   @Test
-  fun testGetRuleCount_returns31() {
-    assertEquals(31, ComposeRuleRegistry.getRuleCount())
+  fun testGetRuleCount_returns36() {
+    assertEquals(36, ComposeRuleRegistry.getRuleCount())
   }
 
   @Test
@@ -161,7 +161,7 @@ class ComposeRuleRegistryTest {
   fun testGetRulesByCategory_stateCategory() {
     val stateRules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.STATE)
 
-    assertEquals(5, stateRules.size)
+    assertEquals(8, stateRules.size)
     assertTrue(stateRules.all { it.category == RuleCategory.STATE })
   }
 
@@ -177,7 +177,7 @@ class ComposeRuleRegistryTest {
   fun testGetRulesByCategory_composableCategory() {
     val composableRules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.COMPOSABLE)
 
-    assertEquals(6, composableRules.size)
+    assertEquals(8, composableRules.size)
     assertTrue(composableRules.all { it.category == RuleCategory.COMPOSABLE })
   }
 
@@ -225,9 +225,9 @@ class ComposeRuleRegistryTest {
 
     assertEquals(6, rulesByCategories[RuleCategory.NAMING]?.size)
     assertEquals(7, rulesByCategories[RuleCategory.MODIFIER]?.size)
-    assertEquals(5, rulesByCategories[RuleCategory.STATE]?.size)
+    assertEquals(8, rulesByCategories[RuleCategory.STATE]?.size)
     assertEquals(5, rulesByCategories[RuleCategory.PARAMETER]?.size)
-    assertEquals(6, rulesByCategories[RuleCategory.COMPOSABLE]?.size)
+    assertEquals(8, rulesByCategories[RuleCategory.COMPOSABLE]?.size)
     assertEquals(2, rulesByCategories[RuleCategory.STRICTER]?.size)
   }
 

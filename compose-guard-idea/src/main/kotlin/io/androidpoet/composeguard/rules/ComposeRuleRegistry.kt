@@ -18,6 +18,8 @@ package io.androidpoet.composeguard.rules
 import io.androidpoet.composeguard.rules.composables.ContentEmissionRule
 import io.androidpoet.composeguard.rules.composables.ContentSlotReusedRule
 import io.androidpoet.composeguard.rules.composables.EffectKeysRule
+import io.androidpoet.composeguard.rules.composables.LazyListContentTypeRule
+import io.androidpoet.composeguard.rules.composables.LazyListMissingKeyRule
 import io.androidpoet.composeguard.rules.composables.MovableContentRule
 import io.androidpoet.composeguard.rules.composables.MultipleContentRule
 import io.androidpoet.composeguard.rules.composables.PreviewVisibilityRule
@@ -40,14 +42,13 @@ import io.androidpoet.composeguard.rules.parameters.MutableParameterRule
 import io.androidpoet.composeguard.rules.parameters.ParameterOrderingRule
 import io.androidpoet.composeguard.rules.parameters.TrailingLambdaRule
 import io.androidpoet.composeguard.rules.parameters.ViewModelForwardingRule
+import io.androidpoet.composeguard.rules.performance.DeferStateReadsRule
+import io.androidpoet.composeguard.rules.state.DerivedStateOfCandidateRule
+import io.androidpoet.composeguard.rules.state.FrequentRecompositionRule
 import io.androidpoet.composeguard.rules.state.HoistStateRule
 import io.androidpoet.composeguard.rules.state.MutableStateParameterRule
 import io.androidpoet.composeguard.rules.state.RememberStateRule
 import io.androidpoet.composeguard.rules.state.TypeSpecificStateRule
-import io.androidpoet.composeguard.rules.experimental.DerivedStateOfCandidateRule
-import io.androidpoet.composeguard.rules.experimental.FrequentRecompositionRule
-import io.androidpoet.composeguard.rules.experimental.LazyListContentTypeRule
-import io.androidpoet.composeguard.rules.experimental.LazyListMissingKeyRule
 import io.androidpoet.composeguard.rules.stricter.Material2Rule
 import io.androidpoet.composeguard.rules.stricter.UnstableCollectionsRule
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
@@ -74,6 +75,9 @@ public object ComposeRuleRegistry {
     // Phase 1: Core Rules (State)
     register(RememberStateRule())
     register(TypeSpecificStateRule())
+    register(DerivedStateOfCandidateRule())
+    register(FrequentRecompositionRule())
+    register(DeferStateReadsRule())
 
     // Phase 2: Parameter & Slot Rules
     register(ParameterOrderingRule())
@@ -98,6 +102,8 @@ public object ComposeRuleRegistry {
     register(LambdaParameterInEffectRule())
     register(MovableContentRule())
     register(PreviewVisibilityRule())
+    register(LazyListContentTypeRule())
+    register(LazyListMissingKeyRule())
 
     // Phase 4: Advanced Rules
     register(ModifierOrderRule())
@@ -107,14 +113,6 @@ public object ComposeRuleRegistry {
     // Phase 5: Stricter Rules (enabled by default per user requirement)
     register(Material2Rule())
     register(UnstableCollectionsRule())
-
-    // Phase 6: Experimental Rules (disabled by default)
-    // LazyList Optimization Rules
-    register(LazyListMissingKeyRule())
-    register(LazyListContentTypeRule())
-    // Performance Rules
-    register(DerivedStateOfCandidateRule())
-    register(FrequentRecompositionRule())
   }
 
   /**
@@ -183,7 +181,6 @@ public object ComposeRuleRegistry {
       RuleCategory.PARAMETER -> settings.enableParameterRules
       RuleCategory.COMPOSABLE -> settings.enableComposableRules
       RuleCategory.STRICTER -> settings.enableStricterRules
-      RuleCategory.EXPERIMENTAL -> settings.enableExperimentalRules
     }
   }
 }

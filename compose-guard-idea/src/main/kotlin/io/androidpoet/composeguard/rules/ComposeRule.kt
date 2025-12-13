@@ -36,7 +36,6 @@ public enum class RuleCategory(public val displayName: String) {
   PARAMETER("Parameter Rules"),
   COMPOSABLE("Composable Structure"),
   STRICTER("Stricter Rules"),
-  EXPERIMENTAL("Experimental (Disabled by Default)"),
 }
 
 /**
@@ -167,14 +166,17 @@ public interface ComposeRule {
 
   /**
    * Create a violation with this rule's default settings.
+   * @param severity Override the rule's default severity for this specific violation
    */
   public fun createViolation(
     element: PsiElement,
     message: String,
     tooltip: String? = null,
     quickFixes: List<LocalQuickFix> = emptyList(),
+    severity: RuleSeverity? = null,
   ): ComposeRuleViolation {
-    val highlightType = when (severity) {
+    val effectiveSeverity = severity ?: this.severity
+    val highlightType = when (effectiveSeverity) {
       RuleSeverity.ERROR -> ProblemHighlightType.ERROR
       RuleSeverity.WARNING -> ProblemHighlightType.WARNING
       RuleSeverity.WEAK_WARNING -> ProblemHighlightType.WEAK_WARNING

@@ -21,4 +21,5 @@ rootProject.name = "compose-guard"
 
 include(
   ":compose-guard-idea",
+  ":app",
 )

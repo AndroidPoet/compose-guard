@@ -33,7 +33,7 @@ class RuleDetectionTest {
   @Test
   fun testAllRulesRegistered() {
     val rules = ComposeRuleRegistry.getAllRules()
-    assertEquals(31, rules.size, "Expected 31 rules to be registered")
+    assertEquals(36, rules.size, "Expected 36 rules to be registered")
   }
 
   @Test
@@ -87,7 +87,7 @@ class RuleDetectionTest {
     }
   }
 
-  // ===== State Rules (5) =====
+  // ===== State Rules (8) =====
 
   @Test
   fun testStateRules_allPresent() {
@@ -97,6 +97,9 @@ class RuleDetectionTest {
       "MutableStateParameter" to "Don't Use MutableState as Parameter",
       "HoistState" to "Consider Hoisting State",
       "LambdaParameterInEffect" to "Lambda Parameters in Restartable Effects",
+      "DerivedStateOfCandidate" to "Consider Using remember with keys",
+      "FrequentRecomposition" to "Potential Excessive Recomposition",
+      "DeferStateReads" to "Defer State Reads",
     )
 
     expectedRules.forEach { (id, name) ->
@@ -127,7 +130,7 @@ class RuleDetectionTest {
     }
   }
 
-  // ===== Composable Rules (6) =====
+  // ===== Composable Rules (8) =====
 
   @Test
   fun testComposableRules_allPresent() {
@@ -138,6 +141,8 @@ class RuleDetectionTest {
       "EffectKeys" to "Effect Keys Correctness",
       "MovableContent" to "Movable Content Should Be Remembered",
       "PreviewVisibility" to "Preview Should Be Private",
+      "LazyListContentType" to "LazyList Missing ContentType",
+      "LazyListMissingKey" to "LazyList Missing Key Parameter",
     )
 
     expectedRules.forEach { (id, name) ->
@@ -202,9 +207,9 @@ class RuleDetectionTest {
     val expectedCounts = mapOf(
       RuleCategory.NAMING to 6,
       RuleCategory.MODIFIER to 7,
-      RuleCategory.STATE to 5,
+      RuleCategory.STATE to 8,
       RuleCategory.PARAMETER to 5,
-      RuleCategory.COMPOSABLE to 6,
+      RuleCategory.COMPOSABLE to 8,
       RuleCategory.STRICTER to 2,
     )
 
@@ -217,9 +222,9 @@ class RuleDetectionTest {
       )
     }
 
-    // Total should be 31
+    // Total should be 36
     val total = rulesByCategory.values.sumOf { it.size }
-    assertEquals(31, total, "Total rules should be 31")
+    assertEquals(36, total, "Total rules should be 36")
   }
 
   // ===== Rule ID Patterns =====

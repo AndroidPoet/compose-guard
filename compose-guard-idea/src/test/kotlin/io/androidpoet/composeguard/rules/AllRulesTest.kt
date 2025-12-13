@@ -18,6 +18,8 @@ package io.androidpoet.composeguard.rules
 import io.androidpoet.composeguard.rules.composables.ContentEmissionRule
 import io.androidpoet.composeguard.rules.composables.ContentSlotReusedRule
 import io.androidpoet.composeguard.rules.composables.EffectKeysRule
+import io.androidpoet.composeguard.rules.composables.LazyListContentTypeRule
+import io.androidpoet.composeguard.rules.composables.LazyListMissingKeyRule
 import io.androidpoet.composeguard.rules.composables.MovableContentRule
 import io.androidpoet.composeguard.rules.composables.MultipleContentRule
 import io.androidpoet.composeguard.rules.composables.PreviewVisibilityRule
@@ -40,6 +42,8 @@ import io.androidpoet.composeguard.rules.parameters.MutableParameterRule
 import io.androidpoet.composeguard.rules.parameters.ParameterOrderingRule
 import io.androidpoet.composeguard.rules.parameters.TrailingLambdaRule
 import io.androidpoet.composeguard.rules.parameters.ViewModelForwardingRule
+import io.androidpoet.composeguard.rules.state.DerivedStateOfCandidateRule
+import io.androidpoet.composeguard.rules.state.FrequentRecompositionRule
 import io.androidpoet.composeguard.rules.state.HoistStateRule
 import io.androidpoet.composeguard.rules.state.MutableStateParameterRule
 import io.androidpoet.composeguard.rules.state.RememberStateRule
@@ -52,7 +56,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * Comprehensive tests for all 38 ComposeGuard rules (31 core + 7 experimental).
+ * Comprehensive tests for all 35 ComposeGuard rules.
  * Tests rule metadata, categories, severities, and documentation URLs.
  */
 class AllRulesTest {
@@ -211,7 +215,7 @@ class AllRulesTest {
   }
 
   // =============================================================================
-  // STATE RULES (5)
+  // STATE RULES (7)
   // =============================================================================
 
   @Test
@@ -269,6 +273,30 @@ class AllRulesTest {
     assertTrue(rule.description.isNotBlank())
   }
 
+  @Test
+  fun testDerivedStateOfCandidateRule_metadata() {
+    val rule = DerivedStateOfCandidateRule()
+
+    assertEquals("DerivedStateOfCandidate", rule.id)
+    assertEquals("Consider Using remember with keys", rule.name)
+    assertEquals(RuleCategory.STATE, rule.category)
+    assertEquals(RuleSeverity.WARNING, rule.severity)
+    assertTrue(rule.description.isNotBlank())
+    assertNotNull(rule.documentationUrl)
+  }
+
+  @Test
+  fun testFrequentRecompositionRule_metadata() {
+    val rule = FrequentRecompositionRule()
+
+    assertEquals("FrequentRecomposition", rule.id)
+    assertEquals("Potential Excessive Recomposition", rule.name)
+    assertEquals(RuleCategory.STATE, rule.category)
+    assertEquals(RuleSeverity.WARNING, rule.severity)
+    assertTrue(rule.description.isNotBlank())
+    assertNotNull(rule.documentationUrl)
+  }
+
   // =============================================================================
   // PARAMETER RULES (5)
   // =============================================================================
@@ -313,7 +341,7 @@ class AllRulesTest {
     assertEquals("ExplicitDependencies", rule.id)
     assertEquals("Make Dependencies Explicit", rule.name)
     assertEquals(RuleCategory.PARAMETER, rule.category)
-    assertEquals(RuleSeverity.INFO, rule.severity)
+    assertEquals(RuleSeverity.WEAK_WARNING, rule.severity)
     assertTrue(rule.description.isNotBlank())
   }
 
@@ -329,7 +357,7 @@ class AllRulesTest {
   }
 
   // =============================================================================
-  // COMPOSABLE RULES (6)
+  // COMPOSABLE RULES (8)
   // =============================================================================
 
   @Test
@@ -398,6 +426,30 @@ class AllRulesTest {
     assertTrue(rule.description.isNotBlank())
   }
 
+  @Test
+  fun testLazyListContentTypeRule_metadata() {
+    val rule = LazyListContentTypeRule()
+
+    assertEquals("LazyListContentType", rule.id)
+    assertEquals("LazyList Missing ContentType", rule.name)
+    assertEquals(RuleCategory.COMPOSABLE, rule.category)
+    assertEquals(RuleSeverity.INFO, rule.severity)
+    assertTrue(rule.description.isNotBlank())
+    assertNotNull(rule.documentationUrl)
+  }
+
+  @Test
+  fun testLazyListMissingKeyRule_metadata() {
+    val rule = LazyListMissingKeyRule()
+
+    assertEquals("LazyListMissingKey", rule.id)
+    assertEquals("LazyList Missing Key Parameter", rule.name)
+    assertEquals(RuleCategory.COMPOSABLE, rule.category)
+    assertEquals(RuleSeverity.WARNING, rule.severity)
+    assertTrue(rule.description.isNotBlank())
+    assertNotNull(rule.documentationUrl)
+  }
+
   // =============================================================================
   // STRICTER RULES (2)
   // =============================================================================
@@ -443,7 +495,7 @@ class AllRulesTest {
   @Test
   fun testAllStateRules_count() {
     val rules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.STATE)
-    assertEquals(5, rules.size)
+    assertEquals(8, rules.size)
   }
 
   @Test
@@ -455,7 +507,7 @@ class AllRulesTest {
   @Test
   fun testAllComposableRules_count() {
     val rules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.COMPOSABLE)
-    assertEquals(6, rules.size)
+    assertEquals(8, rules.size)
   }
 
   @Test
@@ -466,7 +518,7 @@ class AllRulesTest {
 
   @Test
   fun testTotalRuleCount() {
-    assertEquals(31, ComposeRuleRegistry.getRuleCount())
+    assertEquals(36, ComposeRuleRegistry.getRuleCount())
   }
 
   // =============================================================================
@@ -500,25 +552,30 @@ class AllRulesTest {
       "ModifierReuse",
       "ModifierOrder",
       "AvoidComposed",
-      // State (5)
+      // State (8)
       "RememberState",
       "TypeSpecificState",
       "MutableStateParameter",
       "HoistState",
       "LambdaParameterInEffect",
+      "DerivedStateOfCandidate",
+      "FrequentRecomposition",
+      "DeferStateReads",
       // Parameter (5)
       "ParameterOrdering",
       "TrailingLambda",
       "MutableParameter",
       "ExplicitDependencies",
       "ViewModelForwarding",
-      // Composable (6)
+      // Composable (8)
       "ContentEmission",
       "MultipleContentEmitters",
       "ContentSlotReused",
       "EffectKeys",
       "MovableContent",
       "PreviewVisibility",
+      "LazyListContentType",
+      "LazyListMissingKey",
       // Stricter (2)
       "Material2Usage",
       "UnstableCollections",
@@ -579,7 +636,7 @@ class AllRulesTest {
     assertTrue(totalWarnings > infoCount, "Expected more warnings than info")
 
     // Verify counts add up
-    assertEquals(31, errorCount + warningCount + weakWarningCount + infoCount)
+    assertEquals(36, errorCount + warningCount + weakWarningCount + infoCount)
   }
 
   @Test
@@ -601,7 +658,17 @@ class AllRulesTest {
 
     // These rules are suggestions, not critical
     assertTrue("HoistState" in infoRules, "HoistState should be INFO severity")
-    assertTrue("ExplicitDependencies" in infoRules, "ExplicitDependencies should be INFO severity")
     assertTrue("Material2Usage" in infoRules, "Material2Usage should be INFO severity")
+    assertTrue("LazyListContentType" in infoRules, "LazyListContentType should be INFO severity")
+  }
+
+  @Test
+  fun testWeakWarningSeverityRules() {
+    val weakWarningRules = ComposeRuleRegistry.getAllRules()
+      .filter { it.severity == RuleSeverity.WEAK_WARNING }
+      .map { it.id }
+
+    // ExplicitDependencies changed from INFO to WEAK_WARNING for visible underlines
+    assertTrue("ExplicitDependencies" in weakWarningRules, "ExplicitDependencies should be WEAK_WARNING severity")
   }
 }

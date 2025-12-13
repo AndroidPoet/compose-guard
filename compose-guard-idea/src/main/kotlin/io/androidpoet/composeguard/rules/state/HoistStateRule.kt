@@ -17,6 +17,7 @@ package io.androidpoet.composeguard.rules.state
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import io.androidpoet.composeguard.quickfix.HoistStateFix
 import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposableFunctionRule
@@ -190,12 +191,15 @@ public class HoistStateRule : ComposableFunctionRule() {
       }
 
       if (shouldReport) {
+        // Infer state type for the quick fix
+        val stateType = inferStateType(property)
         violations.add(
           createViolation(
             element = property.nameIdentifier ?: property,
             message = buildSmartMessage(propertyName, usagePattern),
             tooltip = buildSmartTooltip(propertyName, function.name ?: "Composable", usagePattern),
             quickFixes = listOf(
+              HoistStateFix(propertyName, stateType),
               SuppressComposeRuleFix(id),
             ),
           ),
@@ -362,6 +366,34 @@ public class HoistStateRule : ComposableFunctionRule() {
       callName.first().isUpperCase() &&
         // Exclude utility functions
         callName !in setOf("LaunchedEffect", "DisposableEffect", "SideEffect", "CompositionLocalProvider")
+    }
+  }
+
+  /**
+   * Infers the state type from a property for the quick fix.
+   */
+  private fun inferStateType(property: KtProperty): String {
+    val initializer = property.initializer?.text ?: return "String"
+
+    return when {
+      initializer.contains("mutableIntStateOf") -> "Int"
+      initializer.contains("mutableLongStateOf") -> "Long"
+      initializer.contains("mutableFloatStateOf") -> "Float"
+      initializer.contains("mutableDoubleStateOf") -> "Double"
+      initializer.contains("mutableStateOf<") -> {
+        // Extract type from generic: mutableStateOf<String>()
+        val match = Regex("""mutableStateOf<(\w+)>""").find(initializer)
+        match?.groupValues?.getOrNull(1) ?: "String"
+      }
+      initializer.contains("mutableStateOf(\"") -> "String"
+      initializer.contains("mutableStateOf(true)") || initializer.contains("mutableStateOf(false)") -> "Boolean"
+      initializer.contains("mutableStateOf(0)") || Regex("""mutableStateOf\(\d+\)""").containsMatchIn(initializer) -> "Int"
+      initializer.contains("mutableStateOf(0L)") -> "Long"
+      initializer.contains("mutableStateOf(0f)") || initializer.contains("mutableStateOf(0.0f)") -> "Float"
+      initializer.contains("mutableStateOf(0.0)") -> "Double"
+      initializer.contains("mutableStateOf(listOf") || initializer.contains("mutableStateOf(emptyList") -> "List<Any>"
+      initializer.contains("mutableStateOf(null)") -> "Any?"
+      else -> "String"
     }
   }
 

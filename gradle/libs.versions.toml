@@ -11,6 +11,7 @@ lintApi = "31.13.1"
 nexusPlugin = "0.35.0"
 androidGradlePlugin = "8.13.1"
 androidxActivity = "1.11.0"
+androidxLifecycle = "2.8.7"
 androidxComposeBom = "2025.12.00"
 jetbrains-compose = "1.9.3"
 spotless = "6.21.0"
@@ -25,6 +26,7 @@ androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }

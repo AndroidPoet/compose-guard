@@ -19,12 +19,17 @@ import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
 /**
- * Quick fix that adds an implicit dependency as an explicit parameter.
+ * Quick fix that adds an implicit dependency as an explicit parameter with default value,
+ * replaces all usages of the local variable with the parameter,
+ * and removes the redundant property declaration.
  */
 public class AddExplicitParameterFix(
   private val dependencyName: String,
@@ -50,7 +55,10 @@ public class AddExplicitParameterFix(
 
     // Generate parameter name from dependency
     val paramName = generateParamName(dependencyName)
-    val newParam = factory.createParameter("$paramName: $parameterType")
+
+    // Use the original call as the default value (e.g., viewModel<SampleViewModel>())
+    val defaultValue = call.text
+    val newParam = factory.createParameter("$paramName: $parameterType = $defaultValue")
 
     // Find insertion point (before optional params and trailing lambdas)
     val params = parameterList.parameters
@@ -64,6 +72,30 @@ public class AddExplicitParameterFix(
       parameterList.addParameterBefore(newParam, params.first())
     } else {
       parameterList.addParameterAfter(newParam, params[insertIndex - 1])
+    }
+
+    // Check if the call is inside a property declaration (val vm = viewModel<...>())
+    val property = PsiTreeUtil.getParentOfType(call, KtProperty::class.java)
+    if (property != null) {
+      val localVarName = property.name
+      if (localVarName != null) {
+        // Find and replace all usages of the local variable with the parameter
+        val body = function.bodyExpression ?: function.bodyBlockExpression
+        if (body != null) {
+          val references = PsiTreeUtil.findChildrenOfType(body, KtNameReferenceExpression::class.java)
+          for (ref in references) {
+            if (ref.getReferencedName() == localVarName && ref != property.nameIdentifier) {
+              ref.replace(factory.createExpression(paramName))
+            }
+          }
+        }
+        // Remove the property declaration
+        property.delete()
+      }
+    } else {
+      // Not in a property declaration, just replace the call with parameter reference
+      val paramReference = factory.createExpression(paramName)
+      call.replace(paramReference)
     }
   }
 
