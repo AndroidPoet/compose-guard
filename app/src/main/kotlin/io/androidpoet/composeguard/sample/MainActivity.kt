@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.androidpoet.composeguard.sample
 
 import android.os.Bundle
@@ -40,7 +39,7 @@ class MainActivity : ComponentActivity() {
       ComposeGuardTheme {
         Surface(
           modifier = Modifier.fillMaxSize(),
-          color = MaterialTheme.colorScheme.background
+          color = MaterialTheme.colorScheme.background,
         ) {
           ComposeGuardSampleApp()
         }
@@ -55,17 +54,17 @@ fun ComposeGuardSampleApp(modifier: Modifier = Modifier) {
     modifier = modifier
       .fillMaxSize()
       .verticalScroll(rememberScrollState())
-      .padding(16.dp)
+      .padding(16.dp),
   ) {
     Text(
       text = "ComposeGuard Sample App",
       style = MaterialTheme.typography.headlineMedium,
-      modifier = Modifier.padding(bottom = 16.dp)
+      modifier = Modifier.padding(bottom = 16.dp),
     )
     Text(
       text = "This app contains sample composables to test ComposeGuard rules.",
       style = MaterialTheme.typography.bodyLarge,
-      modifier = Modifier.padding(bottom = 24.dp)
+      modifier = Modifier.padding(bottom = 24.dp),
     )
 
     // Sample composables that trigger various rules
@@ -95,13 +94,13 @@ fun ComposeGuardSampleApp(modifier: Modifier = Modifier) {
 private fun SampleSection(
   title: String,
   modifier: Modifier = Modifier,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   Column(modifier = modifier.padding(vertical = 8.dp)) {
     Text(
       text = title,
       style = MaterialTheme.typography.titleMedium,
-      modifier = Modifier.padding(bottom = 8.dp)
+      modifier = Modifier.padding(bottom = 8.dp),
     )
     content()
   }

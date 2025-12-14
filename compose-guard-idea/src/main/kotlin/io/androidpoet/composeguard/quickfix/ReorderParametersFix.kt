@@ -60,12 +60,16 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
  *     placeholder: String = ""                    // 3. optional
  * )
  * ```
+ *
+ * @param specificAction Optional specific action description (e.g., "Move 'title, text' after modifier")
  */
-public class ReorderParametersFix : LocalQuickFix, HighPriorityAction {
+public class ReorderParametersFix(
+  private val specificAction: String? = null,
+) : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Reorder parameters"
 
-  override fun getName(): String = "Reorder parameters (Compose API guidelines)"
+  override fun getName(): String = specificAction ?: "Reorder parameters (Compose API guidelines)"
 
   override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
     val element = descriptor.psiElement ?: return

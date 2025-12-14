@@ -70,6 +70,11 @@
                 level="WARNING"
                 implementationClass="io.androidpoet.composeguard.inspection.ComposeGuardInspection"/>
 
+        <!-- Suppress built-in Compose inspections when ComposeGuard handles them -->
+        <lang.inspectionSuppressor
+                language="kotlin"
+                implementationClass="io.androidpoet.composeguard.inspection.ComposeBuiltInInspectionSuppressor"/>
+
         <!-- ComposeGuard Annotator for real-time highlighting -->
         <annotator
                 language="kotlin"

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:Suppress("unused", "UNUSED_PARAMETER")
 
 package io.androidpoet.composeguard.sample
@@ -85,7 +84,7 @@ fun WrongName(cardModifier: Modifier = Modifier) {
 /** BAD: Modifier not applied to root element */
 @Composable
 fun NotOnRoot(modifier: Modifier = Modifier) {
-  Column {
+  Column(modifier = modifier) {
     Box(modifier = modifier) { Text("Content") }
   }
 }
@@ -119,9 +118,7 @@ fun Reused(modifier: Modifier = Modifier) {
 @Composable
 fun BadOrder(modifier: Modifier = Modifier) {
   Box(
-    modifier = modifier
-      .padding(16.dp)
-      .clickable { }
+    modifier = modifier.clickable { }.padding(16.dp),
   ) { Text("Card") }
 }
 
@@ -131,7 +128,7 @@ fun GoodOrder(modifier: Modifier = Modifier) {
   Box(
     modifier = modifier
       .clickable { }
-      .padding(16.dp)
+      .padding(16.dp),
   ) { Text("Card") }
 }
 

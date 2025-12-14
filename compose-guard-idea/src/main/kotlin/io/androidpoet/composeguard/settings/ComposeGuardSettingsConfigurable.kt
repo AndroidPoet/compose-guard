@@ -55,6 +55,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
   private var masterSwitch: JBCheckBox? = null
   private var gutterIconsCheckbox: JBCheckBox? = null
   private var inlayHintsCheckbox: JBCheckBox? = null
+  private var suppressBuiltInCheckbox: JBCheckBox? = null
 
   // Category checkboxes
   private var namingCategoryCheckbox: JBCheckBox? = null
@@ -240,6 +241,18 @@ public class ComposeGuardSettingsConfigurable : Configurable {
         alignmentX = Component.LEFT_ALIGNMENT
       }
       add(inlayPanel)
+
+      suppressBuiltInCheckbox = JBCheckBox(
+        "Suppress built-in Compose inspections (ModifierParameter, etc.)",
+        settings.suppressBuiltInInspections,
+      ).apply {
+        toolTipText = "Hide Android Studio's built-in Compose lint warnings when ComposeGuard handles them"
+      }
+      val suppressPanel = JPanel(FlowLayout(FlowLayout.LEFT, 15, 0)).apply {
+        add(suppressBuiltInCheckbox)
+        alignmentX = Component.LEFT_ALIGNMENT
+      }
+      add(suppressPanel)
     }
   }
 
@@ -361,6 +374,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     masterSwitch?.isSelected = true
     gutterIconsCheckbox?.isSelected = true
     inlayHintsCheckbox?.isSelected = true
+    suppressBuiltInCheckbox?.isSelected = true
 
     // Reset all category checkboxes
     namingCategoryCheckbox?.isSelected = true
@@ -382,6 +396,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     if (masterSwitch?.isSelected != settings.isComposeRulesEnabled) return true
     if (gutterIconsCheckbox?.isSelected != settings.showRuleGutterIcons) return true
     if (inlayHintsCheckbox?.isSelected != settings.showRuleInlayHints) return true
+    if (suppressBuiltInCheckbox?.isSelected != settings.suppressBuiltInInspections) return true
 
     if (namingCategoryCheckbox?.isSelected != settings.enableNamingRules) return true
     if (modifierCategoryCheckbox?.isSelected != settings.enableModifierRules) return true
@@ -405,6 +420,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     settings.isComposeRulesEnabled = masterSwitch?.isSelected ?: true
     settings.showRuleGutterIcons = gutterIconsCheckbox?.isSelected ?: true
     settings.showRuleInlayHints = inlayHintsCheckbox?.isSelected ?: true
+    settings.suppressBuiltInInspections = suppressBuiltInCheckbox?.isSelected ?: true
 
     settings.enableNamingRules = namingCategoryCheckbox?.isSelected ?: true
     settings.enableModifierRules = modifierCategoryCheckbox?.isSelected ?: true
@@ -433,6 +449,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     masterSwitch?.isSelected = settings.isComposeRulesEnabled
     gutterIconsCheckbox?.isSelected = settings.showRuleGutterIcons
     inlayHintsCheckbox?.isSelected = settings.showRuleInlayHints
+    suppressBuiltInCheckbox?.isSelected = settings.suppressBuiltInInspections
 
     namingCategoryCheckbox?.isSelected = settings.enableNamingRules
     modifierCategoryCheckbox?.isSelected = settings.enableModifierRules
@@ -459,6 +476,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     masterSwitch = null
     gutterIconsCheckbox = null
     inlayHintsCheckbox = null
+    suppressBuiltInCheckbox = null
     namingCategoryCheckbox = null
     modifierCategoryCheckbox = null
     stateCategoryCheckbox = null

@@ -13,31 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * ComposeGuard - All 35 Rules Test File
- *
- * ╔═══════════════════════════════════════════════════════════════════════════════╗
- * ║ NAMING (6)       │ MODIFIER (7)     │ STATE (6)        │ PARAMETER (5)        ║
- * ╠═══════════════════════════════════════════════════════════════════════════════╣
- * ║ 1.ComposableNaming│ 7.ModifierRequired│13.RememberState  │19.ParameterOrder    ║
- * ║ 2.LocalNaming     │ 8.ModifierDefault │14.TypeSpecific   │20.TrailingLambda    ║
- * ║ 3.PreviewNaming   │ 9.ModifierNaming  │15.DerivedState   │21.MutableParam      ║
- * ║ 4.MultipreviewName│10.ModifierTopMost │16.FrequentRecomp │22.ExplicitDeps      ║
- * ║ 5.AnnotationNaming│11.ModifierReuse   │17.MutableStateParam│23.ViewModelFwd    ║
- * ║ 6.EventNaming     │12.ModifierOrder   │18.HoistState     │                     ║
- * ║                   │   AvoidComposed   │                  │                     ║
- * ╠═══════════════════════════════════════════════════════════════════════════════╣
- * ║ COMPOSABLE (9)                        │ STRICTER (2)                          ║
- * ╠═══════════════════════════════════════════════════════════════════════════════╣
- * ║ 24.ContentEmission │ 29.LambdaInEffect │ 33.Material2Usage                     ║
- * ║ 25.MultipleContent │ 30.MovableContent │ 34.UnstableCollections                ║
- * ║ 26.SlotReused      │ 31.PreviewVisibility                                      ║
- * ║ 27.EffectKeys      │ 32.LazyContentType                                        ║
- * ║ 28.LazyMissingKey  │                                                           ║
- * ╚═══════════════════════════════════════════════════════════════════════════════╝
- */
-
 @file:Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE")
 
 package io.androidpoet.composeguard.sample
@@ -46,18 +21,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -94,7 +67,7 @@ fun GoodNamingButton(modifier: Modifier = Modifier) { // GOOD: uppercase
 
 // Rule 2: CompositionLocalNaming - Should start with "Local"
 val CurrentTheme = compositionLocalOf { "Light" } // BAD: doesn't start with Local
-val LocalTheme = compositionLocalOf { "Light" }   // GOOD: starts with Local
+val LocalTheme = compositionLocalOf { "Light" } // GOOD: starts with Local
 
 // Rule 3: PreviewNaming - Should contain "Preview"
 @Preview
@@ -264,7 +237,11 @@ fun MutableStateAsParam(count: MutableState<Int>, modifier: Modifier = Modifier)
 }
 
 @Composable
-fun ValueCallbackPattern(count: Int, onChange: (Int) -> Unit, modifier: Modifier = Modifier) { // GOOD
+fun ValueCallbackPattern(
+  count: Int,
+  onChange: (Int) -> Unit,
+  modifier: Modifier = Modifier,
+) { // GOOD
   Button(onClick = { onChange(count + 1) }, modifier = modifier) { Text("$count") }
 }
 
@@ -277,7 +254,11 @@ fun StateSharedWithChild() { // BAD: should hoist
 }
 
 @Composable
-private fun ExpandableHeader(expanded: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
+private fun ExpandableHeader(
+  expanded: Boolean,
+  onToggle: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
   Box(modifier = modifier) { Text("Expanded: $expanded") }
 }
 
@@ -297,7 +278,11 @@ fun BadParamOrdering(enabled: Boolean = true, modifier: Modifier = Modifier, tit
 }
 
 @Composable
-fun GoodParamOrdering(title: String, modifier: Modifier = Modifier, enabled: Boolean = true) { // GOOD
+fun GoodParamOrdering(
+  title: String,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+) { // GOOD
   Column(modifier = modifier) { Text(title) }
 }
 
@@ -306,18 +291,24 @@ fun GoodParamOrdering(title: String, modifier: Modifier = Modifier, enabled: Boo
 fun ContentNotTrailing(
   title: String,
   modifier: Modifier = Modifier,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
-  Column(modifier = modifier) { Text(title); content() }
+  Column(modifier = modifier) {
+    Text(title)
+    content()
+  }
 }
 
 @Composable
 fun ContentTrailing(
   title: String,
   modifier: Modifier = Modifier,
-  content: @Composable () -> Unit // GOOD: last
+  content: @Composable () -> Unit, // GOOD: last
 ) {
-  Column(modifier = modifier) { Text(title); content() }
+  Column(modifier = modifier) {
+    Text(title)
+    content()
+  }
 }
 
 // Rule 21: MutableParameter - Use immutable collections
@@ -404,7 +395,7 @@ fun SingleRootElement(modifier: Modifier = Modifier) { // GOOD
 fun SlotInvokedTwice(
   flag: Boolean,
   modifier: Modifier = Modifier,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) { // BAD
   Column(modifier = modifier) {
     if (flag) content() else content()
@@ -484,8 +475,8 @@ private fun PrivatePreviewFunction() { Text("Preview") } // GOOD: private
 @Composable
 fun LazyListNoContentType(users: List<UserData>, modifier: Modifier = Modifier) { // BAD
   LazyColumn(modifier = modifier) {
-    item { Text("Header") }
-    items(users, key = { it.id }) { Text(it.name) }
+    item(contentType = "contentType1") { Text("Header") }
+    items(items = users, key = { it.id }, contentType = { _ -> "contentType2" }) { Text(it.name) }
     item { Text("Footer") }
   }
 }
@@ -494,7 +485,10 @@ fun LazyListNoContentType(users: List<UserData>, modifier: Modifier = Modifier) 
 fun LazyListWithContentType(users: List<UserData>, modifier: Modifier = Modifier) { // GOOD
   LazyColumn(modifier = modifier) {
     item(contentType = "header") { Text("Header") }
-    items(users, key = { it.id }, contentType = { "user" }) { user -> Text(user.name) }
+    items(
+      items = users,
+      key = { user -> user.id },
+      contentType = { _ -> "contentType2" }) { user -> Text(user.name) }
     item(contentType = "footer") { Text("Footer") }
   }
 }

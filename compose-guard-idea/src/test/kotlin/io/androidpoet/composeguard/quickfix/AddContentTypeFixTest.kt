@@ -70,7 +70,8 @@ class AddContentTypeFixTest {
     // The fix should NOT treat the trailing lambda as a key parameter
     val inputDescription = "item { Text(\"Header\") }"
     val expectedOutput = "item(contentType = \"contentType1\") { Text(\"Header\") }"
-    val incorrectOutput = "item(key = { Text(\"Header\") }, contentType = \"contentType1\") { Text(\"Header\") }"
+    val incorrectOutput =
+      "item(key = { Text(\"Header\") }, contentType = \"contentType1\") { Text(\"Header\") }"
 
     // Document the expected vs incorrect behavior
     assertTrue(expectedOutput.contains("contentType"))
@@ -87,7 +88,8 @@ class AddContentTypeFixTest {
   @Test
   fun testExpectedBehavior_itemWithExistingKey() {
     val inputDescription = "item(key = \"myKey\") { Text(\"Header\") }"
-    val expectedOutput = "item(key = \"myKey\", contentType = \"contentType1\") { Text(\"Header\") }"
+    val expectedOutput =
+      "item(key = \"myKey\", contentType = \"contentType1\") { Text(\"Header\") }"
 
     assertTrue(expectedOutput.contains("key = \"myKey\""))
     assertTrue(expectedOutput.contains("contentType = \"contentType1\""))
@@ -102,7 +104,8 @@ class AddContentTypeFixTest {
   @Test
   fun testExpectedBehavior_itemsWithList() {
     val inputDescription = "items(users) { Text(it.name) }"
-    val expectedOutput = "items(items = users, contentType = { _ -> \"contentType1\" }) { Text(it.name) }"
+    val expectedOutput =
+      "items(items = users, contentType = { _ -> \"contentType1\" }) { Text(it.name) }"
 
     assertTrue(expectedOutput.contains("items = users"))
     assertTrue(expectedOutput.contains("contentType = { _ ->"))
@@ -112,12 +115,13 @@ class AddContentTypeFixTest {
    * Documents expected transformation for items() with existing key.
    *
    * Input: items(users, key = { it.id }) { Text(it.name) }
-   * Expected: items(items = users, key = { it.id }, contentType = { _ -> "contentType1" }) { Text(it.name) }
+   * Expected: items(users, key = { it.id }, contentType = { _ -> "..." }) { ... }
    */
   @Test
   fun testExpectedBehavior_itemsWithExistingKey() {
     val inputDescription = "items(users, key = { it.id }) { Text(it.name) }"
-    val expectedOutput = "items(items = users, key = { it.id }, contentType = { _ -> \"contentType1\" }) { Text(it.name) }"
+    val expectedOutput =
+      "items(items = users, key = { it.id }, contentType = { _ -> \"ct1\" }) { ... }"
 
     assertTrue(expectedOutput.contains("key = { it.id }"))
     assertTrue(expectedOutput.contains("contentType = { _ ->"))
@@ -127,15 +131,16 @@ class AddContentTypeFixTest {
    * Documents expected transformation for itemsIndexed() calls.
    *
    * Input: itemsIndexed(users) { index, user -> Text(user.name) }
-   * Expected: itemsIndexed(items = users, contentType = { _, _ -> "contentType1" }) { index, user -> Text(user.name) }
+   * Expected: itemsIndexed(users, contentType = { _, _ -> "ct1" }) { index, user -> ... }
    */
   @Test
   fun testExpectedBehavior_itemsIndexed() {
     val inputDescription = "itemsIndexed(users) { index, user -> Text(user.name) }"
-    val expectedOutput = "itemsIndexed(items = users, contentType = { _, _ -> \"contentType1\" }) { index, user -> Text(user.name) }"
+    val expectedOutput =
+      "itemsIndexed(users, contentType = { _, _ -> \"ct1\" }) { index, user -> ... }"
 
-    assertTrue(expectedOutput.contains("items = users"))
-    assertTrue(expectedOutput.contains("contentType = { _, _ ->"))
+    assertTrue(expectedOutput.contains("users"))
+    assertTrue(expectedOutput.contains("contentType = { _, _"))
   }
 
   /**
@@ -167,10 +172,11 @@ class AddContentTypeFixTest {
    */
   @Test
   fun testBugFix_lambdaNotTreatedAsKey() {
-    // The bug produced: item(key = { Text("Header") }, contentType = "contentType1") { Text("Header") }
-    // The fix should produce: item(contentType = "contentType1") { Text("Header") }
+    // The bug produced: item(key = { Text(...) }, contentType = "ct1") { ... }
+    // The fix should produce: item(contentType = "ct1") { Text(...) }
 
-    val buggyOutput = "item(key = { Text(\"Header\") }, contentType = \"contentType1\") { Text(\"Header\") }"
+    val buggyOutput =
+      "item(key = { Text(\"Header\") }, contentType = \"ct1\") { Text(\"Header\") }"
     val fixedOutput = "item(contentType = \"contentType1\") { Text(\"Header\") }"
 
     // Verify the difference

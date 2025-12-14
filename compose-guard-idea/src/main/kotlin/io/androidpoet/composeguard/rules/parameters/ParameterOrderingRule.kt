@@ -76,10 +76,14 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     val violations = mutableListOf<ComposeRuleViolation>()
 
     // Rule 1: Required parameters must come before optional ones
-    checkRequiredBeforeOptional(params, violations)
+    val hasRequiredAfterOptional = checkRequiredBeforeOptional(params, violations)
 
     // Rule 2: Modifier should be the first optional parameter
-    checkModifierPosition(params, violations)
+    // Only check this when required params are correctly placed (not after optionals)
+    // Otherwise the modifier warning is misleading - the whole order is broken
+    if (!hasRequiredAfterOptional) {
+      checkModifierPosition(params, violations)
+    }
 
     // Rule 3: Content lambdas should be at the end (trailing lambda syntax)
     checkContentLambdaTrailing(params, violations)
@@ -92,21 +96,32 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
 
   /**
    * Rule 1: Required parameters (no defaults) must come before optional ones.
+   *
+   * According to official Compose API guidelines:
+   * 1. Required parameters (no defaults)
+   * 2. Modifier parameter (FIRST optional)
+   * 3. Other optional parameters (with defaults)
+   * 4. Content lambda (trailing, if any)
+   *
+   * @return true if any required params were found after optional params
    */
   private fun checkRequiredBeforeOptional(
     params: List<KtParameter>,
     violations: MutableList<ComposeRuleViolation>,
-  ) {
+  ): Boolean {
     var foundOptional = false
+    var hasViolation = false
     for (param in params) {
       val hasDefault = param.hasDefaultValue()
-      val isModifier = isModifierParam(param)
       val isContentLambda = isContentLambda(param)
 
-      // Skip modifier and content lambdas for this check
-      if (isModifier || isContentLambda) continue
+      // Skip content lambdas for this check (they have their own ordering rule)
+      if (isContentLambda) continue
 
+      // Check if this is a required param after we've seen an optional param
+      // This applies to ALL optional params including modifier (which has default value)
       if (!hasDefault && foundOptional) {
+        hasViolation = true
         violations.add(
           createViolation(
             element = param.nameIdentifier ?: param,
@@ -120,15 +135,20 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
 
               '${param.name}' has no default value but appears after optional parameters.
             """.trimIndent(),
-            quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
+            quickFixes = listOf(
+              ReorderParametersFix("Move '${param.name}' before optional parameters"),
+              SuppressComposeRuleFix(id),
+            ),
           ),
         )
       }
 
+      // Track when we've seen any optional parameter (including modifier with default)
       if (hasDefault) {
         foundOptional = true
       }
     }
+    return hasViolation
   }
 
   /**
@@ -138,6 +158,8 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
    * "Since the modifier is recommended for any component and is used often,
    * placing it first ensures that it can be set without a named parameter
    * and provides a consistent place for this parameter in any component."
+   *
+   * Correct order: required → modifier (FIRST optional) → other optionals → content lambda
    */
   private fun checkModifierPosition(
     params: List<KtParameter>,
@@ -148,10 +170,16 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
 
     val modifierParam = params[modifierIndex]
 
+    // Only check if modifier has a default value (is optional)
+    // If modifier is required (no default), it belongs in the required params section
+    if (!modifierParam.hasDefaultValue()) return
+
     // Check for optional parameters BEFORE modifier (they should come AFTER)
+    // This includes content lambdas with defaults (optional slots) since modifier
+    // should be the FIRST optional parameter
     val paramsBeforeModifier = params.take(modifierIndex)
     val optionalBeforeModifier = paramsBeforeModifier.filter { param ->
-      param.hasDefaultValue() && !isContentLambda(param)
+      param.hasDefaultValue()
     }
 
     if (optionalBeforeModifier.isNotEmpty()) {
@@ -182,7 +210,10 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
             set without a named parameter and provides a consistent place for
             this parameter in any component."
           """.trimIndent(),
-          quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
+          quickFixes = listOf(
+            ReorderParametersFix("Move '$wrongParams' after modifier"),
+            SuppressComposeRuleFix(id),
+          ),
         ),
       )
     }
@@ -220,7 +251,10 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
 
               Call site: Card("Title") { Text("Content") }
             """.trimIndent(),
-            quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
+            quickFixes = listOf(
+              ReorderParametersFix("Move '${param.name}' to trailing position"),
+              SuppressComposeRuleFix(id),
+            ),
           ),
         )
         break
@@ -275,7 +309,10 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
                     ...
                 )
               """.trimIndent(),
-              quickFixes = listOf(ReorderParametersFix(), SuppressComposeRuleFix(id)),
+              quickFixes = listOf(
+                ReorderParametersFix("Move '$callbackName' next to '$stateName'"),
+                SuppressComposeRuleFix(id),
+              ),
             ),
           )
         }

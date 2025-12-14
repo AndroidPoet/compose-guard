@@ -218,7 +218,7 @@ class RuleDetectionTest {
       assertEquals(
         expectedCount,
         actualCount,
-        "Wrong count for category ${category.displayName}: expected $expectedCount, got $actualCount"
+        "Wrong count for ${category.displayName}: expected $expectedCount, got $actualCount"
       )
     }
 

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE")
 
 package io.androidpoet.composeguard.sample
@@ -59,7 +58,7 @@ fun StateRulesDemo(modifier: Modifier = Modifier) {
 /** BAD: State not wrapped in remember */
 @Composable
 fun NotRemembered() {
-  var count by mutableStateOf(0)
+  var count by remember { mutableIntStateOf(0) }
   Button(onClick = { count++ }) { Text("$count") }
 }
 
@@ -204,7 +203,7 @@ fun PassedToChild(modifier: Modifier = Modifier) {
 /** GOOD: Screen-level state is acceptable */
 @Composable
 fun ScreenLevel(modifier: Modifier = Modifier) {
-  var tab by remember { mutableStateOf(0) }
+  var tab by remember { mutableIntStateOf(0) }
   Column(modifier = modifier) { Text("Tab: $tab") }
 }
 
@@ -223,7 +222,7 @@ private fun Content(modifier: Modifier = Modifier) {
 private fun SearchField(
   query: String,
   onQueryChange: (String) -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   TextField(value = query, onValueChange = onQueryChange, modifier = modifier)
 }

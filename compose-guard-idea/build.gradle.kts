@@ -82,10 +82,17 @@ intellijPlatform {
                 <li>Modifier is now correctly enforced as the FIRST optional parameter (not last)</li>
                 <li>Order: required → modifier (first optional) → other optionals → content lambda</li>
                 <li>Updated ReorderParametersFix quick fix to use correct ordering</li>
+                <li><b>Suppress Built-in Compose Inspections</b>: Automatically hides Android Studio's built-in Compose lint warnings when ComposeGuard handles them</li>
+                <li>New setting: "Suppress built-in Compose inspections" in Settings → Tools → ComposeGuard</li>
                 <li><b>Comprehensive Test Coverage</b>: Added tests for all 36 rules</li>
                 <li>New test files for Modifier, Naming, State, Composable, Stricter, Effects, and Performance categories</li>
                 <li>Added EventParameterNaming rule with past tense detection</li>
                 <li>Improved settings UI with category toggles</li>
+            </ul>
+            <b>1.0.5</b>
+            <ul>
+                <li>Bug fixes and stability improvements</li>
+                <li>Performance optimizations for rule detection</li>
             </ul>
             <b>1.0.4</b>
             <ul>

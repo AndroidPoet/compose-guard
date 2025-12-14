@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:Suppress("unused", "UNUSED_PARAMETER")
 
 package io.androidpoet.composeguard.sample
@@ -36,6 +35,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PARAMETER RULES DEMO
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Official Compose API Parameter Order:
+// ┌────────────────────────────────────────────────────────────────────────────┐
+// │ 1. Required parameters (no defaults) - data first, then callbacks          │
+// │ 2. modifier: Modifier = Modifier (FIRST optional parameter)                │
+// │ 3. Other optional parameters (with defaults)                               │
+// │ 4. Trailing @Composable lambda (if any)                                    │
+// └────────────────────────────────────────────────────────────────────────────┘
+//
+// From official guidelines: "Since the modifier is recommended for any component
+// and is used often, placing it first ensures that it can be set without a named
+// parameter and provides a consistent place for this parameter in any component."
+//
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Composable
@@ -80,7 +93,7 @@ fun NotTrailing(title: String, modifier: Modifier = Modifier, content: @Composab
 fun Trailing(
   title: String,
   modifier: Modifier = Modifier,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   Column(modifier = modifier) {
     Text(title)
@@ -169,30 +182,30 @@ class SampleViewModel : ViewModel()
 /** ❌ BAD: Required 'title' comes after optional 'enabled' */
 @Composable
 fun RequiredAfterOptional(
-    enabled: Boolean = true,        // ❌ Optional should come after required
-    title: String,                  // Required - should be first!
-    modifier: Modifier = Modifier,
+  enabled: Boolean = true, // ❌ Optional should come after required
+  title: String, // Required - should be first!
+  modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) { Text(title) }
+  Column(modifier = modifier) { Text(title) }
 }
 
 // -------------------------------------------------------------------------------
-// VIOLATION 2: Modifier not in the correct position
-// Expected order: title → enabled → modifier → content
+// VIOLATION 2: Optional parameters before modifier
+// Expected order: title → modifier → enabled → content
 // -------------------------------------------------------------------------------
 
-/** ❌ BAD: Modifier is not the last non-lambda parameter */
+/** ❌ BAD: Optional parameter 'enabled' comes BEFORE modifier */
 @Composable
-fun ModifierNotLast(
-    title: String,
-    modifier: Modifier = Modifier,  // ❌ Modifier should come after 'enabled'
-    enabled: Boolean = true,
-    content: @Composable () -> Unit,
+fun OptionalBeforeModifier(
+  title: String,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  content: @Composable () -> Unit
 ) {
-    Column(modifier = modifier) {
-        Text(title)
-        content()
-    }
+  Column(modifier = modifier) {
+    Text(title)
+    content()
+  }
 }
 
 // -------------------------------------------------------------------------------
@@ -203,14 +216,14 @@ fun ModifierNotLast(
 /** ❌ BAD: Content lambda should be at the end for trailing lambda syntax */
 @Composable
 fun ContentNotTrailing(
-    content: @Composable () -> Unit,  // ❌ Should be last!
-    title: String,
-    modifier: Modifier = Modifier,
+  content: @Composable () -> Unit, // ❌ Should be last!
+  title: String,
+  modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
-        Text(title)
-        content()
-    }
+  Column(modifier = modifier) {
+    Text(title)
+    content()
+  }
 }
 
 // -------------------------------------------------------------------------------
@@ -221,16 +234,16 @@ fun ContentNotTrailing(
 /** ❌ BAD: State (value) and callback (onValueChange) should be adjacent */
 @Composable
 fun StateCallbackNotPaired(
-    value: String,
-    label: String = "",                       // ❌ Separates value from onValueChange!
-    onValueChange: (String) -> Unit,          // Should immediately follow 'value'
-    onFocusChange: (Boolean) -> Unit = {},
-    modifier: Modifier = Modifier,
+  value: String,
+  onValueChange: (String) -> Unit,
+  modifier: Modifier = Modifier,
+  label: String = "",
+  onFocusChange: (Boolean) -> Unit = {}
 ) {
-    Column(modifier = modifier) {
-        Text(label)
-        Text(value)
-    }
+  Column(modifier = modifier) {
+    Text(label)
+    Text(value)
+  }
 }
 
 // -------------------------------------------------------------------------------
@@ -241,17 +254,17 @@ fun StateCallbackNotPaired(
 /** ❌ BAD: Multiple parameter ordering violations */
 @Composable
 fun CustomButton(
-    modifier: Modifier = Modifier,                               // ❌ Modifier should be last non-lambda
-    content: @Composable RowScope.() -> Unit,                    // ❌ Content should be trailing
-    onClick: () -> Unit,                                         // Required - should be first!
-    shape: Shape,                                                // Required - should be second
-    enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
-    elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
-    border: BorderStroke? = null,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+  onClick: () -> Unit,
+  shape: Shape,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  colors: ButtonColors = ButtonDefaults.buttonColors(),
+  elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+  border: BorderStroke? = null,
+  contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+  content: @Composable RowScope.() -> Unit
 ) {
-    // Implementation
+  // Implementation
 }
 
 // -------------------------------------------------------------------------------
@@ -269,12 +282,12 @@ fun CustomTextField(
   enabled: Boolean = true,
   singleLine: Boolean = false,
   maxLines: Int = Int.MAX_VALUE,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
-        Text(label)
-        Text(value)
-    }
+  Column(modifier = modifier) {
+    Text(label)
+    Text(value)
+  }
 }
 
 // -------------------------------------------------------------------------------
@@ -285,35 +298,35 @@ fun CustomTextField(
 /** ❌ BAD: Checked state separated from its callback */
 @Composable
 fun CustomCheckbox(
-    enabled: Boolean = true,              // ❌ Optional before required!
-    checked: Boolean,                     // Required state - should be first
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
-    onCheckedChange: (Boolean) -> Unit,   // ❌ Should immediately follow 'checked'
-    modifier: Modifier = Modifier,
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  colors: ButtonColors = ButtonDefaults.buttonColors()
 ) {
-    Column(modifier = modifier) { Text("Checked: $checked") }
+  Column(modifier = modifier) { Text("Checked: $checked") }
 }
 
 // -------------------------------------------------------------------------------
 // VIOLATION 8: Scaffold-like with multiple slots
-// Expected: title → navigationIcon → actions → modifier → content
+// Click "Reorder parameters" to fix: title → modifier → navigationIcon → actions → content
 // -------------------------------------------------------------------------------
 
-/** ❌ BAD: Multiple slots and modifier ordering issues */
+/** ❌ BAD: Modifier should be first optional, content should be trailing */
 @Composable
 fun CustomScaffold(
-    modifier: Modifier = Modifier,                     // ❌ Should be after optional slots
-    content: @Composable () -> Unit,                   // ❌ Primary content should be last
-    title: String,                                     // Required - should be first!
-    navigationIcon: @Composable () -> Unit = {},       // Optional slot
-    actions: @Composable () -> Unit = {},              // Optional slot
+  title: String,
+  modifier: Modifier = Modifier,
+  navigationIcon: @Composable () -> Unit = {},
+  actions: @Composable () -> Unit = {},
+  content: @Composable () -> Unit
 ) {
-    Column(modifier = modifier) {
-        Text(title)
-        navigationIcon()
-        actions()
-        content()
-    }
+  Column(modifier = modifier) {
+    Text(title)
+    navigationIcon()
+    actions()
+    content()
+  }
 }
 
 // -------------------------------------------------------------------------------
@@ -324,14 +337,14 @@ fun CustomScaffold(
 /** ❌ BAD: Required callback after optionals, content not trailing */
 @Composable
 fun CustomCard(
-    content: @Composable () -> Unit,                   // ❌ Should be trailing
-    elevation: ButtonElevation? = null,
-    shape: Shape,                                      // ❌ Required after optional
-    onClick: () -> Unit,                               // ❌ Required should be first
-    border: BorderStroke? = null,
-    modifier: Modifier = Modifier,
+  shape: Shape,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  elevation: ButtonElevation? = null,
+  border: BorderStroke? = null,
+  content: @Composable () -> Unit
 ) {
-    Column(modifier = modifier) { content() }
+  Column(modifier = modifier) { content() }
 }
 
 // -------------------------------------------------------------------------------
@@ -342,19 +355,19 @@ fun CustomCard(
 /** ❌ BAD: Required callback mixed with optional slots incorrectly */
 @Composable
 fun CustomDialog(
-    title: String = "",
-    modifier: Modifier = Modifier,                      // ❌ Should be last
-    confirmButton: @Composable () -> Unit,              // Required slot
-    text: String = "",
-    onDismissRequest: () -> Unit,                       // ❌ Required should be first
-    dismissButton: @Composable (() -> Unit)? = null,    // Optional slot
+  onDismissRequest: () -> Unit,
+  modifier: Modifier = Modifier,
+  title: String = "",
+  text: String = "",
+  dismissButton: @Composable (() -> Unit)? = null,
+  confirmButton: @Composable () -> Unit
 ) {
-    Column(modifier = modifier) {
-        Text(title)
-        Text(text)
-        dismissButton?.invoke()
-        confirmButton()
-    }
+  Column(modifier = modifier) {
+    Text(title)
+    Text(text)
+    dismissButton?.invoke()
+    confirmButton()
+  }
 }
 
 // -------------------------------------------------------------------------------
@@ -365,14 +378,14 @@ fun CustomDialog(
 /** ❌ BAD: State/callback separation and modifier placement */
 @Composable
 fun CustomSwitch(
-    modifier: Modifier = Modifier,                      // ❌ Not last non-lambda
-    checked: Boolean,
-    enabled: Boolean = true,
-    thumbContent: @Composable (() -> Unit)? = null,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
-    onCheckedChange: (Boolean) -> Unit,                 // ❌ Should follow 'checked'
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  colors: ButtonColors = ButtonDefaults.buttonColors(),
+  thumbContent: @Composable (() -> Unit)? = null
 ) {
-    Column(modifier = modifier) { Text("Switch: $checked") }
+  Column(modifier = modifier) { Text("Switch: $checked") }
 }
 
 // -------------------------------------------------------------------------------
@@ -383,14 +396,14 @@ fun CustomSwitch(
 /** ❌ BAD: State separated from callback, required after optional */
 @Composable
 fun CustomSlider(
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    value: Float,                                        // ❌ Required after optional
-    steps: Int = 0,
-    enabled: Boolean = true,
-    onValueChange: (Float) -> Unit,                      // ❌ Should follow 'value'
-    modifier: Modifier = Modifier,
+  value: Float,
+  onValueChange: (Float) -> Unit,
+  modifier: Modifier = Modifier,
+  valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+  steps: Int = 0,
+  enabled: Boolean = true
 ) {
-    Column(modifier = modifier) { Text("Value: $value") }
+  Column(modifier = modifier) { Text("Value: $value") }
 }
 
 // -------------------------------------------------------------------------------
@@ -405,13 +418,13 @@ fun CustomTabRow(
   modifier: Modifier = Modifier,
   indicator: @Composable () -> Unit = {},
   divider: @Composable () -> Unit = {},
-  tabs: @Composable () -> Unit
+  tabs: @Composable () -> Unit,
 ) {
-    Column(modifier = modifier) {
-        indicator()
-        divider()
-        tabs()
-    }
+  Column(modifier = modifier) {
+    indicator()
+    divider()
+    tabs()
+  }
 }
 
 // -------------------------------------------------------------------------------
@@ -423,38 +436,89 @@ fun CustomTabRow(
 @Composable
 fun CustomBottomSheet(
   onDismissRequest: () -> Unit,
-  sheetState: Int = 0,
   modifier: Modifier = Modifier,
+  sheetState: Int = 0,
   sheetContent: @Composable () -> Unit,
   content: @Composable () -> Unit
 ) {
-    Column(modifier = modifier) {
-        sheetContent()
-        content()
-    }
+  Column(modifier = modifier) {
+    sheetContent()
+    content()
+  }
 }
 
 // -------------------------------------------------------------------------------
-// VIOLATION 15: Complex form field with validation
-// Expected: value → onValueChange → label → placeholder → isError → errorMessage → enabled → modifier
+// VIOLATION 15: Complex form field with validation (OFFICIAL RULE DEMO)
+// Expected: label → value → onValueChange → modifier → isError → errorMessage → enabled → placeholder
 // -------------------------------------------------------------------------------
 
-/** ❌ BAD: Multiple required params mixed with optionals incorrectly */
+/**
+ * ❌ BAD: Multiple violations of official Compose API parameter ordering:
+ *
+ * 1. Optional params (errorMessage, enabled) appear BEFORE modifier
+ * 2. Required params (label, value, onValueChange) appear AFTER optional params
+ *
+ * From official Compose Component API Guidelines:
+ * "Since the modifier is recommended for any component and is used often,
+ * placing it first ensures that it can be set without a named parameter
+ * and provides a consistent place for this parameter in any component."
+ *
+ * ✅ CORRECT ORDER:
+ * @Composable
+ * fun FormField(
+ *     label: String,                      // 1. Required params first
+ *     value: String,                      // 1. Required params
+ *     onValueChange: (String) -> Unit,    // 1. Required callback
+ *     modifier: Modifier = Modifier,      // 2. Modifier (FIRST optional)
+ *     isError: Boolean = false,           // 3. Other optional params
+ *     errorMessage: String = "",
+ *     enabled: Boolean = true,
+ *     placeholder: String = ""
+ * )
+ */
 @Composable
 fun FormField(
   label: String,
   value: String,
   onValueChange: (String) -> Unit,
+  modifier: Modifier = Modifier,
+  errorMessage: String = "",
+  enabled: Boolean = true,
+  isError: Boolean = false,
+  placeholder: String = ""
+) {
+  Column(modifier = modifier) {
+    Text(label)
+    Text(value)
+    if (isError) Text(errorMessage)
+  }
+}
+
+// -------------------------------------------------------------------------------
+// CORRECT EXAMPLE: FormField with proper parameter ordering
+// -------------------------------------------------------------------------------
+
+/**
+ * ✅ CORRECT: Follows official Compose API parameter ordering:
+ *
+ * 1. Required parameters (no defaults) - data first, then callbacks
+ * 2. Modifier (FIRST optional parameter)
+ * 3. Other optional parameters with defaults
+ */
+@Composable
+fun FormFieldCorrect(
+  label: String,
+  value: String,
+  onValueChange: (String) -> Unit,
+  modifier: Modifier = Modifier,
   isError: Boolean = false,
   errorMessage: String = "",
   enabled: Boolean = true,
-  placeholder: String = "",
-  modifier: Modifier = Modifier
+  placeholder: String = ""
 ) {
-    Column(modifier = modifier) {
-        Text(label)
-        Text(value)
-        if (isError) Text(errorMessage)
-    }
+  Column(modifier = modifier) {
+    Text(label)
+    Text(value)
+    if (isError) Text(errorMessage)
+  }
 }
-

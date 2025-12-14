@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.androidpoet.composeguard.sample.ui.theme
 
 import android.os.Build
@@ -34,7 +33,7 @@ private val LightColorScheme = lightColorScheme()
 fun ComposeGuardTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
   dynamicColor: Boolean = true,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   val colorScheme = when {
     dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -47,6 +46,6 @@ fun ComposeGuardTheme(
 
   MaterialTheme(
     colorScheme = colorScheme,
-    content = content
+    content = content,
   )
 }

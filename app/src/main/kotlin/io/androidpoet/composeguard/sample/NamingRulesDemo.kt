@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:Suppress("unused", "UNUSED_PARAMETER")
 
 package io.androidpoet.composeguard.sample
@@ -113,7 +112,7 @@ annotation class PreviewsTheme
 
 /** BAD: Event parameter uses past tense */
 @Composable
-fun BadEvent(onClicked: () -> Unit, modifier: Modifier = Modifier) {
+fun BadEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
   Button(onClick = onClicked, modifier = modifier) { Text("Click") }
 }
 
@@ -122,3 +121,31 @@ fun BadEvent(onClicked: () -> Unit, modifier: Modifier = Modifier) {
 fun GoodEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
   Button(onClick = onClick, modifier = modifier) { Text("Click") }
 }
+
+
+@Composable
+fun BFormField(
+  label: String,
+  value: String,
+  onValueChange: (String) -> Unit,
+  modifier: Modifier = Modifier,
+  isError: Boolean = false,
+  errorMessage: String = "",
+  enabled: Boolean = true,
+  placeholder: String = ""
+) {
+
+}
+
+// ✅ CORRECT ORDER
+@Composable
+fun AFormField(
+  label: String,                      // required
+  value: String,                      // required
+  onValueChange: (String) -> Unit,    // required
+  modifier: Modifier = Modifier,      // FIRST optional ✅
+  isError: Boolean = false,           // optional after modifier
+  errorMessage: String = "",
+  enabled: Boolean = true,
+  placeholder: String = ""
+){}

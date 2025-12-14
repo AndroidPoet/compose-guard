@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:Suppress("unused", "UNUSED_PARAMETER")
 
 package io.androidpoet.composeguard.sample
@@ -196,7 +195,8 @@ fun WithContentType(users: List<User>, modifier: Modifier = Modifier) {
     items(
       items = users,
       key = { user -> user.id },
-      contentType = { _ -> "contentType2" }) { user -> Text(user.name) }
+      contentType = { _ -> "contentType2" },
+    ) { user -> Text(user.name) }
     item(contentType = "footer") { Text("Footer") }
   }
 }

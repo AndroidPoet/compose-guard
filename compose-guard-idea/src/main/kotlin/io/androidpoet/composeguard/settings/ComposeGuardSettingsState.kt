@@ -53,6 +53,13 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
    */
   public var showRuleViolationsInToolWindow: Boolean = true
 
+  /**
+   * Suppress Android Studio's built-in Compose lint inspections when
+   * Compose Guard's corresponding rules are enabled.
+   * This prevents duplicate warnings from appearing.
+   */
+  public var suppressBuiltInInspections: Boolean = true
+
   // ===== Category-level settings =====
 
   /**
