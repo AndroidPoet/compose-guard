@@ -25,7 +25,6 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtTypeArgumentList
 
 /**
  * Rule: Use type-specific mutableStateOf variants when possible.
@@ -226,7 +225,9 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
           val keyType = typeArgs[0]
           val valueType = typeArgs[1]
           collectionVariants["${keyType}${valueType}Map"]
-        } else null
+        } else {
+          null
+        }
       }
       else -> null
     }

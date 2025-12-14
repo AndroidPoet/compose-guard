@@ -1,5 +1,17 @@
 /*
  * Designed and developed by 2025 androidpoet (Ranbir Singh)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.androidpoet.composeguard.rules.naming
 
@@ -30,15 +42,17 @@ public class PreviewNamingRule : ComposableFunctionRule() {
     val name = function.name ?: return emptyList()
     if (!name.contains("Preview", ignoreCase = true)) {
       val suggestedName = "${name}Preview"
-      return listOf(createViolation(
-        element = function.nameIdentifier ?: function,
-        message = "Preview function '$name' should include 'Preview' in name",
-        tooltip = "Add 'Preview' suffix to clearly identify preview functions (e.g., '$suggestedName').",
-        quickFixes = listOf(
-          RenameComposableFix(suggestedName),
-          SuppressComposeRuleFix(id),
+      return listOf(
+        createViolation(
+          element = function.nameIdentifier ?: function,
+          message = "Preview function '$name' should include 'Preview' in name",
+          tooltip = "Add 'Preview' suffix to clearly identify preview functions (e.g., '$suggestedName').",
+          quickFixes = listOf(
+            RenameComposableFix(suggestedName),
+            SuppressComposeRuleFix(id),
+          ),
         ),
-      ))
+      )
     }
     return emptyList()
   }

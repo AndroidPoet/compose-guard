@@ -26,7 +26,6 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isPreview
 import io.androidpoet.composeguard.rules.isPrivate
-import io.androidpoet.composeguard.rules.isPublic
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -118,14 +117,24 @@ public class HoistStateRule : ComposableFunctionRule() {
 
   // ViewModel and large object types that indicate screen-level composables
   private val screenLevelTypes = setOf(
-    "ViewModel", "UiState", "State", "Repository", "UseCase",
-    "NavController", "NavHostController", "Navigator",
+    "ViewModel",
+    "UiState",
+    "State",
+    "Repository",
+    "UseCase",
+    "NavController",
+    "NavHostController",
+    "Navigator",
   )
 
   // Navigation contexts where state is idiomatic
   private val navigationContexts = setOf(
-    "composable", "navigation", "NavHost", "NavGraphBuilder",
-    "dialog", "bottomSheet",
+    "composable",
+    "navigation",
+    "NavHost",
+    "NavGraphBuilder",
+    "dialog",
+    "bottomSheet",
   )
 
   override fun shouldAnalyze(function: KtNamedFunction): Boolean {

@@ -24,7 +24,6 @@ import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.AnyFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
-import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isComposable
 import io.androidpoet.composeguard.rules.isCompositionLocal
 import io.androidpoet.composeguard.rules.isSuppressed

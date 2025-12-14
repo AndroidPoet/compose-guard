@@ -74,7 +74,9 @@ public class MutableParameterRule : ComposableFunctionRule() {
           """.trimIndent(),
           quickFixes = listOf(SuppressComposeRuleFix(id)),
         )
-      } else null
+      } else {
+        null
+      }
     }
   }
 }

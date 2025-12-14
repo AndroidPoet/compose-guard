@@ -17,7 +17,6 @@ package io.androidpoet.composeguard.linemarker
 
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.psi.PsiElement
 import com.intellij.ui.JBColor
@@ -156,8 +155,8 @@ public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
 
   private companion object {
     private val ERROR_COLOR = JBColor(
-      Color(232, 104, 74),  // Light theme: red/orange
-      Color(232, 104, 74),  // Dark theme: red/orange
+      Color(232, 104, 74), // Light theme: red/orange
+      Color(232, 104, 74), // Dark theme: red/orange
     )
     private val WARNING_COLOR = JBColor(
       Color(240, 198, 116), // Light theme: orange/yellow
@@ -168,8 +167,8 @@ public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
       Color(174, 174, 174), // Dark theme: gray
     )
     private val INFO_COLOR = JBColor(
-      Color(95, 184, 101),  // Light theme: green
-      Color(95, 184, 101),  // Dark theme: green
+      Color(95, 184, 101), // Light theme: green
+      Color(95, 184, 101), // Dark theme: green
     )
   }
 }

@@ -200,7 +200,7 @@ fun OptionalBeforeModifier(
   title: String,
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   Column(modifier = modifier) {
     Text(title)
@@ -238,7 +238,7 @@ fun StateCallbackNotPaired(
   onValueChange: (String) -> Unit,
   modifier: Modifier = Modifier,
   label: String = "",
-  onFocusChange: (Boolean) -> Unit = {}
+  onFocusChange: (Boolean) -> Unit = {},
 ) {
   Column(modifier = modifier) {
     Text(label)
@@ -262,7 +262,7 @@ fun CustomButton(
   elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
   border: BorderStroke? = null,
   contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-  content: @Composable RowScope.() -> Unit
+  content: @Composable RowScope.() -> Unit,
 ) {
   // Implementation
 }
@@ -302,7 +302,7 @@ fun CustomCheckbox(
   onCheckedChange: (Boolean) -> Unit,
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
-  colors: ButtonColors = ButtonDefaults.buttonColors()
+  colors: ButtonColors = ButtonDefaults.buttonColors(),
 ) {
   Column(modifier = modifier) { Text("Checked: $checked") }
 }
@@ -319,7 +319,7 @@ fun CustomScaffold(
   modifier: Modifier = Modifier,
   navigationIcon: @Composable () -> Unit = {},
   actions: @Composable () -> Unit = {},
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   Column(modifier = modifier) {
     Text(title)
@@ -342,7 +342,7 @@ fun CustomCard(
   modifier: Modifier = Modifier,
   elevation: ButtonElevation? = null,
   border: BorderStroke? = null,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   Column(modifier = modifier) { content() }
 }
@@ -360,7 +360,7 @@ fun CustomDialog(
   title: String = "",
   text: String = "",
   dismissButton: @Composable (() -> Unit)? = null,
-  confirmButton: @Composable () -> Unit
+  confirmButton: @Composable () -> Unit,
 ) {
   Column(modifier = modifier) {
     Text(title)
@@ -383,7 +383,7 @@ fun CustomSwitch(
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
   colors: ButtonColors = ButtonDefaults.buttonColors(),
-  thumbContent: @Composable (() -> Unit)? = null
+  thumbContent: @Composable (() -> Unit)? = null,
 ) {
   Column(modifier = modifier) { Text("Switch: $checked") }
 }
@@ -401,7 +401,7 @@ fun CustomSlider(
   modifier: Modifier = Modifier,
   valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
   steps: Int = 0,
-  enabled: Boolean = true
+  enabled: Boolean = true,
 ) {
   Column(modifier = modifier) { Text("Value: $value") }
 }
@@ -439,7 +439,7 @@ fun CustomBottomSheet(
   modifier: Modifier = Modifier,
   sheetState: Int = 0,
   sheetContent: @Composable () -> Unit,
-  content: @Composable () -> Unit
+  content: @Composable () -> Unit,
 ) {
   Column(modifier = modifier) {
     sheetContent()
@@ -485,7 +485,7 @@ fun FormField(
   errorMessage: String = "",
   enabled: Boolean = true,
   isError: Boolean = false,
-  placeholder: String = ""
+  placeholder: String = "",
 ) {
   Column(modifier = modifier) {
     Text(label)
@@ -514,7 +514,7 @@ fun FormFieldCorrect(
   isError: Boolean = false,
   errorMessage: String = "",
   enabled: Boolean = true,
-  placeholder: String = ""
+  placeholder: String = "",
 ) {
   Column(modifier = modifier) {
     Text(label)

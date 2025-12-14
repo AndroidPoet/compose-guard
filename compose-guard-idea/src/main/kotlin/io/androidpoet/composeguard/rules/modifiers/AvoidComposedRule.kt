@@ -68,10 +68,11 @@ public class AvoidComposedRule : AnyFunctionRule() {
     for (call in callsToCheck) {
       val calleeName = call.calleeExpression?.text ?: continue
       if (calleeName == "composed") {
-        violations.add(createViolation(
-          element = call,
-          message = "Avoid using 'composed {}' - use Modifier.Node instead",
-          tooltip = """
+        violations.add(
+          createViolation(
+            element = call,
+            message = "Avoid using 'composed {}' - use Modifier.Node instead",
+            tooltip = """
             The 'composed' API has performance issues and is considered deprecated.
 
             Problems with composed:
@@ -85,11 +86,12 @@ public class AvoidComposedRule : AnyFunctionRule() {
             - Use Modifier.then() instead of composed {}
 
             See: https://developer.android.com/develop/ui/compose/modifiers
-          """.trimIndent(),
-          quickFixes = listOf(
-            SuppressComposeRuleFix(id),
+            """.trimIndent(),
+            quickFixes = listOf(
+              SuppressComposeRuleFix(id),
+            ),
           ),
-        ))
+        )
       }
     }
 

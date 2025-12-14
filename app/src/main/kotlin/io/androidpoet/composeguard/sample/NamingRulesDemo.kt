@@ -113,7 +113,7 @@ annotation class PreviewsTheme
 /** BAD: Event parameter uses past tense */
 @Composable
 fun BadEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
-  Button(onClick = onClicked, modifier = modifier) { Text("Click") }
+  Button(onClick = onClick, modifier = modifier) { Text("Click") }
 }
 
 /** GOOD: Event parameter uses present tense */
@@ -121,7 +121,6 @@ fun BadEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
 fun GoodEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
   Button(onClick = onClick, modifier = modifier) { Text("Click") }
 }
-
 
 @Composable
 fun BFormField(
@@ -132,20 +131,19 @@ fun BFormField(
   isError: Boolean = false,
   errorMessage: String = "",
   enabled: Boolean = true,
-  placeholder: String = ""
+  placeholder: String = "",
 ) {
-
 }
 
 // ✅ CORRECT ORDER
 @Composable
 fun AFormField(
-  label: String,                      // required
-  value: String,                      // required
-  onValueChange: (String) -> Unit,    // required
-  modifier: Modifier = Modifier,      // FIRST optional ✅
-  isError: Boolean = false,           // optional after modifier
+  label: String, // required
+  value: String, // required
+  onValueChange: (String) -> Unit, // required
+  modifier: Modifier = Modifier, // FIRST optional ✅
+  isError: Boolean = false, // optional after modifier
   errorMessage: String = "",
   enabled: Boolean = true,
-  placeholder: String = ""
-){}
+  placeholder: String = "",
+) {}

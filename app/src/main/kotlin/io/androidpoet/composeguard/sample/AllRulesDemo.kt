@@ -488,7 +488,8 @@ fun LazyListWithContentType(users: List<UserData>, modifier: Modifier = Modifier
     items(
       items = users,
       key = { user -> user.id },
-      contentType = { _ -> "contentType2" }) { user -> Text(user.name) }
+      contentType = { _ -> "contentType2" },
+    ) { user -> Text(user.name) }
     item(contentType = "footer") { Text("Footer") }
   }
 }

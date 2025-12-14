@@ -36,8 +36,8 @@ repositories {
 
 dependencies {
   intellijPlatform {
-    // Use local Android Studio for development/testing
-    local("/Applications/Android Studio.app")
+    // Use IntelliJ IDEA Ultimate (has Kotlin bundled)
+    intellijIdeaUltimate("2024.2")
     bundledPlugin("org.jetbrains.kotlin")
     testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     pluginVerifier()
