@@ -47,10 +47,11 @@ public class CompositionLocalNamingRule : PropertyRule() {
     val name = property.name ?: return emptyList()
     if (!name.startsWith("Local")) {
       val suggestedName = "Local$name"
-      return listOf(createViolation(
-        element = property.nameIdentifier ?: property,
-        message = "CompositionLocal '$name' should start with 'Local' prefix",
-        tooltip = """
+      return listOf(
+        createViolation(
+          element = property.nameIdentifier ?: property,
+          message = "CompositionLocal '$name' should start with 'Local' prefix",
+          tooltip = """
           CompositionLocal instances should follow naming convention with 'Local' prefix.
 
           Change: $name
@@ -59,12 +60,13 @@ public class CompositionLocalNamingRule : PropertyRule() {
           Example:
           ❌ val CurrentUser = compositionLocalOf { ... }
           ✅ val LocalCurrentUser = compositionLocalOf { ... }
-        """.trimIndent(),
-        quickFixes = listOf(
-          AddLocalPrefixFix(suggestedName),
-          SuppressComposeRuleFix(id),
+          """.trimIndent(),
+          quickFixes = listOf(
+            AddLocalPrefixFix(suggestedName),
+            SuppressComposeRuleFix(id),
+          ),
         ),
-      ))
+      )
     }
     return emptyList()
   }

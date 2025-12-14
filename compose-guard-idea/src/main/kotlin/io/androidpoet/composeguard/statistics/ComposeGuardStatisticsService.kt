@@ -136,7 +136,6 @@ public class ComposeGuardStatisticsService(private val project: Project) {
           val scanDuration = System.currentTimeMillis() - startTime
           currentStatistics =
             buildStatistics(violations, filesAnalyzed.size, totalFiles, scanDuration)
-
         } catch (e: Exception) {
           // Handle errors gracefully
           currentStatistics = ProjectStatistics.empty()

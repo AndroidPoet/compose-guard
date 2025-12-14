@@ -164,12 +164,12 @@ public class LazyListContentTypeRule : ComposableFunctionRule() {
                       Add contentType parameter:
 
                       ${when (itemCalleeName) {
-                        "stickyHeader" -> "$itemCalleeName(contentType = \"stickyHeader\") { ... }"
-                        "item" -> "$itemCalleeName(contentType = \"header\") { ... }"
-                        "items" -> "$itemCalleeName(data, contentType = { \"listItem\" }) { ... }"
-                        "itemsIndexed" -> "$itemCalleeName(data, contentType = { _, _ -> \"listItem\" }) { ... }"
-                        else -> "$itemCalleeName(contentType = \"item\") { ... }"
-                      }}
+                      "stickyHeader" -> "$itemCalleeName(contentType = \"stickyHeader\") { ... }"
+                      "item" -> "$itemCalleeName(contentType = \"header\") { ... }"
+                      "items" -> "$itemCalleeName(data, contentType = { \"listItem\" }) { ... }"
+                      "itemsIndexed" -> "$itemCalleeName(data, contentType = { _, _ -> \"listItem\" }) { ... }"
+                      else -> "$itemCalleeName(contentType = \"item\") { ... }"
+                    }}
                     """.trimIndent(),
                     quickFixes = listOf(AddContentTypeFix(), SuppressComposeRuleFix(id)),
                     severity = RuleSeverity.WEAK_WARNING,

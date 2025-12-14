@@ -19,7 +19,6 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi.PsiManager
-import com.intellij.ui.CheckBoxList
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
@@ -29,21 +28,15 @@ import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.RuleCategory
 import java.awt.BorderLayout
 import java.awt.Component
-import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
-import javax.swing.DefaultListCellRenderer
 import javax.swing.JButton
 import javax.swing.JComponent
-import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JSeparator
-import javax.swing.SwingConstants
 
 /**
  * Settings UI for ComposeGuard plugin.

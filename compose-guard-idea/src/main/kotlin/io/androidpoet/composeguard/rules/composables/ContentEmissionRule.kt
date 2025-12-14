@@ -54,10 +54,11 @@ public class ContentEmissionRule : ComposableFunctionRule() {
 
     if (emitsContent) {
       val returnType = function.typeReference?.text ?: "non-Unit"
-      return listOf(createViolation(
-        element = function.typeReference ?: function.nameIdentifier ?: function,
-        message = "Composable emits content but also returns '$returnType'",
-        tooltip = """
+      return listOf(
+        createViolation(
+          element = function.typeReference ?: function.nameIdentifier ?: function,
+          message = "Composable emits content but also returns '$returnType'",
+          tooltip = """
           Composable functions should either:
           - Emit UI content to the composition tree (return Unit)
           - Return a value to the caller (no UI emission)
@@ -84,9 +85,10 @@ public class ContentEmissionRule : ComposableFunctionRule() {
              }
 
              fun computeValue(): String = "result"
-        """.trimIndent(),
-        quickFixes = listOf(SuppressComposeRuleFix(id)),
-      ))
+          """.trimIndent(),
+          quickFixes = listOf(SuppressComposeRuleFix(id)),
+        ),
+      )
     }
     return emptyList()
   }

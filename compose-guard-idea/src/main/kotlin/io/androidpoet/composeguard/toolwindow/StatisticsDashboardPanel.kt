@@ -25,8 +25,6 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBUI
-import io.androidpoet.composeguard.rules.RuleCategory
-import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.statistics.CategoryStatistics
 import io.androidpoet.composeguard.statistics.ComposeGuardStatisticsService
 import io.androidpoet.composeguard.statistics.FileStatistics
@@ -47,7 +45,6 @@ import java.awt.event.MouseEvent
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.swing.BorderFactory
-import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.JTabbedPane

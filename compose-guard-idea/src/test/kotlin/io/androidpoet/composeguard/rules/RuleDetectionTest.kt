@@ -218,7 +218,7 @@ class RuleDetectionTest {
       assertEquals(
         expectedCount,
         actualCount,
-        "Wrong count for ${category.displayName}: expected $expectedCount, got $actualCount"
+        "Wrong count for ${category.displayName}: expected $expectedCount, got $actualCount",
       )
     }
 
@@ -235,7 +235,7 @@ class RuleDetectionTest {
       // Rule IDs should be PascalCase without spaces
       assertTrue(
         rule.id.matches(Regex("^[A-Z][a-zA-Z0-9]*$")),
-        "Rule ID '${rule.id}' doesn't follow PascalCase convention"
+        "Rule ID '${rule.id}' doesn't follow PascalCase convention",
       )
     }
   }
