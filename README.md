@@ -8,6 +8,10 @@
   <a href="https://plugins.jetbrains.com/plugin/29308-composeguard"><img alt="JetBrains Plugin" src="https://img.shields.io/jetbrains/plugin/v/29308-composeguard?label=JetBrains%20Marketplace"/></a>
   <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
   <a href="https://github.com/androidpoet"><img alt="Profile" src="https://img.shields.io/badge/GitHub-androidpoet-blue"/></a>
+<a href="https://androidweekly.net/issues/issue-705">
+  <img alt="Android Weekly" src="https://androidweekly.net/issues/issue-705/badge"/>
+</a>
+
 </p>
 
 <p align="center">
