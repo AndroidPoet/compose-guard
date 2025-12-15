@@ -125,14 +125,14 @@ fun BadEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
 @Composable
 fun BFormField(
-  label: String,
   value: String,
   onValueChange: (String) -> Unit,
+  label: String,
   modifier: Modifier = Modifier,
-  isError: Boolean = false,
   errorMessage: String = "",
+  isError: Boolean = false,
   enabled: Boolean = true,
-  placeholder: String = "",
+  placeholder: String = ""
 ) {
 }
 

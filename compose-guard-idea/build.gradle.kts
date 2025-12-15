@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.0.8"
+version = "1.0.9"
 
 repositories {
   mavenCentral()
@@ -75,6 +75,11 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.0.9</b>
+            <ul>
+                <li><b>State/Callback Pairing</b>: ReorderParametersFix now keeps state/callback pairs together (e.g., value/onValueChange, checked/onCheckedChange)</li>
+                <li><b>Improved Parameter Ordering</b>: Smart pairing for common patterns like text/onTextChange, query/onQueryChange, selected/onSelectedChange</li>
+            </ul>
             <b>1.0.8</b>
             <ul>
                 <li><b>Rule Enable/Disable Bug Fix</b>: Fixed critical issue with rule enable/disable functionality</li>

@@ -99,6 +99,8 @@ public class ReorderParametersFix(
    * Sorts parameters according to Compose API guidelines.
    *
    * Order: required → modifier (FIRST optional) → optionals → content lambda
+   *
+   * Also ensures state/callback pairs are kept together (e.g., value/onValueChange).
    */
   private fun sortParameters(params: List<KtParameter>): List<KtParameter> {
     val required = mutableListOf<KtParameter>()
@@ -120,6 +122,10 @@ public class ReorderParametersFix(
       }
     }
 
+    // Ensure state/callback pairs are adjacent within each category
+    val pairedRequired = pairStateCallbacks(required)
+    val pairedOptional = pairStateCallbacks(optional)
+
     // Sort content lambdas: optional slots first, primary content last
     val sortedContentLambdas = contentLambdas.sortedWith(
       compareBy(
@@ -131,7 +137,49 @@ public class ReorderParametersFix(
     )
 
     // Official order: required → modifier (FIRST optional) → optionals → content
-    return required + modifier + optional + sortedContentLambdas
+    return pairedRequired + modifier + pairedOptional + sortedContentLambdas
+  }
+
+  /**
+   * Reorders parameters to ensure state/callback pairs are adjacent.
+   *
+   * Pattern: (value, onValueChange), (checked, onCheckedChange), etc.
+   * The callback should immediately follow its state parameter.
+   */
+  private fun pairStateCallbacks(params: List<KtParameter>): List<KtParameter> {
+    if (params.size <= 1) return params
+
+    val stateCallbackPairs = mapOf(
+      "value" to "onValueChange",
+      "checked" to "onCheckedChange",
+      "selected" to "onSelectedChange",
+      "expanded" to "onExpandedChange",
+      "text" to "onTextChange",
+      "query" to "onQueryChange",
+    )
+
+    val result = mutableListOf<KtParameter>()
+    val usedIndices = mutableSetOf<Int>()
+
+    for ((index, param) in params.withIndex()) {
+      if (index in usedIndices) continue
+
+      result.add(param)
+      usedIndices.add(index)
+
+      // Check if this is a state param with a corresponding callback
+      val callbackName = stateCallbackPairs[param.name]
+      if (callbackName != null) {
+        // Find the callback in remaining params
+        val callbackIndex = params.indexOfFirst { it.name == callbackName }
+        if (callbackIndex >= 0 && callbackIndex !in usedIndices) {
+          result.add(params[callbackIndex])
+          usedIndices.add(callbackIndex)
+        }
+      }
+    }
+
+    return result
   }
 
   /**
