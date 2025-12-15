@@ -6,22 +6,22 @@
 
 ### What's New in 1.0.7
 
-#### Fixed
-- **Settings Save Issue** - Individual rule enable/disable now works correctly
-  - Checking a rule checkbox now auto-enables its parent category
-  - Fixed `isModified()` detection for proper settings persistence
+#### New Features
+- **All Rules Enabled by Default** - All rules including experimental are now enabled out of the box
+- **Simplified Settings UX** - Completely redesigned settings panel:
+  - All checkboxes are now always interactive (no more grayed-out states)
+  - "Enable All Rules" master switch to select/deselect all rules at once
+  - Category checkboxes act as "select all/none" for rules in that category
+  - Parent checkbox states automatically derived from child selections
+  - Standard IDE settings pattern (like IntelliJ inspections panel)
 
+#### Fixed
+- **Critical Settings Bug** - Disabling one rule no longer disables ALL rules
 - **Rule Category Mismatch** - LambdaParameterInEffect moved to correct STATE category in UI
+- **Hierarchical Rule Control** - Proper Master → Category → Rule hierarchy now works correctly
 
 #### Added
-- **Comprehensive Test Coverage** - Added 26 new tests for enable/disable functionality
-  - Tests for PreviewVisibility, LazyListContentType, LazyListMissingKey rules
-  - Tests for category and rule interaction, master switch behavior
-
-#### Improved
-- **LazyListContentType Rule Enhancement** - Now highlights both:
-  - The `LazyColumn`/`LazyRow` itself with a summary warning
-  - Each individual `item()` call that's missing `contentType` parameter
+- **Comprehensive Test Coverage** - 45+ new tests for settings and enable/disable functionality
 
 ### Previous Releases
 

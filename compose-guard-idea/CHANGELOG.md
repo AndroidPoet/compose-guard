@@ -2,94 +2,33 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
-## [1.0.14] - 2025-12-13
-
-### Changed
-- **Rule Package Reorganization** - Experimental rules moved to proper categories for better organization
-  - `LazyListMissingKey` and `LazyListContentType` → `rules/composables/` (COMPOSABLE category)
-  - `DerivedStateOfCandidate` and `FrequentRecomposition` → `rules/state/` (STATE category)
-  - Removed experimental package entirely
-
-### Added
-- **Quick Fix Unit Tests** - Added comprehensive test coverage for quick fixes
-  - Better reliability for AddContentTypeFix, AddKeyParameterFix, and other fixes
-
----
-
-## [1.0.13] - 2025-12-13
-
-### Fixed
-- **AddContentTypeFix Bug Fix** - Fixed bug where content lambda was incorrectly treated as key parameter
-
----
-
-## [1.0.12] - 2025-12-13
-
-### Fixed
-- **AddContentTypeFix Bug Fix** - Fixed bug where content lambda was incorrectly treated as key parameter
-  - When content was passed as `item({ Text() })`, it was incorrectly converted to `key = { Text() }`
-  - Lambda arguments are now correctly recognized as content and moved to trailing position
-  - Applies to `item()`, `items()`, `itemsIndexed()`, and `stickyHeader()` calls
-
-### Added
-- **AddContentTypeFix Unit Tests** - Added comprehensive test coverage for the quick fix
-  - Tests for expected transformations
-  - Bug fix verification tests
-  - Content type naming tests
-
----
-
-## [1.0.11] - 2025-12-13
-
-### Changed
-- **Rule Reorganization** - Moved experimental rules to appropriate categories
-  - `LazyListMissingKey` and `LazyListContentType` moved to COMPOSABLE category
-  - `DerivedStateOfCandidate` and `FrequentRecomposition` moved to STATE category
-  - Rules are now enabled by default (no longer experimental)
-
----
-
-## [1.0.10] - 2025-12-13
-
-### Fixed
-- **ExplicitDependencies Visibility** - Changed severity from INFO to WEAK_WARNING for visible underlines
-  - `viewModel()` and CompositionLocal calls now show proper wavy underline highlighting
-  - INFO severity was not showing visible underlines in most IDE themes
-
----
-
-## [1.0.9] - 2025-12-13
-
-### Added
-- **ExplicitDependencies Quick Fix** - Added "Add as parameter" quick fix for Rule 22 (ExplicitDependencies)
-  - Extracts ViewModel type from generic arguments (e.g., `viewModel<SampleViewModel>()`)
-  - Adds explicit parameter with proper type to function signature
-  - Also supports CompositionLocal dependencies with inferred types
-
-### Improved
-- ExplicitDependenciesRule now provides actionable quick fixes instead of just suppress option
-- Better highlighting for implicit ViewModel and CompositionLocal usage
-
----
-
-## [1.0.8] - 2025-12-13
-
-### Fixed
-- **Yellow highlighting for item() calls** - Individual `item()` and `items()` calls missing `contentType` now show yellow (weak warning) highlighting
-- **Experimental checkbox state** - Fixed issue where experimental rule checkboxes showed as enabled even when the category was disabled
-
-### Improved
-- Added severity override support to `createViolation()` for per-violation severity control
-- Annotator now correctly derives severity from violation's highlight type
-
----
-
 ## [1.0.7] - 2025-12-13
 
+### Added
+- **All Rules Enabled by Default** - All rules including experimental are now enabled out of the box
+- **Simplified Settings UX** - Completely redesigned settings panel:
+  - All checkboxes are now always interactive (no more grayed-out states)
+  - "Enable All Rules" master switch to select/deselect all rules at once
+  - Category checkboxes act as "select all/none" for rules in that category
+  - Parent checkbox states automatically derived from child selections
+  - Standard IDE settings pattern (like IntelliJ inspections panel)
+- **ExplicitDependencies Quick Fix** - Added "Add as parameter" quick fix for implicit dependencies
+- **Comprehensive Test Coverage** - 45+ new tests for settings and enable/disable functionality
+
+### Fixed
+- **Critical Settings Bug** - Disabling one rule no longer disables ALL rules
+- **Rule Category Mismatch** - LambdaParameterInEffect moved to correct STATE category in UI
+- **AddContentTypeFix Bug** - Lambda arguments now correctly recognized as content
+- **ExplicitDependencies Visibility** - Changed severity for proper wavy underline highlighting
+
+### Changed
+- **Rule Package Reorganization** - Experimental rules moved to proper categories
+  - `LazyListMissingKey` and `LazyListContentType` → COMPOSABLE category
+  - `DerivedStateOfCandidate` and `FrequentRecomposition` → STATE category
+
 ### Improved
-- **LazyListContentType Rule Enhancement** - Now highlights both:
-  - The `LazyColumn`/`LazyRow` itself with a summary warning
-  - Each individual `item()` call that's missing `contentType` parameter
+- **LazyListContentType Rule Enhancement** - Now highlights both lazy containers and individual item() calls
+- Better hierarchical rule control with proper Master → Category → Rule hierarchy
 
 ---
 
