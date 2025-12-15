@@ -21,6 +21,7 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
 import com.intellij.util.xmlb.XmlSerializerUtil
+import io.androidpoet.composeguard.rules.RuleCategory
 
 /**
  * Persistent settings for Compose Rules plugin.
@@ -95,9 +96,9 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
 
   /**
    * Enable experimental rules (LazyList optimizations, etc.).
-   * Disabled by default as these rules are still being refined.
+   * Enabled by default per user requirement.
    */
-  public var enableExperimentalRules: Boolean = false
+  public var enableExperimentalRules: Boolean = true
 
   // ===== Per-rule settings =====
 
@@ -108,7 +109,7 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
   public var ruleEnabledStates: MutableMap<String, Boolean> = mutableMapOf()
 
   /**
-   * Check if a specific rule is enabled.
+   * Check if a specific rule is enabled (without category check).
    * Returns the rule's default state if not explicitly set.
    *
    * @param ruleId The ID of the rule to check
@@ -120,6 +121,49 @@ public class ComposeGuardSettingsState : PersistentStateComponent<ComposeGuardSe
       return false
     }
     // Then check per-rule setting, using the rule's default if not explicitly set
+    return ruleEnabledStates.getOrDefault(ruleId, defaultEnabled)
+  }
+
+  /**
+   * Check if a category is enabled.
+   *
+   * @param category The category to check
+   * @return true if the category is enabled
+   */
+  public fun isCategoryEnabled(category: RuleCategory): Boolean {
+    return when (category) {
+      RuleCategory.NAMING -> enableNamingRules
+      RuleCategory.MODIFIER -> enableModifierRules
+      RuleCategory.STATE -> enableStateRules
+      RuleCategory.PARAMETER -> enableParameterRules
+      RuleCategory.COMPOSABLE -> enableComposableRules
+      RuleCategory.STRICTER -> enableStricterRules
+    }
+  }
+
+  /**
+   * Check if a rule is effectively enabled (considering master switch, category, and individual rule state).
+   *
+   * Rules follow this hierarchy:
+   * 1. If master switch is disabled → all rules are disabled
+   * 2. If category is disabled → all rules in that category are disabled
+   * 3. If category is enabled → individual rule settings apply
+   *
+   * @param ruleId The ID of the rule to check
+   * @param category The category the rule belongs to
+   * @param defaultEnabled The rule's default enabled state (from rule.enabledByDefault)
+   * @return true if the rule is effectively enabled
+   */
+  public fun isRuleEffectivelyEnabled(ruleId: String, category: RuleCategory, defaultEnabled: Boolean = true): Boolean {
+    // First check if master switch is enabled
+    if (!isComposeRulesEnabled) {
+      return false
+    }
+    // Then check if category is enabled
+    if (!isCategoryEnabled(category)) {
+      return false
+    }
+    // Finally check per-rule setting
     return ruleEnabledStates.getOrDefault(ruleId, defaultEnabled)
   }
 

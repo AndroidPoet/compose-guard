@@ -131,11 +131,15 @@ public object ComposeRuleRegistry {
 
   /**
    * Get all enabled rules based on current settings.
+   * A rule is enabled only if:
+   * 1. Master switch is enabled
+   * 2. Category is enabled
+   * 3. Individual rule is enabled
    */
   public fun getEnabledRules(): List<ComposeRule> {
     val settings = ComposeGuardSettingsState.getInstance()
     return rules.filter { rule ->
-      settings.isRuleEnabled(rule.id, rule.enabledByDefault) && isCategoryEnabled(rule.category, settings)
+      settings.isRuleEffectivelyEnabled(rule.id, rule.category, rule.enabledByDefault)
     }
   }
 
@@ -169,18 +173,4 @@ public object ComposeRuleRegistry {
    * Get the count of enabled rules.
    */
   public fun getEnabledRuleCount(): Int = getEnabledRules().size
-
-  /**
-   * Check if a category is enabled in settings.
-   */
-  private fun isCategoryEnabled(category: RuleCategory, settings: ComposeGuardSettingsState): Boolean {
-    return when (category) {
-      RuleCategory.NAMING -> settings.enableNamingRules
-      RuleCategory.MODIFIER -> settings.enableModifierRules
-      RuleCategory.STATE -> settings.enableStateRules
-      RuleCategory.PARAMETER -> settings.enableParameterRules
-      RuleCategory.COMPOSABLE -> settings.enableComposableRules
-      RuleCategory.STRICTER -> settings.enableStricterRules
-    }
-  }
 }

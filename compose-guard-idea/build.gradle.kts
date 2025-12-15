@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.0.6"
+version = "1.0.15"
 
 repositories {
   mavenCentral()
@@ -75,6 +75,46 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.0.15</b>
+            <ul>
+                <li><b>All Rules Enabled by Default</b>: Experimental rules are now enabled by default</li>
+                <li>All rule categories (including Experimental) are now active out of the box</li>
+            </ul>
+            <b>1.0.14</b>
+            <ul>
+                <li><b>Bug Fix</b>: Fixed critical bug where disabling one rule would disable ALL rules</li>
+                <li>Master switch now correctly stays enabled when individual rules are toggled</li>
+                <li>Added regression tests to prevent this issue from recurring</li>
+            </ul>
+            <b>1.0.13</b>
+            <ul>
+                <li><b>Simplified Settings UX</b>: Removed gray-out/disabled concept entirely</li>
+                <li>All checkboxes are now always interactive</li>
+                <li>"Enable All Rules" master switch: Select/deselect all rules at once</li>
+                <li>Category checkboxes: Act as "select all/none" for rules in that category</li>
+                <li>Parent checkbox states are automatically derived from child selections</li>
+                <li>Standard IDE settings pattern (like IntelliJ inspections panel)</li>
+            </ul>
+            <b>1.0.12</b>
+            <ul>
+                <li><b>Improved Parent-Child Enable/Disable UX</b>: Better hierarchical rule control</li>
+                <li>Category enabled: Individual rules can be toggled independently</li>
+                <li>Category disabled: All child rules are greyed out but settings preserved</li>
+                <li>Re-enabling category restores individual rule settings</li>
+                <li>Added <code>isRuleEffectivelyEnabled()</code> for proper hierarchy: Master → Category → Rule</li>
+                <li>Added <code>isCategoryEnabled()</code> method for category state checking</li>
+                <li><b>Comprehensive Test Coverage</b>: 20+ new tests for hierarchy behavior</li>
+            </ul>
+            <b>1.0.7</b>
+            <ul>
+                <li><b>Fixed Settings Save Issue</b>: Individual rule enable/disable now works correctly</li>
+                <li>Checking a rule checkbox now auto-enables its parent category</li>
+                <li>Fixed isModified() detection for proper settings persistence</li>
+                <li><b>Fixed Rule Category Mismatch</b>: LambdaParameterInEffect moved to correct STATE category in UI</li>
+                <li><b>Comprehensive Test Coverage</b>: Added 26 new tests for enable/disable functionality</li>
+                <li>Tests for PreviewVisibility, LazyListContentType, LazyListMissingKey rules</li>
+                <li>Tests for category and rule interaction, master switch behavior</li>
+            </ul>
             <b>1.0.6</b>
             <ul>
                 <li><b>Statistics Dashboard</b>: New tool window with violation analytics by category, file, and rule</li>

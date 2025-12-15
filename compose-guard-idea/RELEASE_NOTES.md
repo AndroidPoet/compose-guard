@@ -1,16 +1,40 @@
 # ComposeGuard IntelliJ Plugin
 
-## Version 1.0.5
+## Version 1.0.7
 
-**Release Date:** December 10, 2025
+**Release Date:** December 13, 2025
 
-### What's New in 1.0.5
+### What's New in 1.0.7
 
-- **AvoidComposed rule** - Detects usage of `Modifier.composed {}` and suggests using `Modifier.Node` instead
-- **Disable rules feature** - Added settings UI to enable/disable individual rules or entire categories
-- **Documentation** - Added disable rules screenshot and documentation
+#### Fixed
+- **Settings Save Issue** - Individual rule enable/disable now works correctly
+  - Checking a rule checkbox now auto-enables its parent category
+  - Fixed `isModified()` detection for proper settings persistence
+
+- **Rule Category Mismatch** - LambdaParameterInEffect moved to correct STATE category in UI
+
+#### Added
+- **Comprehensive Test Coverage** - Added 26 new tests for enable/disable functionality
+  - Tests for PreviewVisibility, LazyListContentType, LazyListMissingKey rules
+  - Tests for category and rule interaction, master switch behavior
+
+#### Improved
+- **LazyListContentType Rule Enhancement** - Now highlights both:
+  - The `LazyColumn`/`LazyRow` itself with a summary warning
+  - Each individual `item()` call that's missing `contentType` parameter
 
 ### Previous Releases
+
+#### 1.0.6
+- **Statistics Dashboard** - New tool window with violation analytics by category, file, and rule
+- **Parameter Ordering Fix** - Modifier is now correctly enforced as the FIRST optional parameter
+- **Suppress Built-in Compose Inspections** - Automatically hides Android Studio's built-in Compose lint warnings
+- Added EventParameterNaming rule with past tense detection
+- Comprehensive test coverage for all 36 rules
+
+#### 1.0.5
+- **AvoidComposed rule** - Detects usage of `Modifier.composed {}` and suggests using `Modifier.Node` instead
+- **Disable rules feature** - Added settings UI to enable/disable individual rules or entire categories
 
 #### 1.0.4
 - Fixed Suppress action not working for ModifierRequired, MultipleContentEmitters, ParameterOrdering rules
@@ -70,5 +94,5 @@ Based on the [Compose Rules](https://mrmans0n.github.io/compose-rules/) document
 
 ---
 
-**Plugin Version:** 1.0.5
+**Plugin Version:** 1.0.7
 **License:** Apache 2.0

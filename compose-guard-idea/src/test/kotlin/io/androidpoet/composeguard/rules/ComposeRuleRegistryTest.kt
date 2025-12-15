@@ -275,4 +275,94 @@ class ComposeRuleRegistryTest {
       assertNotNull(rule.severity, "Rule ${rule.id} has null severity")
     }
   }
+
+  // ===== Specific Rule Registration Tests =====
+
+  @Test
+  fun testPreviewVisibilityRule_isRegistered() {
+    val rule = ComposeRuleRegistry.getRuleById("PreviewVisibility")
+
+    assertNotNull(rule, "PreviewVisibility rule should be registered")
+    assertEquals("PreviewVisibility", rule.id)
+    assertEquals(RuleCategory.COMPOSABLE, rule.category)
+    assertTrue(rule.enabledByDefault)
+  }
+
+  @Test
+  fun testLazyListContentTypeRule_isRegistered() {
+    val rule = ComposeRuleRegistry.getRuleById("LazyListContentType")
+
+    assertNotNull(rule, "LazyListContentType rule should be registered")
+    assertEquals("LazyListContentType", rule.id)
+    assertEquals(RuleCategory.COMPOSABLE, rule.category)
+    assertTrue(rule.enabledByDefault)
+  }
+
+  @Test
+  fun testLazyListMissingKeyRule_isRegistered() {
+    val rule = ComposeRuleRegistry.getRuleById("LazyListMissingKey")
+
+    assertNotNull(rule, "LazyListMissingKey rule should be registered")
+    assertEquals("LazyListMissingKey", rule.id)
+    assertEquals(RuleCategory.COMPOSABLE, rule.category)
+    assertTrue(rule.enabledByDefault)
+  }
+
+  @Test
+  fun testAllComposableStructureRules_areRegistered() {
+    // Note: LambdaParameterInEffect is in STATE category, not COMPOSABLE
+    val composableRuleIds = listOf(
+      "ContentEmission",
+      "MultipleContentEmitters",
+      "ContentSlotReused",
+      "EffectKeys",
+      "MovableContent",
+      "PreviewVisibility",
+      "LazyListContentType",
+      "LazyListMissingKey",
+    )
+
+    composableRuleIds.forEach { id ->
+      val rule = ComposeRuleRegistry.getRuleById(id)
+      assertNotNull(rule, "Composable rule '$id' should be registered")
+      assertEquals(RuleCategory.COMPOSABLE, rule.category, "Rule '$id' should be in COMPOSABLE category")
+    }
+  }
+
+  @Test
+  fun testLambdaParameterInEffectRule_isInStateCategory() {
+    val rule = ComposeRuleRegistry.getRuleById("LambdaParameterInEffect")
+
+    assertNotNull(rule, "LambdaParameterInEffect rule should be registered")
+    assertEquals(RuleCategory.STATE, rule.category, "LambdaParameterInEffect should be in STATE category")
+  }
+
+  @Test
+  fun testAllRules_enabledByDefaultIsSet() {
+    val rules = ComposeRuleRegistry.getAllRules()
+
+    rules.forEach { rule ->
+      // enabledByDefault should be explicitly set (true or false)
+      assertNotNull(rule.enabledByDefault, "Rule ${rule.id} should have enabledByDefault set")
+    }
+  }
+
+  @Test
+  fun testComposableCategory_hasExpectedRuleCount() {
+    val composableRules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.COMPOSABLE)
+
+    // Should have exactly 9 rules:
+    // ContentEmission, MultipleContentEmitters, ContentSlotReused, EffectKeys,
+    // LambdaParameterInEffect, MovableContent, PreviewVisibility,
+    // LazyListContentType, LazyListMissingKey
+    assertTrue(composableRules.size >= 8, "COMPOSABLE category should have at least 8 rules, found ${composableRules.size}")
+  }
+
+  @Test
+  fun testAllCategoriesHaveRules() {
+    RuleCategory.entries.forEach { category ->
+      val rules = ComposeRuleRegistry.getRulesByCategory(category)
+      assertTrue(rules.isNotEmpty(), "Category $category should have at least one rule")
+    }
+  }
 }

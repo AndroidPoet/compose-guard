@@ -87,6 +87,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
       RuleInfo("HoistState", "Hoist State", "State should be hoisted when appropriate"),
       RuleInfo("DerivedStateOfCandidate", "Remember with Keys", "Computed values should use remember with keys"),
       RuleInfo("FrequentRecomposition", "Lifecycle-Aware Collection", "Suggest collectAsStateWithLifecycle for flows"),
+      RuleInfo("LambdaParameterInEffect", "Lambda Parameter In Effect", "Lambda parameters in effects should be keyed"),
     ),
     RuleCategory.PARAMETER to listOf(
       RuleInfo("ParameterOrdering", "Parameter Ordering", "Parameters should be ordered correctly"),
@@ -100,7 +101,6 @@ public class ComposeGuardSettingsConfigurable : Configurable {
       RuleInfo("MultipleContentEmitters", "Multiple Content Emitters", "Multiple content slots handling"),
       RuleInfo("ContentSlotReused", "Content Slot Reused", "Content slot reuse patterns"),
       RuleInfo("EffectKeys", "Effect Keys", "Effect dependencies and keys"),
-      RuleInfo("LambdaParameterInEffect", "Lambda Parameter In Effect", "Lambda parameters in effects"),
       RuleInfo("MovableContent", "Movable Content", "Movable content usage"),
       RuleInfo("PreviewVisibility", "Preview Visibility", "Preview function visibility"),
       RuleInfo("LazyListContentType", "LazyList ContentType", "Heterogeneous LazyLists should use contentType"),
@@ -189,13 +189,15 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     mainPanel?.add(scrollPane, BorderLayout.CENTER)
 
     updateCategoryCheckboxStates()
+    updateMasterSwitchState()
 
     return mainPanel!!
   }
 
-  private fun createMasterSection(settings: ComposeGuardSettingsState): JPanel {
+  private fun createMasterSection(@Suppress("UNUSED_PARAMETER") settings: ComposeGuardSettingsState): JPanel {
     return JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)).apply {
-      masterSwitch = JBCheckBox("Enable ComposeGuard", settings.isComposeRulesEnabled).apply {
+      // Initial state will be set by updateMasterSwitchState() after all rules are loaded
+      masterSwitch = JBCheckBox("Enable All Rules", true).apply {
         font = font.deriveFont(Font.BOLD)
         addActionListener {
           updateAllRulesEnabled(isSelected)
@@ -262,11 +264,13 @@ public class ComposeGuardSettingsConfigurable : Configurable {
         JBUI.Borders.empty(8),
       )
 
-      // Category header with checkbox
+      // Category header with checkbox - acts as "select all/none" for this category
       val categoryCheckbox = JBCheckBox(category.displayName, isCategoryEnabled(category, settings)).apply {
         font = font.deriveFont(Font.BOLD, 12f)
         addActionListener {
-          updateCategoryRules(category, isSelected)
+          // Toggle all rules in this category to match the category checkbox state
+          toggleCategoryRules(category, isSelected)
+          updateMasterSwitchState()
         }
       }
 
@@ -286,17 +290,16 @@ public class ComposeGuardSettingsConfigurable : Configurable {
       add(categoryPanel)
       add(Box.createVerticalStrut(5))
 
-      // Rules in this category
-      val categoryEnabled = isCategoryEnabled(category, settings)
+      // Rules in this category - always interactive (no graying out)
       for (rule in rules) {
         val actualRule = ComposeRuleRegistry.getRuleById(rule.id)
         val defaultEnabled = actualRule?.enabledByDefault ?: true
-        // Rule checkbox state depends on both category being enabled AND the rule being enabled
-        val ruleEnabled = categoryEnabled && settings.isRuleEnabled(rule.id, defaultEnabled)
+        val ruleEnabled = settings.isRuleEnabled(rule.id, defaultEnabled)
         val ruleCheckbox = JBCheckBox(rule.displayName, ruleEnabled).apply {
           toolTipText = rule.description
           addActionListener {
             updateCategoryCheckboxState(category)
+            updateMasterSwitchState()
           }
         }
         ruleCheckboxes[rule.id] = ruleCheckbox
@@ -321,10 +324,12 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     }
   }
 
-  private fun updateCategoryRules(category: RuleCategory, enabled: Boolean) {
+  private fun toggleCategoryRules(category: RuleCategory, selected: Boolean) {
     val rules = rulesByCategory[category] ?: return
     for (rule in rules) {
-      ruleCheckboxes[rule.id]?.isSelected = enabled
+      val checkbox = ruleCheckboxes[rule.id] ?: continue
+      // Toggle the selection state of all rules in this category
+      checkbox.isSelected = selected
     }
   }
 
@@ -348,19 +353,28 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     }
   }
 
-  private fun updateAllRulesEnabled(enabled: Boolean) {
-    // Update all category checkboxes
-    namingCategoryCheckbox?.isSelected = enabled
-    modifierCategoryCheckbox?.isSelected = enabled
-    stateCategoryCheckbox?.isSelected = enabled
-    parameterCategoryCheckbox?.isSelected = enabled
-    composableCategoryCheckbox?.isSelected = enabled
-    stricterCategoryCheckbox?.isSelected = enabled
+  private fun updateAllRulesEnabled(selected: Boolean) {
+    // Toggle all category checkboxes to match master switch
+    namingCategoryCheckbox?.isSelected = selected
+    modifierCategoryCheckbox?.isSelected = selected
+    stateCategoryCheckbox?.isSelected = selected
+    parameterCategoryCheckbox?.isSelected = selected
+    composableCategoryCheckbox?.isSelected = selected
+    stricterCategoryCheckbox?.isSelected = selected
 
-    // Update all rule checkboxes
-    for ((ruleId, checkbox) in ruleCheckboxes) {
-      checkbox.isSelected = enabled
+    // Toggle all rule checkboxes to match master switch
+    for ((_, rules) in rulesByCategory) {
+      for (rule in rules) {
+        val checkbox = ruleCheckboxes[rule.id] ?: continue
+        checkbox.isSelected = selected
+      }
     }
+  }
+
+  private fun updateMasterSwitchState() {
+    // Master switch is checked only if ALL rules are checked
+    val allRulesSelected = ruleCheckboxes.values.all { it.isSelected }
+    masterSwitch?.isSelected = allRulesSelected
   }
 
   private fun resetToDefaults() {
@@ -378,7 +392,7 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     stricterCategoryCheckbox?.isSelected = true
 
     // Reset all rule checkboxes
-    for ((ruleId, checkbox) in ruleCheckboxes) {
+    for ((_, checkbox) in ruleCheckboxes) {
       checkbox.isSelected = true
     }
   }
@@ -386,22 +400,19 @@ public class ComposeGuardSettingsConfigurable : Configurable {
   override fun isModified(): Boolean {
     val settings = ComposeGuardSettingsState.getInstance()
 
-    if (masterSwitch?.isSelected != settings.isComposeRulesEnabled) return true
     if (gutterIconsCheckbox?.isSelected != settings.showRuleGutterIcons) return true
     if (inlayHintsCheckbox?.isSelected != settings.showRuleInlayHints) return true
     if (suppressBuiltInCheckbox?.isSelected != settings.suppressBuiltInInspections) return true
 
-    if (namingCategoryCheckbox?.isSelected != settings.enableNamingRules) return true
-    if (modifierCategoryCheckbox?.isSelected != settings.enableModifierRules) return true
-    if (stateCategoryCheckbox?.isSelected != settings.enableStateRules) return true
-    if (parameterCategoryCheckbox?.isSelected != settings.enableParameterRules) return true
-    if (composableCategoryCheckbox?.isSelected != settings.enableComposableRules) return true
-    if (stricterCategoryCheckbox?.isSelected != settings.enableStricterRules) return true
-
-    for ((ruleId, checkbox) in ruleCheckboxes) {
-      val rule = ComposeRuleRegistry.getRuleById(ruleId)
-      val defaultEnabled = rule?.enabledByDefault ?: true
-      if (checkbox.isSelected != settings.isRuleEnabled(ruleId, defaultEnabled)) return true
+    // Compare individual rule checkbox states
+    for ((_, rules) in rulesByCategory) {
+      for (rule in rules) {
+        val checkbox = ruleCheckboxes[rule.id] ?: continue
+        val actualRule = ComposeRuleRegistry.getRuleById(rule.id)
+        val defaultEnabled = actualRule?.enabledByDefault ?: true
+        val savedState = settings.isRuleEnabled(rule.id, defaultEnabled)
+        if (checkbox.isSelected != savedState) return true
+      }
     }
 
     return false
@@ -410,21 +421,26 @@ public class ComposeGuardSettingsConfigurable : Configurable {
   override fun apply() {
     val settings = ComposeGuardSettingsState.getInstance()
 
-    settings.isComposeRulesEnabled = masterSwitch?.isSelected ?: true
     settings.showRuleGutterIcons = gutterIconsCheckbox?.isSelected ?: true
     settings.showRuleInlayHints = inlayHintsCheckbox?.isSelected ?: true
     settings.suppressBuiltInInspections = suppressBuiltInCheckbox?.isSelected ?: true
 
-    settings.enableNamingRules = namingCategoryCheckbox?.isSelected ?: true
-    settings.enableModifierRules = modifierCategoryCheckbox?.isSelected ?: true
-    settings.enableStateRules = stateCategoryCheckbox?.isSelected ?: true
-    settings.enableParameterRules = parameterCategoryCheckbox?.isSelected ?: true
-    settings.enableComposableRules = composableCategoryCheckbox?.isSelected ?: true
-    settings.enableStricterRules = stricterCategoryCheckbox?.isSelected ?: true
-
+    // Save individual rule states
     for ((ruleId, checkbox) in ruleCheckboxes) {
       settings.setRuleEnabled(ruleId, checkbox.isSelected)
     }
+
+    // Derive category states from rule states for backward compatibility
+    settings.enableNamingRules = rulesByCategory[RuleCategory.NAMING]?.all { ruleCheckboxes[it.id]?.isSelected == true } ?: true
+    settings.enableModifierRules = rulesByCategory[RuleCategory.MODIFIER]?.all { ruleCheckboxes[it.id]?.isSelected == true } ?: true
+    settings.enableStateRules = rulesByCategory[RuleCategory.STATE]?.all { ruleCheckboxes[it.id]?.isSelected == true } ?: true
+    settings.enableParameterRules = rulesByCategory[RuleCategory.PARAMETER]?.all { ruleCheckboxes[it.id]?.isSelected == true } ?: true
+    settings.enableComposableRules = rulesByCategory[RuleCategory.COMPOSABLE]?.all { ruleCheckboxes[it.id]?.isSelected == true } ?: true
+    settings.enableStricterRules = rulesByCategory[RuleCategory.STRICTER]?.all { ruleCheckboxes[it.id]?.isSelected == true } ?: true
+
+    // Keep master switch enabled - individual rules are controlled via ruleEnabledStates
+    // The master switch in UI is just for convenience to select/deselect all
+    settings.isComposeRulesEnabled = true
 
     // Restart code analysis to apply changes in real-time
     for (project in ProjectManager.getInstance().openProjects) {
@@ -439,29 +455,23 @@ public class ComposeGuardSettingsConfigurable : Configurable {
   override fun reset() {
     val settings = ComposeGuardSettingsState.getInstance()
 
-    masterSwitch?.isSelected = settings.isComposeRulesEnabled
     gutterIconsCheckbox?.isSelected = settings.showRuleGutterIcons
     inlayHintsCheckbox?.isSelected = settings.showRuleInlayHints
     suppressBuiltInCheckbox?.isSelected = settings.suppressBuiltInInspections
 
-    namingCategoryCheckbox?.isSelected = settings.enableNamingRules
-    modifierCategoryCheckbox?.isSelected = settings.enableModifierRules
-    stateCategoryCheckbox?.isSelected = settings.enableStateRules
-    parameterCategoryCheckbox?.isSelected = settings.enableParameterRules
-    composableCategoryCheckbox?.isSelected = settings.enableComposableRules
-    stricterCategoryCheckbox?.isSelected = settings.enableStricterRules
-
-    // Reset rule checkboxes, considering category enabled state
-    for ((category, rules) in rulesByCategory) {
-      val categoryEnabled = isCategoryEnabled(category, settings)
+    // Reset rule checkboxes to their individual states
+    for ((_, rules) in rulesByCategory) {
       for (rule in rules) {
         val checkbox = ruleCheckboxes[rule.id] ?: continue
         val actualRule = ComposeRuleRegistry.getRuleById(rule.id)
         val defaultEnabled = actualRule?.enabledByDefault ?: true
-        // Rule checkbox state depends on both category being enabled AND the rule being enabled
-        checkbox.isSelected = categoryEnabled && settings.isRuleEnabled(rule.id, defaultEnabled)
+        checkbox.isSelected = settings.isRuleEnabled(rule.id, defaultEnabled)
       }
     }
+
+    // Update category and master checkboxes based on rule states
+    updateCategoryCheckboxStates()
+    updateMasterSwitchState()
   }
 
   override fun disposeUIResources() {
