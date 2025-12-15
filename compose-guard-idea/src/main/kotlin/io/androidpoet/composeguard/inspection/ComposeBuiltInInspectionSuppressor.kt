@@ -31,53 +31,42 @@ import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
  * - ModifierParameter: Covered by ParameterOrderingRule, ModifierNamingRule, ModifierDefaultValueRule
  * - ComposableNaming: Covered by ComposableNamingRule
  * - ComposableModifierFactory: Covered by ModifierNamingRule
+ * - LambdaParameterInRestartableEffect: Covered by LambdaParameterInEffect
  */
 public class ComposeBuiltInInspectionSuppressor : InspectionSuppressor {
 
   /**
-   * Map of built-in Compose inspection IDs to the Compose Guard category that covers them.
+   * Map of built-in Compose inspection IDs to the Compose Guard rule IDs that cover them.
    */
   private val suppressedInspections = mapOf(
-    // Modifier-related inspections -> enabled when modifier rules are enabled
-    "ModifierParameter" to CategoryCheck.MODIFIER,
-    "ComposableModifierFactory" to CategoryCheck.MODIFIER,
+    // Modifier-related inspections
+    "ModifierParameter" to listOf("ModifierRequired", "ModifierDefaultValue", "ModifierNaming"),
+    "ComposableModifierFactory" to listOf("ModifierNaming"),
 
-    // Naming-related inspections -> enabled when naming rules are enabled
-    "ComposableNaming" to CategoryCheck.NAMING,
+    // Naming-related inspections
+    "ComposableNaming" to listOf("ComposableNaming"),
 
-    // Parameter-related inspections -> enabled when parameter rules are enabled
-    "LambdaParameterInRestartableEffect" to CategoryCheck.PARAMETER,
+    // Parameter-related inspections
+    "LambdaParameterInRestartableEffect" to listOf("LambdaParameterInEffect"),
   )
 
   override fun isSuppressedFor(element: PsiElement, toolId: String): Boolean {
-    val categoryCheck = suppressedInspections[toolId] ?: return false
+    val ruleIds = suppressedInspections[toolId] ?: return false
 
     val settings = ComposeGuardSettingsState.getInstance()
 
-    // Only suppress if Compose Guard is enabled
-    if (!settings.isComposeRulesEnabled) {
-      return false
-    }
-
-    // Only suppress if the category that handles this inspection is enabled
+    // Only suppress if user wants to suppress built-in inspections
     if (!settings.suppressBuiltInInspections) {
       return false
     }
 
-    return when (categoryCheck) {
-      CategoryCheck.MODIFIER -> settings.enableModifierRules
-      CategoryCheck.NAMING -> settings.enableNamingRules
-      CategoryCheck.PARAMETER -> settings.enableParameterRules
+    // Suppress if ANY of the corresponding Compose Guard rules are enabled
+    return ruleIds.any { ruleId ->
+      settings.isRuleEnabled(ruleId, defaultEnabled = true)
     }
   }
 
   override fun getSuppressActions(element: PsiElement?, toolId: String): Array<SuppressQuickFix> {
     return SuppressQuickFix.EMPTY_ARRAY
-  }
-
-  private enum class CategoryCheck {
-    MODIFIER,
-    NAMING,
-    PARAMETER,
   }
 }

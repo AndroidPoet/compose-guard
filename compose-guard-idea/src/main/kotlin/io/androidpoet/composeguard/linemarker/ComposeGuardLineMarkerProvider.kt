@@ -42,8 +42,8 @@ public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
     get() = ComposeGuardSettingsState.getInstance()
 
   public override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
-    // Check if rules and gutter icons are enabled
-    if (!settings.isComposeRulesEnabled || !settings.showRuleGutterIcons) {
+    // Check if gutter icons are enabled
+    if (!settings.showRuleGutterIcons) {
       return null
     }
 

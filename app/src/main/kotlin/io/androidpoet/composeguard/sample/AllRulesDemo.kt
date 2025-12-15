@@ -452,7 +452,7 @@ fun LambdaInEffectKey(onComplete: () -> Unit, modifier: Modifier = Modifier) { /
 // Rule 30: MovableContent - Should be remembered
 @Composable
 fun MovableContentNotRemembered(modifier: Modifier = Modifier) { // BAD
-  val content = movableContentOf { Text("Movable") }
+  val content = remember { movableContentOf { Text("Movable") } }
   Box(modifier = modifier) { content() }
 }
 

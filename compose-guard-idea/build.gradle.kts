@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.0.7"
+version = "1.0.8"
 
 repositories {
   mavenCentral()
@@ -75,6 +75,12 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.0.8</b>
+            <ul>
+                <li><b>Rule Enable/Disable Bug Fix</b>: Fixed critical issue with rule enable/disable functionality</li>
+                <li><b>Restructured Settings Architecture</b>: Improved enable/disable state management for individual rules</li>
+                <li><b>Settings Persistence Fix</b>: Rule states are now correctly saved and restored across IDE restarts</li>
+            </ul>
             <b>1.0.7</b>
             <ul>
                 <li><b>All Rules Enabled by Default</b>: All rules including experimental are now enabled out of the box</li>

@@ -131,15 +131,12 @@ public object ComposeRuleRegistry {
 
   /**
    * Get all enabled rules based on current settings.
-   * A rule is enabled only if:
-   * 1. Master switch is enabled
-   * 2. Category is enabled
-   * 3. Individual rule is enabled
+   * A rule is enabled if its state in ruleEnabledStates is true (or defaults to enabledByDefault).
    */
   public fun getEnabledRules(): List<ComposeRule> {
     val settings = ComposeGuardSettingsState.getInstance()
     return rules.filter { rule ->
-      settings.isRuleEffectivelyEnabled(rule.id, rule.category, rule.enabledByDefault)
+      settings.isRuleEnabled(rule.id, rule.enabledByDefault)
     }
   }
 

@@ -117,8 +117,9 @@ fun BadEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 /** GOOD: Event parameter uses present tense */
+@Preview
 @Composable
-fun GoodEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
+ fun GoodEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
   Button(onClick = onClick, modifier = modifier) { Text("Click") }
 }
 

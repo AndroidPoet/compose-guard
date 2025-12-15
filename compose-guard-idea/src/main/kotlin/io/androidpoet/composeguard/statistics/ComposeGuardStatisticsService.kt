@@ -37,7 +37,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isComposable
 import io.androidpoet.composeguard.rules.isCompositionLocal
 import io.androidpoet.composeguard.rules.isSuppressed
-import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
@@ -157,11 +156,6 @@ public class ComposeGuardStatisticsService(private val project: Project) {
   }
 
   private fun analyzeFile(file: KtFile): List<ViolationInfo> {
-    val settings = ComposeGuardSettingsState.getInstance()
-    if (!settings.isComposeRulesEnabled) {
-      return emptyList()
-    }
-
     val violations = mutableListOf<ViolationInfo>()
     val context = AnalysisContext(file, isOnTheFly = false)
     val enabledRules = ComposeRuleRegistry.getEnabledRules()

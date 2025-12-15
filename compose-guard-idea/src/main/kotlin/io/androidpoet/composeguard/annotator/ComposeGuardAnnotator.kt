@@ -27,7 +27,6 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.isComposable
 import io.androidpoet.composeguard.rules.isCompositionLocal
 import io.androidpoet.composeguard.rules.isSuppressed
-import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
@@ -37,15 +36,7 @@ import org.jetbrains.kotlin.psi.KtProperty
  */
 public class ComposeGuardAnnotator : Annotator {
 
-  private val settings: ComposeGuardSettingsState
-    get() = ComposeGuardSettingsState.getInstance()
-
   override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-    // Check if rules are enabled
-    if (!settings.isComposeRulesEnabled) {
-      return
-    }
-
     when (element) {
       is KtNamedFunction -> annotateFunction(element, holder)
       is KtProperty -> annotateProperty(element, holder)

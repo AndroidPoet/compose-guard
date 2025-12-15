@@ -25,7 +25,6 @@ import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.isComposable
 import io.androidpoet.composeguard.rules.isCompositionLocal
 import io.androidpoet.composeguard.rules.isSuppressed
-import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -39,15 +38,7 @@ import org.jetbrains.kotlin.psi.KtVisitorVoid
  */
 public class ComposeGuardInspection : LocalInspectionTool() {
 
-  private val settings: ComposeGuardSettingsState
-    get() = ComposeGuardSettingsState.getInstance()
-
   override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
-    // Check if rules are enabled
-    if (!settings.isComposeRulesEnabled) {
-      return PsiElementVisitor.EMPTY_VISITOR
-    }
-
     val file = holder.file as? KtFile ?: return PsiElementVisitor.EMPTY_VISITOR
     val context = AnalysisContext(file, isOnTheFly)
     val enabledRules = ComposeRuleRegistry.getEnabledRules()

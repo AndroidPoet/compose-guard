@@ -87,7 +87,7 @@ public class ComposeGuardInlayHintsProvider :
         get() = ComposeGuardSettingsState.getInstance()
 
       override fun collect(element: PsiElement, editor: Editor, sink: InlayHintsSink): Boolean {
-        if (!globalSettings.isComposeRulesEnabled || !globalSettings.showRuleInlayHints) {
+        if (!globalSettings.showRuleInlayHints) {
           return true
         }
 
