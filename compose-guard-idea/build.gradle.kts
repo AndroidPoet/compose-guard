@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.0.9"
+version = "1.1.0"
 
 repositories {
   mavenCentral()
@@ -75,6 +75,17 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.1.0</b>
+            <ul>
+                <li><b>5 New Performance Rules</b>: Advanced static analysis for recomposition issues</li>
+                <li><b>UnstableLambdaCaptureRule</b>: Detects lambdas capturing var declarations</li>
+                <li><b>ObjectCreationInCompositionRule</b>: Detects object instantiation without remember {}</li>
+                <li><b>WideRecompositionScopeRule</b>: Detects state reads at top of large composables</li>
+                <li><b>DeferStateReadsRule</b>: Suggests lambda-based modifiers for animations</li>
+                <li><b>FrequentRecompositionRule</b>: Suggests lifecycle-aware state collection</li>
+                <li><b>New Quick Fixes</b>: Wrap in Column/Row/Box, UseGraphicsLayerFix, AddStableAnnotationFix</li>
+                <li>Total rules increased from 36 to 39</li>
+            </ul>
             <b>1.0.9</b>
             <ul>
                 <li><b>State/Callback Pairing</b>: ReorderParametersFix now keeps state/callback pairs together (e.g., value/onValueChange, checked/onCheckedChange)</li>
