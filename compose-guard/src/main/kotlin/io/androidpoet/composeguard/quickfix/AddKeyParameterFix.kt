@@ -1,0 +1,165 @@
+/*
+ * Designed and developed by 2025 androidpoet (Ranbir Singh)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.androidpoet.composeguard.quickfix
+
+import com.intellij.codeInsight.intention.HighPriorityAction
+import com.intellij.codeInspection.LocalQuickFix
+import com.intellij.codeInspection.ProblemDescriptor
+import com.intellij.openapi.project.Project
+import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.psi.KtPsiFactory
+
+/**
+ * Quick fix that adds a key parameter to LazyList items() or itemsIndexed() calls.
+ *
+ * Per Android's official documentation:
+ * - Keys should be stable, unique, and Bundle-compatible
+ * - Keys enable efficient recomposition and proper state preservation
+ * - Keys allow animations to work correctly with animateItem()
+ *
+ * Function signatures:
+ * - items(items: List<T>, key: ((T) -> Any)? = null, contentType: (T) -> Any? = null, itemContent: (T) -> Unit)
+ * - itemsIndexed(items: List<T>, key: ((Int, T) -> Any)? = null, contentType: (Int, T) -> Any? = null, itemContent: (Int, T) -> Unit)
+ *
+ * @see <a href="https://developer.android.com/develop/ui/compose/lists#item-keys">Item Keys</a>
+ */
+public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
+
+  override fun getFamilyName(): String = "Add key parameter"
+
+  override fun getName(): String = "Add key parameter for stable item identity"
+
+  override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
+    val element = descriptor.psiElement
+    val callExpr = element as? KtCallExpression
+      ?: element.parent as? KtCallExpression
+      ?: return
+
+    val factory = KtPsiFactory(project)
+    val calleeName = callExpr.calleeExpression?.text ?: return
+
+    val itemParamName = detectItemParameterName(callExpr)
+
+    val keyLambda = buildKeyLambda(calleeName, itemParamName)
+
+    val newCallText = buildCallWithKey(callExpr, calleeName, keyLambda)
+
+    val newCall = factory.createExpression(newCallText) as KtCallExpression
+    callExpr.replace(newCall)
+  }
+
+  /**
+   * Detects the item parameter name from the trailing lambda.
+   * e.g., `{ user -> UserItem(user) }` returns "user"
+   * e.g., `{ index, item -> ... }` returns "item" (for itemsIndexed)
+   */
+  private fun detectItemParameterName(callExpr: KtCallExpression): String {
+    val lambdaExpr = callExpr.lambdaArguments.firstOrNull()?.getLambdaExpression()
+      ?: return "it"
+
+    val params = lambdaExpr.valueParameters
+    return when {
+      params.isEmpty() -> "it"
+      params.size == 1 -> params[0].name ?: "it"
+      params.size == 2 -> params[1].name ?: "item" // For itemsIndexed: (index, item)
+      else -> "it"
+    }
+  }
+
+  /**
+   * Builds the key lambda based on function type.
+   */
+  private fun buildKeyLambda(calleeName: String, itemParamName: String): String {
+    return when (calleeName) {
+      "itemsIndexed" -> {
+        "key = { _, $itemParamName -> $itemParamName.id }"
+      }
+      else -> {
+        if (itemParamName == "it") {
+          "key = { it.id }"
+        } else {
+          "key = { $itemParamName -> $itemParamName.id }"
+        }
+      }
+    }
+  }
+
+  /**
+   * Builds the new call expression with key parameter inserted in the correct position.
+   *
+   * Parameter order: items(items, key, contentType) { itemContent }
+   */
+  private fun buildCallWithKey(
+    callExpr: KtCallExpression,
+    calleeName: String,
+    keyLambda: String,
+  ): String {
+    var itemsArg: String? = null
+    var contentTypeArg: String? = null
+    val otherArgs = mutableListOf<String>()
+
+    for (arg in callExpr.valueArguments) {
+      val argName = arg.getArgumentName()?.asName?.asString()
+      val argExpr = arg.getArgumentExpression() ?: continue
+      val argValue = argExpr.text
+      val isLambda = argExpr is KtLambdaExpression
+
+      when {
+        argName == "key" -> continue
+
+        argName == "contentType" -> {
+          contentTypeArg = "contentType = $argValue"
+        }
+
+        argName == "itemContent" -> continue
+
+        argName == "items" && !isLambda -> {
+          if (itemsArg == null) {
+            itemsArg = "items = $argValue"
+          }
+        }
+
+        argName == null && itemsArg == null && !isLambda -> {
+          itemsArg = "items = $argValue"
+        }
+
+        argName != null && !isLambda -> {
+          otherArgs.add("$argName = $argValue")
+        }
+
+      }
+    }
+
+    val finalArgs = mutableListOf<String>()
+
+    if (itemsArg != null) {
+      finalArgs.add(itemsArg)
+    }
+
+    finalArgs.add(keyLambda)
+
+    if (contentTypeArg != null) {
+      finalArgs.add(contentTypeArg)
+    }
+
+    finalArgs.addAll(otherArgs)
+
+    val trailingLambda = callExpr.lambdaArguments.firstOrNull()?.text ?: "{}"
+
+    return "$calleeName(${finalArgs.joinToString(", ")}) $trailingLambda"
+  }
+}

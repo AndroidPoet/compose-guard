@@ -44,7 +44,7 @@ jobs:
       - name: Get plugin version
         id: get-version
         run: |
-          VERSION=$(grep 'version = ' compose-guard-idea/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          VERSION=$(grep 'version = ' compose-guard/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Plugin version: $VERSION"
 
@@ -61,13 +61,13 @@ jobs:
           fi
 
       - name: Build IntelliJ plugin
-        run: ./gradlew :compose-guard-idea:buildPlugin --no-daemon --stacktrace
+        run: ./gradlew :compose-guard:buildPlugin --no-daemon --stacktrace
 
       - name: Upload plugin distribution
         uses: actions/upload-artifact@v4
         with:
           name: intellij-plugin
-          path: compose-guard-idea/build/distributions/*.zip
+          path: compose-guard/build/distributions/*.zip
 
   test-plugin:
     name: Test IntelliJ Plugin
@@ -87,14 +87,14 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run plugin tests
-        run: ./gradlew :compose-guard-idea:test --no-daemon --stacktrace
+        run: ./gradlew :compose-guard:test --no-daemon --stacktrace
 
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: plugin-test-results
-          path: compose-guard-idea/build/reports/tests/
+          path: compose-guard/build/reports/tests/
 
   # Publish to JetBrains Marketplace (manual only)
   publish-to-marketplace:
@@ -117,7 +117,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Publish to JetBrains Marketplace
-        run: ./gradlew :compose-guard-idea:publishPlugin --no-daemon --stacktrace
+        run: ./gradlew :compose-guard:publishPlugin --no-daemon --stacktrace
         env:
           PUBLISH_TOKEN: ${{ secrets.JETBRAINS_PUBLISH_TOKEN }}
 
@@ -151,7 +151,7 @@ jobs:
 
           # Extract only the LATEST version block from changeNotes
           # Gets first <b>X.X.X</b> block with its <ul>...</ul> content
-          NOTES=$(sed -n '/changeNotes = """/,/""".trimIndent()/p' compose-guard-idea/build.gradle.kts | \
+          NOTES=$(sed -n '/changeNotes = """/,/""".trimIndent()/p' compose-guard/build.gradle.kts | \
             sed '1d;$d' | \
             awk '/<b>[0-9]+\.[0-9]+\.[0-9]+<\/b>/{if(found) exit; found=1} found' | \
             sed 's/<b>\(.*\)<\/b>/## \1/g' | \

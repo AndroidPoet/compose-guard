@@ -20,6 +20,6 @@ dependencyResolutionManagement {
 rootProject.name = "compose-guard"
 
 include(
-  ":compose-guard-idea",
+  ":compose-guard",
   ":app",
 )
