@@ -30,34 +30,6 @@ import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
-/**
- * Rule: Detect candidates for derivedStateOf or remember with keys.
- *
- * KEY INSIGHT: Use derivedStateOf when input state changes MORE frequently
- * than the derived output changes.
- *
- * Classic example:
- * ```kotlin
- * // BAD: Recomposes on every scroll frame
- * val showButton = scrollState.firstVisibleItemIndex > 0
- *
- * // GOOD: Only recomposes when showButton changes (true ↔ false)
- * val showButton by remember {
- *     derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
- * }
- * ```
- *
- * When to use derivedStateOf:
- * - Threshold checks on scroll state (position > 0, offset > threshold)
- * - Boolean derivations from frequently changing values
- * - Expensive computations on state that produce cached results
- *
- * When to use remember(keys):
- * - Computations based on function parameters
- * - Values that should update when specific inputs change
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/side-effects#derivedstateof">derivedStateOf</a>
- */
 public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
 
   override val id: String = "DerivedStateOfCandidate"
@@ -173,12 +145,6 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
     return violations
   }
 
-  /**
-   * Detects patterns like: scrollState.firstVisibleItemIndex > 0
-   * These are PERFECT candidates for derivedStateOf because:
-   * - Input (scroll offset) changes on every frame
-   * - Output (boolean) only changes when crossing the threshold
-   */
   private fun isScrollStateThresholdPattern(element: com.intellij.psi.PsiElement): Boolean {
     val binaryExprs = PsiTreeUtil.findChildrenOfType(element, KtBinaryExpression::class.java)
 
@@ -206,9 +172,6 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
     return false
   }
 
-  /**
-   * Detects comparisons on frequently changing state that produce booleans.
-   */
   private fun isFrequentStateComparison(element: com.intellij.psi.PsiElement): Boolean {
     val dotExpressions = PsiTreeUtil.findChildrenOfType(element, KtDotQualifiedExpression::class.java)
 

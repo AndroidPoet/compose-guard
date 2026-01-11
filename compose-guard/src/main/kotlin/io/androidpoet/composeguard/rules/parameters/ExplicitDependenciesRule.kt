@@ -27,20 +27,6 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Make dependencies explicit (ViewModels, CompositionLocals).
- *
- * ViewModels and CompositionLocals acquired inside a composable function body
- * make the composable harder to test and preview. Consider making them explicit
- * parameters with default values.
- *
- * This rule skips:
- * - Override functions (constrained by parent)
- * - Navigation composable blocks (viewModel() is idiomatic there)
- * - Calls with arguments (may need specific configuration)
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#make-dependencies-explicit-viewmodels">Make Dependencies Explicit</a>
- */
 public class ExplicitDependenciesRule : ComposableFunctionRule() {
   override val id: String = "ExplicitDependencies"
   override val name: String = "Make Dependencies Explicit"
@@ -200,10 +186,6 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
     }
   }
 
-  /**
-   * Extracts the ViewModel type from a call expression like viewModel<SampleViewModel>().
-   * Returns null if the type cannot be determined.
-   */
   private fun extractViewModelType(call: KtCallExpression): String? {
     val typeArguments = call.typeArguments
     if (typeArguments.isNotEmpty()) {

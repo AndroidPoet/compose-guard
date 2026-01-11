@@ -21,12 +21,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * Tests for LazyListContentTypeRule.
- *
- * This rule detects LazyColumn/LazyRow with heterogeneous items that are
- * missing the contentType parameter for efficient composition reuse.
- */
 class LazyListContentTypeRuleTest {
 
   private val rule = LazyListContentTypeRule()

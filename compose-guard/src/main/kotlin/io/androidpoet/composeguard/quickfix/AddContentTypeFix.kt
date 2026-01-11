@@ -25,14 +25,6 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgument
 
-/**
- * Quick fix that adds contentType parameter to LazyList item/items calls.
- *
- * Parameter signatures:
- * - item(key: Any? = null, contentType: Any? = null, content: () -> Unit)
- * - items(items: List<T>, key: ((T) -> Any)? = null, contentType: (T) -> Any? = null, itemContent: (T) -> Unit)
- * - itemsIndexed(items: List<T>, key: ((Int, T) -> Any)? = null, contentType: (Int, T) -> Any? = null, itemContent: (Int, T) -> Unit)
- */
 public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Add contentType parameter"
@@ -72,9 +64,6 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
     }
   }
 
-  /**
-   * Add contentType to a single item/items call.
-   */
   private fun addContentTypeToSingleCall(factory: KtPsiFactory, call: KtCallExpression) {
     if (hasContentTypeParameter(call)) return
 
@@ -93,9 +82,6 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
     replaceCallWithContentType(factory, call, calleeName, contentTypeName)
   }
 
-  /**
-   * Add contentType to all items inside a LazyList.
-   */
   private fun addContentTypeToAllItems(factory: KtPsiFactory, lazyListCall: KtCallExpression) {
     val lambdaArgument = lazyListCall.lambdaArguments.firstOrNull()
       ?: lazyListCall.valueArguments.lastOrNull()?.getArgumentExpression() as? KtLambdaExpression
@@ -149,10 +135,6 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
     }
   }
 
-  /**
-   * Build call for item/stickyHeader: contentType is Any?, not a lambda
-   * Signature: item(key: Any? = null, contentType: Any? = null, content: () -> Unit)
-   */
   private fun buildItemCall(
     calleeName: String,
     valueArguments: List<KtValueArgument>,
@@ -182,7 +164,7 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
         }
         when (index) {
           0 -> namedArgs.add("key = $argValue")
-          else -> namedArgs.add(argValue) // shouldn't happen
+          else -> namedArgs.add(argValue)
         }
       }
     }
@@ -192,10 +174,6 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
     return "$calleeName(${namedArgs.joinToString(", ")}) $effectiveTrailingLambda"
   }
 
-  /**
-   * Build call for items: contentType is (T) -> Any?, a single-param lambda
-   * Signature: items(items: List<T>, key: ((T) -> Any)? = null, contentType: (T) -> Any? = null, itemContent: (T) -> Unit)
-   */
   private fun buildItemsCall(
     calleeName: String,
     valueArguments: List<KtValueArgument>,
@@ -227,7 +205,7 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
         }
         when (positionalIndex) {
           0 -> namedArgs.add("items = $argValue")
-          else -> namedArgs.add(argValue) // preserve other positional args as-is
+          else -> namedArgs.add(argValue)
         }
         positionalIndex++
       }
@@ -238,10 +216,6 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
     return "$calleeName(${namedArgs.joinToString(", ")}) $effectiveTrailingLambda"
   }
 
-  /**
-   * Build call for itemsIndexed: contentType is (Int, T) -> Any?, a two-param lambda
-   * Signature: itemsIndexed(items: List<T>, key: ((Int, T) -> Any)? = null, contentType: (Int, T) -> Any? = null, itemContent: (Int, T) -> Unit)
-   */
   private fun buildItemsIndexedCall(
     calleeName: String,
     valueArguments: List<KtValueArgument>,
@@ -273,7 +247,7 @@ public class AddContentTypeFix : LocalQuickFix, HighPriorityAction {
         }
         when (positionalIndex) {
           0 -> namedArgs.add("items = $argValue")
-          else -> namedArgs.add(argValue) // preserve other positional args as-is
+          else -> namedArgs.add(argValue)
         }
         positionalIndex++
       }

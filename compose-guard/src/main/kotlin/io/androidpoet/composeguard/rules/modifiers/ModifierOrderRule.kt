@@ -27,16 +27,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Modifier order matters.
- *
- * Modifiers are applied in order. Certain modifier orderings can cause issues:
- * - clickable/selectable should come BEFORE padding for proper touch targets
- * - clip should come BEFORE clickable to respect visual bounds
- * - background should come AFTER padding for proper visual effect
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#modifier-order-matters">Modifier Order Matters</a>
- */
 public class ModifierOrderRule : ComposableFunctionRule() {
   override val id: String = "ModifierOrder"
   override val name: String = "Modifier Order Matters"

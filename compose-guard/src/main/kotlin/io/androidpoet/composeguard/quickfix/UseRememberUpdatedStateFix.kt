@@ -30,26 +30,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.resolve.ImportPath
 
-/**
- * Quick fix that wraps a lambda parameter with rememberUpdatedState.
- *
- * Transforms:
- * @Composable
- * fun MyComposable(onComplete: () -> Unit) {
- *     LaunchedEffect(Unit) {
- *         onComplete()
- *     }
- * }
- *
- * Into:
- * @Composable
- * fun MyComposable(onComplete: () -> Unit) {
- *     val currentOnComplete by rememberUpdatedState(onComplete)
- *     LaunchedEffect(Unit) {
- *         currentOnComplete()
- *     }
- * }
- */
 public class UseRememberUpdatedStateFix(
   private val lambdaName: String,
 ) : LocalQuickFix, HighPriorityAction {

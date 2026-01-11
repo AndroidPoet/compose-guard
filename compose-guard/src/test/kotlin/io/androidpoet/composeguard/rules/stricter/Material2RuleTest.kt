@@ -22,13 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for Material2Rule.
- *
- * Rule: Don't use Material 2.
- *
- * Use Material 3 instead of Material 2 for modern theming and Material You support.
- */
 class Material2RuleTest {
 
   private val rule = Material2Rule()
@@ -76,88 +69,33 @@ class Material2RuleTest {
   }
 
 
-  /**
-   * Pattern: Material 2 import - VIOLATION
-   *
-   * ```kotlin
-   * import androidx.compose.material.Button  // Material 2!
-   * import androidx.compose.material.Text
-   * ```
-   */
   @Test
   fun pattern_material2Import_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-  /**
-   * Pattern: Material 3 import - NO VIOLATION
-   *
-   * ```kotlin
-   * import androidx.compose.material3.Button  // Material 3!
-   * import androidx.compose.material3.Text
-   * ```
-   */
   @Test
   fun pattern_material3Import_shouldNotViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-  /**
-   * Pattern: Material icons import - NO VIOLATION (shared between M2/M3)
-   *
-   * ```kotlin
-   * import androidx.compose.material.icons.Icons
-   * import androidx.compose.material.icons.filled.Add
-   * ```
-   */
   @Test
   fun pattern_materialIconsImport_shouldNotViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
 
-  /**
-   * Pattern: Material 2 Scaffold import - VIOLATION
-   *
-   * ```kotlin
-   * import androidx.compose.material.Scaffold
-   * ```
-   */
   @Test
   fun pattern_material2Scaffold_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-  /**
-   * Pattern: Material 2 TopAppBar import - VIOLATION
-   *
-   * ```kotlin
-   * import androidx.compose.material.TopAppBar
-   * ```
-   */
   @Test
   fun pattern_material2TopAppBar_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
 
-  /**
-   * Why Material 3 is preferred:
-   *
-   * 1. **Material You**: Dynamic color support
-   * 2. **Modern design**: Updated design language
-   * 3. **Maintained**: Material 2 is in maintenance mode
-   * 4. **Consistency**: New apps should use M3
-   *
-   * Example:
-   * ```kotlin
-   * // Material 2 (deprecated approach)
-   * import androidx.compose.material.Button
-   *
-   * // Material 3 (recommended)
-   * import androidx.compose.material3.Button
-   * ```
-   */
   @Test
   fun reason_modernDesignAndDynamicColor() {
     assertEquals(RuleSeverity.INFO, rule.severity)

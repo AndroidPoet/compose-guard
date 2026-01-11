@@ -25,44 +25,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that reorders composable parameters to follow Compose API guidelines.
- *
- * Official Compose API parameter order:
- * 1. Required parameters (no defaults) - data first, then metadata
- * 2. Modifier parameter (FIRST optional - easily accessible at call site)
- * 3. Other optional parameters (with defaults)
- * 4. Trailing @Composable lambda (if any)
- *
- * From the official Compose Component API Guidelines:
- * "Since the modifier is recommended for any component and is used often,
- * placing it first ensures that it can be set without a named parameter
- * and provides a consistent place for this parameter in any component."
- *
- * Examples:
- * ```kotlin
- * @Composable
- * fun Card(
- *     title: String,                              // 1. required
- *     modifier: Modifier = Modifier,              // 2. modifier (FIRST optional)
- *     elevation: Dp = 4.dp,                       // 3. other optional
- *     content: @Composable () -> Unit             // 4. content (trailing)
- * )
- *
- * @Composable
- * fun FormField(
- *     label: String,                              // 1. required
- *     value: String,                              // 1. required
- *     onValueChange: (String) -> Unit,            // 1. required
- *     modifier: Modifier = Modifier,              // 2. modifier (FIRST optional)
- *     isError: Boolean = false,                   // 3. optional
- *     enabled: Boolean = true,                    // 3. optional
- *     placeholder: String = ""                    // 3. optional
- * )
- * ```
- *
- * @param specificAction Optional specific action description (e.g., "Move 'title, text' after modifier")
- */
 public class ReorderParametersFix(
   private val specificAction: String? = null,
 ) : LocalQuickFix, HighPriorityAction {
@@ -93,13 +55,6 @@ public class ReorderParametersFix(
     parameterList.replace(newParamList)
   }
 
-  /**
-   * Sorts parameters according to Compose API guidelines.
-   *
-   * Order: required → modifier (FIRST optional) → optionals → content lambda
-   *
-   * Also ensures state/callback pairs are kept together (e.g., value/onValueChange).
-   */
   private fun sortParameters(params: List<KtParameter>): List<KtParameter> {
     val required = mutableListOf<KtParameter>()
     val optional = mutableListOf<KtParameter>()
@@ -130,12 +85,6 @@ public class ReorderParametersFix(
     return pairedRequired + modifier + pairedOptional + sortedContentLambdas
   }
 
-  /**
-   * Reorders parameters to ensure state/callback pairs are adjacent.
-   *
-   * Pattern: (value, onValueChange), (checked, onCheckedChange), etc.
-   * The callback should immediately follow its state parameter.
-   */
   private fun pairStateCallbacks(params: List<KtParameter>): List<KtParameter> {
     if (params.size <= 1) return params
 
@@ -170,10 +119,6 @@ public class ReorderParametersFix(
     return result
   }
 
-  /**
-   * Checks if a parameter is a content slot lambda (typically @Composable () -> Unit).
-   * Event handlers like onClick should NOT be treated as content lambdas.
-   */
   private fun isContentLambda(param: KtParameter): Boolean {
     val typeText = param.typeReference?.text ?: return false
     val name = param.name ?: return false

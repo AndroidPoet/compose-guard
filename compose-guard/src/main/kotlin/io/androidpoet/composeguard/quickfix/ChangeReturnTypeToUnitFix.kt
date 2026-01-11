@@ -21,10 +21,6 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Quick fix that removes the return type from a composable function
- * (making it return Unit implicitly).
- */
 public class ChangeReturnTypeToUnitFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Change return type"

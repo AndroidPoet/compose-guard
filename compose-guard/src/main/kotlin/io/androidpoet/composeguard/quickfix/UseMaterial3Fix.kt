@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that replaces Material 2 import with Material 3 equivalent.
- */
 public class UseMaterial3Fix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Migrate to Material 3"

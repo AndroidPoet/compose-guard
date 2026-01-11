@@ -27,15 +27,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
-/**
- * Rule: State should be remembered in composables.
- *
- * Using `mutableStateOf` or similar state builders without `remember`
- * will create a new state instance on every recomposition, losing
- * the previous value.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#state-should-be-remembered-in-composables">State Should Be Remembered</a>
- */
 public class RememberStateRule : ComposableFunctionRule() {
 
   override val id: String = "RememberState"

@@ -22,13 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for MovableContentRule.
- *
- * Rule: Movable content should be remembered.
- *
- * movableContentOf should be wrapped in remember {} to persist across recompositions.
- */
 class MovableContentRuleTest {
 
   private val rule = MovableContentRule()
@@ -75,81 +68,22 @@ class MovableContentRuleTest {
   }
 
 
-  /**
-   * Pattern: movableContentOf without remember - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example() {
-   *     val content = movableContentOf { Text("Hello") }  // Not remembered!
-   * }
-   * ```
-   */
   @Test
   fun pattern_movableContentOfWithoutRemember_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: movableContentOf with remember - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example() {
-   *     val content = remember {
-   *         movableContentOf { Text("Hello") }  // Correct!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_movableContentOfWithRemember_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: movableContentWithReceiverOf without remember - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example() {
-   *     val content = movableContentWithReceiverOf<ColumnScope> {  // Not remembered!
-   *         Text("Hello")
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_movableContentWithReceiverOfWithoutRemember_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Why movable content needs remember:
-   *
-   * 1. **State preservation**: Movable content needs stable identity
-   * 2. **Performance**: Avoids recreating content on every recomposition
-   * 3. **Animation**: movableContentOf enables state-preserving moves
-   *
-   * Example:
-   * ```kotlin
-   * // Bad - new movable content every recomposition
-   * val content = movableContentOf { MyContent() }
-   *
-   * // Good - stable movable content
-   * val content = remember {
-   *     movableContentOf { MyContent() }
-   * }
-   *
-   * // Now content can be moved between layouts while preserving state
-   * if (isWide) {
-   *     Row { content() }
-   * } else {
-   *     Column { content() }
-   * }
-   * ```
-   */
   @Test
   fun reason_statePreservationAndAnimation() {
     assertEquals(RuleSeverity.ERROR, rule.severity)

@@ -24,9 +24,6 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Event parameters should follow "on" + verb naming pattern.
- */
 public class EventParameterNamingRule : ComposableFunctionRule() {
   override val id: String = "EventParameterNaming"
   override val name: String = "Event Parameter Naming"
@@ -63,14 +60,6 @@ public class EventParameterNamingRule : ComposableFunctionRule() {
     return violations
   }
 
-  /**
-   * Converts a past-tense event name to present tense.
-   *
-   * Handles various patterns:
-   * - onClicked -> onClick (simple -ed removal)
-   * - onSubmitted -> onSubmit (doubled consonant before -ed)
-   * - onChanged -> onChange (verbs ending in 'e' only add 'd')
-   */
   private fun convertPastTenseToPresent(name: String): String {
     if (!name.endsWith("ed")) return name
 
@@ -85,25 +74,25 @@ public class EventParameterNamingRule : ComposableFunctionRule() {
       }
     }
 
-    val withoutD = name.dropLast(1) // Try removing just 'd'
+    val withoutD = name.dropLast(1)
     if (withoutD.endsWith("e") && withoutD.length >= 4) {
       val ending = withoutD.takeLast(3).lowercase()
       val nonSilentEEndings = listOf(
-        "cke", // click, tick, pick -> NOT clicke
-        "ske", // ask -> NOT aske
-        "cte", // select, connect -> NOT selecte
-        "ste", // test -> NOT teste (but "taste" is different, handled by vowel pattern)
-        "rte", // start, sort -> NOT starte
-        "nte", // want, print -> NOT wante
-        "xte", // text -> NOT texte
-        "fte", // lift, shift -> NOT lifte
-        "pte", // accept -> NOT accepte
-        "rke", // work, mark -> NOT worke
-        "lke", // walk, talk -> NOT walke
-        "nke", // think, link -> NOT thinke
-        "ade", // load -> NOT loade (load + ed, not loade + d)
-        "rde", // record -> NOT recorde
-        "nde", // send, find -> NOT sende
+        "cke",
+        "ske",
+        "cte",
+        "ste",
+        "rte",
+        "nte",
+        "xte",
+        "fte",
+        "pte",
+        "rke",
+        "lke",
+        "nke",
+        "ade",
+        "rde",
+        "nde",
       )
 
       if (nonSilentEEndings.any { ending.endsWith(it) }) {

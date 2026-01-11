@@ -25,15 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Don't forward ViewModels through composable functions.
- *
- * Passing ViewModels as parameters through multiple composable layers
- * creates tight coupling and makes the composition harder to test.
- * Instead, pass only the state and callbacks that child composables need.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#viewmodels-should-not-be-forwarded">ViewModels Should Not Be Forwarded</a>
- */
 public class ViewModelForwardingRule : ComposableFunctionRule() {
   override val id: String = "ViewModelForwarding"
   override val name: String = "Don't Forward ViewModels"

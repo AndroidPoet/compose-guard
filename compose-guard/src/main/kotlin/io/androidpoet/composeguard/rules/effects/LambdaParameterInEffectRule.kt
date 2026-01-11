@@ -30,19 +30,6 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Lambda parameters should not be directly used in restartable effects.
- *
- * When a lambda parameter is used directly inside LaunchedEffect, DisposableEffect,
- * or other restartable effects without being included as a key, the effect may
- * capture a stale reference to the lambda.
- *
- * Solutions:
- * 1. Add the lambda as a key to the effect
- * 2. Wrap with rememberUpdatedState for effects that shouldn't restart
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#lambdas-used-in-restartable-effects-should-be-checked">Lambda Parameters in Effects</a>
- */
 public class LambdaParameterInEffectRule : ComposableFunctionRule() {
   override val id: String = "LambdaParameterInEffect"
   override val name: String = "Lambda Parameters in Restartable Effects"

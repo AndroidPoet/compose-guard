@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ContentEmissionRule.
- *
- * Rule: Don't emit content and return a result.
- *
- * Composable functions should either emit UI content to the composition tree
- * OR return a value to the caller, but not both.
- */
 class ContentEmissionRuleTest {
 
   private val rule = ContentEmissionRule()
@@ -76,67 +68,22 @@ class ContentEmissionRuleTest {
   }
 
 
-  /**
-   * Pattern: Emit content AND return value - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun BadExample(): String {
-   *     Column { Text("Hello") }  // Emits content
-   *     return "result"           // Also returns value!
-   * }
-   * ```
-   */
   @Test
   fun pattern_emitAndReturn_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Only emit content (Unit return) - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun GoodEmitter() {
-   *     Column { Text("Hello") }  // Only emits
-   * }
-   * ```
-   */
   @Test
   fun pattern_onlyEmitContent_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Only return value (no content) - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun rememberSomething(): Something {
-   *     return remember { Something() }  // Only returns
-   * }
-   * ```
-   */
   @Test
   fun pattern_onlyReturnValue_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Why single responsibility matters:
-   *
-   * 1. **Confusing APIs**: Mixed responsibility is unexpected
-   * 2. **Side effects**: Callers don't expect UI emission from value-returning fn
-   * 3. **Testability**: Single responsibility is easier to test
-   *
-   * Example:
-   * ```kotlin
-   * // Caller expects just a value...
-   * val result = myComposable()
-   * // ...but UI was also emitted! Surprise!
-   * ```
-   */
   @Test
   fun reason_singleResponsibility() {
     assertTrue(rule.enabledByDefault)

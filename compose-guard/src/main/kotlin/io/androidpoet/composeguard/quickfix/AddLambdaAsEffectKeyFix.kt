@@ -25,15 +25,6 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that adds a lambda parameter as a key to a restartable effect.
- *
- * Transforms:
- * LaunchedEffect(Unit) { onComplete() }
- *
- * Into:
- * LaunchedEffect(onComplete) { onComplete() }
- */
 public class AddLambdaAsEffectKeyFix(
   private val lambdaName: String,
   private val effectName: String,

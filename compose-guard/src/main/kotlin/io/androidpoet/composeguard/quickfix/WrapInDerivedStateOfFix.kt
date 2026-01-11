@@ -23,20 +23,6 @@ import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that wraps an expression in remember { derivedStateOf { } }.
- *
- * Use derivedStateOf when:
- * - The input state changes MORE frequently than the derived output
- * - Classic example: scrollState.firstVisibleItemIndex > 0
- *   - Scroll offset changes on every frame
- *   - But "show button" only changes when crossing the threshold (true ↔ false)
- *
- * derivedStateOf caches the result and only triggers recomposition when
- * the DERIVED value actually changes, not when the input changes.
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/side-effects#derivedstateof">derivedStateOf</a>
- */
 public class WrapInDerivedStateOfFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Wrap in derivedStateOf"

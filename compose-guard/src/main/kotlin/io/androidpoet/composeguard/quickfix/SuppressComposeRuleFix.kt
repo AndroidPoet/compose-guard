@@ -26,10 +26,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that adds a @Suppress annotation for a compose rule violation.
- * This is marked as low priority so the actual fix actions appear first.
- */
 public class SuppressComposeRuleFix(
   private val ruleId: String,
 ) : LocalQuickFix, LowPriorityAction {

@@ -22,9 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Tests for stricter rules metadata (id, name, description, category, severity).
- */
 class StricterRulesMetadataTest {
 
 

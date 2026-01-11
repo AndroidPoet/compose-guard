@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for EffectKeysRule.
- *
- * Rule: Be mindful of effect keys.
- *
- * Using constant keys like Unit or true means the effect runs once and never restarts.
- * This may be intentional, but often indicates a bug.
- */
 class EffectKeysRuleTest {
 
   private val rule = EffectKeysRule()
@@ -77,114 +69,33 @@ class EffectKeysRuleTest {
   }
 
 
-  /**
-   * Pattern: LaunchedEffect(Unit) - VIOLATION (constant key)
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example() {
-   *     LaunchedEffect(Unit) {  // Never restarts!
-   *         doSomething()
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_launchedEffectWithUnit_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: LaunchedEffect(true) - VIOLATION (constant key)
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example() {
-   *     LaunchedEffect(true) {  // Never restarts!
-   *         doSomething()
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_launchedEffectWithTrue_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: LaunchedEffect(someId) - NO VIOLATION (dynamic key)
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example(userId: String) {
-   *     LaunchedEffect(userId) {  // Restarts when userId changes
-   *         loadUser(userId)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_launchedEffectWithDynamicKey_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Pattern: DisposableEffect(Unit) - VIOLATION (constant key)
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example() {
-   *     DisposableEffect(Unit) {
-   *         onDispose { }
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_disposableEffectWithUnit_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: DisposableEffect(lifecycleOwner) - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example(lifecycleOwner: LifecycleOwner) {
-   *     DisposableEffect(lifecycleOwner) {
-   *         // ...
-   *         onDispose { }
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_disposableEffectWithDynamicKey_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Why effect keys matter:
-   *
-   * 1. **Restart behavior**: Keys control when effects restart
-   * 2. **Stale data**: Constant key may use outdated values
-   * 3. **Intentionality**: Forces you to think about lifecycle
-   *
-   * Example:
-   * ```kotlin
-   * // Bad - never loads new user!
-   * LaunchedEffect(Unit) {
-   *     loadUser(userId)  // Uses stale userId
-   * }
-   *
-   * // Good - reloads when userId changes
-   * LaunchedEffect(userId) {
-   *     loadUser(userId)
-   * }
-   * ```
-   */
   @Test
   fun reason_effectRestartBehavior() {
     assertTrue(rule.enabledByDefault)

@@ -24,9 +24,6 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Multipreview annotations should be named with "Previews" prefix.
- */
 public class MultipreviewNamingRule : ComposableFunctionRule() {
   override val id: String = "MultipreviewNaming"
   override val name: String = "Multipreview Naming"

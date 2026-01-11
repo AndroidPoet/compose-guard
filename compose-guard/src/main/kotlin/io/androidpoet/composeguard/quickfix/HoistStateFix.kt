@@ -24,34 +24,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that hoists state by adding value + callback parameters to the composable function.
- *
- * Transforms:
- * ```kotlin
- * @Composable
- * fun MyComponent() {
- *     var name by remember { mutableStateOf("") }
- *     TextField(value = name, onValueChange = { name = it })
- * }
- * ```
- *
- * To:
- * ```kotlin
- * @Composable
- * fun MyComponent(
- *     name: String,
- *     onNameChange: (String) -> Unit,
- * ) {
- *     TextField(value = name, onValueChange = onNameChange)
- * }
- * ```
- *
- * Per Android's official guidance: "State hoisting is a pattern of moving state to
- * a composable's caller to make a composable stateless."
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/state#state-hoisting">State Hoisting</a>
- */
 public class HoistStateFix(
   private val stateName: String,
   private val stateType: String = "String",
@@ -123,9 +95,6 @@ public class HoistStateFix(
     updateStateUsages(function, factory, stateName, callbackParamName)
   }
 
-  /**
-   * Infers the state type from the property initializer.
-   */
   private fun inferStateType(property: KtProperty): String {
     val initializer = property.initializer?.text ?: return stateType
 
@@ -150,14 +119,6 @@ public class HoistStateFix(
     }
   }
 
-  /**
-   * Updates state assignment usages to use the callback parameter.
-   *
-   * For example, transforms:
-   *   onValueChange = { name = it }
-   * To:
-   *   onValueChange = onNameChange
-   */
   private fun updateStateUsages(
     function: KtNamedFunction,
     factory: KtPsiFactory,

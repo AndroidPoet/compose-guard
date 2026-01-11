@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ContentSlotReusedRule.
- *
- * Rule: Content slots should not be reused across different code paths.
- *
- * Invoking the same content slot lambda multiple times in different branches
- * can cause the slot's internal state to be lost or behave unexpectedly.
- */
 class ContentSlotReusedRuleTest {
 
   private val rule = ContentSlotReusedRule()
@@ -77,117 +69,27 @@ class ContentSlotReusedRuleTest {
   }
 
 
-  /**
-   * Pattern: Content slot invoked multiple times - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example(content: @Composable () -> Unit) {
-   *     if (condition) {
-   *         content()  // First invocation
-   *     } else {
-   *         content()  // Second invocation - state may be lost!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_contentSlotInvokedMultipleTimes_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Content slot invoked once - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example(content: @Composable () -> Unit) {
-   *     Box {
-   *         content()  // Single invocation - OK
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_contentSlotInvokedOnce_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Multiple content slots each invoked once - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example(
-   *     header: @Composable () -> Unit,
-   *     content: @Composable () -> Unit
-   * ) {
-   *     Column {
-   *         header()   // Single invocation
-   *         content()  // Single invocation
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_multipleSlotsSingleInvocation_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Content slot with movableContentOf - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Example(content: @Composable () -> Unit) {
-   *     val movable = remember {
-   *         movableContentOf { content() }
-   *     }
-   *     if (condition) {
-   *         movable()
-   *     } else {
-   *         movable()  // OK - using movableContentOf preserves state
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_contentSlotWithMovableContent_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Why content slots shouldn't be reused:
-   *
-   * 1. **State loss**: Internal state may be lost between invocations
-   * 2. **Unexpected behavior**: Different code paths = different composition slots
-   * 3. **Solution**: Use movableContentOf for shared content
-   *
-   * Example:
-   * ```kotlin
-   * // Bad - state is lost when switching branches
-   * @Composable
-   * fun Tabs(content: @Composable () -> Unit) {
-   *     if (tab == 1) {
-   *         content()  // TextField state here...
-   *     } else {
-   *         content()  // ...is LOST when switching to this branch!
-   *     }
-   * }
-   *
-   * // Good - state is preserved
-   * @Composable
-   * fun Tabs(content: @Composable () -> Unit) {
-   *     val movable = remember { movableContentOf { content() } }
-   *     if (tab == 1) {
-   *         Box { movable() }
-   *     } else {
-   *         Card { movable() }  // State preserved!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun reason_statePreservation() {
     assertTrue(rule.enabledByDefault)

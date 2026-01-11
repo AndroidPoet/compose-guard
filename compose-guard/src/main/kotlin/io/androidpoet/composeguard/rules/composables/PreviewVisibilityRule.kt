@@ -26,9 +26,6 @@ import io.androidpoet.composeguard.rules.isPreview
 import io.androidpoet.composeguard.rules.isPublic
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Preview composables should not be public.
- */
 public class PreviewVisibilityRule : ComposableFunctionRule() {
   override val id: String = "PreviewVisibility"
   override val name: String = "Preview Should Be Private"

@@ -26,15 +26,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Use type-specific mutableStateOf variants when possible.
- *
- * For primitive types like Int, Long, Float, Double, using type-specific
- * variants (mutableIntStateOf, mutableLongStateOf, etc.) eliminates
- * autoboxing on JVM and improves memory efficiency.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#use-mutablestateof-type-specific-variants-when-possible">Type-Specific mutableStateOf Variants</a>
- */
 public class TypeSpecificStateRule : ComposableFunctionRule() {
 
   override val id: String = "TypeSpecificState"
@@ -177,10 +168,6 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
     }
   }
 
-  /**
-   * Checks if using a generic collection factory when a primitive-specific one exists.
-   * For example: mutableListOf<Int>() should be mutableIntListOf()
-   */
   private fun checkCollectionFactory(
     call: KtCallExpression,
     calleeName: String,

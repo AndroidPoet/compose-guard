@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtTypeReference
 
-/**
- * Quick fix that replaces standard collection with immutable variant.
- */
 public class UseImmutableCollectionFix(
   private val currentType: String,
   private val suggestedType: String,

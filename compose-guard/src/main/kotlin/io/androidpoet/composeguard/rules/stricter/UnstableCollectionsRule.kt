@@ -25,9 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isStandardCollection
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Avoid using unstable collections as parameters.
- */
 public class UnstableCollectionsRule : ComposableFunctionRule() {
   override val id: String = "UnstableCollections"
   override val name: String = "Avoid Unstable Collections"

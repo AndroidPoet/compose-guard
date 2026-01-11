@@ -25,9 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isPreview
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Preview functions should follow naming conventions.
- */
 public class PreviewNamingRule : ComposableFunctionRule() {
   override val id: String = "PreviewNaming"
   override val name: String = "Preview Naming Convention"

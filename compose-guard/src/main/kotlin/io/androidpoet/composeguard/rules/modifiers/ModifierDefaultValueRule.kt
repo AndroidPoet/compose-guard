@@ -25,14 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.getModifierParameter
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Modifier parameters should have a default value of Modifier.
- *
- * This allows callers to optionally provide a modifier without requiring
- * one in all call sites.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#modifiers-should-have-default-parameters">Modifiers Should Have Default Parameters</a>
- */
 public class ModifierDefaultValueRule : ComposableFunctionRule() {
 
   override val id: String = "ModifierDefaultValue"

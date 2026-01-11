@@ -31,11 +31,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtVisitorVoid
 
-/**
- * Inspection that checks for Compose rule violations.
- * This inspection runs all enabled rules from the ComposeRuleRegistry
- * and reports violations as problems.
- */
 public class ComposeGuardInspection : LocalInspectionTool() {
 
   override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {

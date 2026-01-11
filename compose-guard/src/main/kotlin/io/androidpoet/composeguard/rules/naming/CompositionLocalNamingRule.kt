@@ -25,14 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isCompositionLocal
 import org.jetbrains.kotlin.psi.KtProperty
 
-/**
- * Rule: CompositionLocal should be named with "Local" prefix.
- *
- * CompositionLocal instances should follow the naming convention of
- * starting with "Local" prefix to make their purpose clear.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#naming-compositionlocals-properly">Naming CompositionLocals</a>
- */
 public class CompositionLocalNamingRule : PropertyRule() {
   override val id: String = "CompositionLocalNaming"
   override val name: String = "CompositionLocal Naming"

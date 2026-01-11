@@ -24,14 +24,6 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Modifier parameters should be named properly.
- *
- * - Main modifier should be named `modifier`
- * - Sub-component modifiers should be named `xModifier` (e.g., `contentModifier`, `iconModifier`)
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#naming-modifiers-properly">Naming Modifiers Properly</a>
- */
 public class ModifierNamingRule : ComposableFunctionRule() {
 
   override val id: String = "ModifierNaming"

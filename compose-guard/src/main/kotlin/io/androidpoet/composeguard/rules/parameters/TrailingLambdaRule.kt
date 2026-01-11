@@ -25,9 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isComposableLambda
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Content slots should be trailing lambdas; event handlers should not.
- */
 public class TrailingLambdaRule : ComposableFunctionRule() {
   override val id: String = "TrailingLambda"
   override val name: String = "Trailing Lambda Rules"

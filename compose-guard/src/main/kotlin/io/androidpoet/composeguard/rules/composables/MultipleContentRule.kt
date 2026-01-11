@@ -26,19 +26,6 @@ import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Do not emit multiple pieces of content.
- *
- * A composable function should emit zero or one layout nodes at the top level.
- * Each composable should be cohesive and not depend on its call site.
- *
- * Emitting multiple content nodes makes the composable dependent on its parent
- * layout (Column, Row, Box) which breaks encapsulation.
- *
- * Exception: Extension functions on layout scopes (ColumnScope, RowScope) are allowed.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/rules/#do-not-emit-multiple-pieces-of-content">Do not emit multiple pieces of content</a>
- */
 public class MultipleContentRule : ComposableFunctionRule() {
   override val id: String = "MultipleContentEmitters"
   override val name: String = "Multiple Content Emitters"
@@ -117,10 +104,6 @@ public class MultipleContentRule : ComposableFunctionRule() {
     return emptyList()
   }
 
-  /**
-   * Counts direct content-emitting composable calls at the top level of a block.
-   * Does not count emissions inside lambdas (those are nested, not top-level).
-   */
   private fun countTopLevelEmissions(body: KtBlockExpression): Int {
     var count = 0
 

@@ -28,19 +28,6 @@ import io.androidpoet.composeguard.rules.isPublic
 import io.androidpoet.composeguard.rules.returnsUnit
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Public composables that emit UI should have a modifier parameter.
- *
- * This enables composition over inheritance and allows callers to customize
- * the composable's appearance and behavior.
- *
- * Exceptions:
- * - Preview functions
- * - Private/internal functions
- * - Value-returning composables
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#when-should-i-expose-modifier-parameters">When Should I Expose Modifier Parameters</a>
- */
 public class ModifierRequiredRule : ComposableFunctionRule() {
 
   override val id: String = "ModifierRequired"

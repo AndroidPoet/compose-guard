@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ModifierReuseRule.
- *
- * Rule: Don't re-use modifiers across multiple layout nodes.
- *
- * Reusing the same modifier instance across multiple composables can cause
- * unexpected behavior because modifiers apply their effects to a single node.
- */
 class ModifierReuseRuleTest {
 
   private val rule = ModifierReuseRule()
@@ -78,123 +70,32 @@ class ModifierReuseRuleTest {
   }
 
 
-  /**
-   * Pattern: Modifier used once - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun SingleUse(modifier: Modifier = Modifier) {
-   *     Box(modifier = modifier) {
-   *         Text("Content")
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_modifierUsedOnce_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Modifier used multiple times - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MultipleUse(modifier: Modifier = Modifier) {
-   *     Column(modifier = modifier) {    // First use
-   *         Text("A", modifier = modifier)  // Second use - REUSE!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_modifierUsedMultipleTimes_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Modifier reassigned and reused - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun ReassignedReuse(modifier: Modifier = Modifier) {
-   *     val myMod = modifier.fillMaxWidth()
-   *     Column(modifier = myMod) {
-   *         Text("A", modifier = myMod)  // Reusing reassigned modifier!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_reassignedModifierReused_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Modifier chain used multiple times - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun ChainReuse(modifier: Modifier = Modifier) {
-   *     Column(modifier = modifier.padding(8.dp)) {
-   *         Text("A", modifier = modifier.padding(8.dp))  // Same base!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_modifierChainReused_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Different Modifier instances - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun DifferentInstances(modifier: Modifier = Modifier) {
-   *     Column(modifier = modifier) {
-   *         Text("A", modifier = Modifier.padding(8.dp))  // New instance
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_differentModifierInstances_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
 
-  /**
-   * Why not to reuse modifiers:
-   *
-   * 1. **State conflicts**: Modifier state may conflict between nodes
-   * 2. **Layout issues**: Size/position may behave unexpectedly
-   * 3. **Single node design**: Modifiers are designed for one node
-   *
-   * Example of the problem:
-   * ```kotlin
-   * @Composable
-   * fun Problem(modifier: Modifier = Modifier) {
-   *     val focusMod = modifier.focusable()
-   *     Column(modifier = focusMod) {
-   *         Text("A", modifier = focusMod)  // Focus state shared!
-   *         Text("B", modifier = focusMod)  // All three share focus
-   *     }
-   * }
-   * ```
-   *
-   * Solution:
-   * ```kotlin
-   * @Composable
-   * fun Fixed(modifier: Modifier = Modifier) {
-   *     Column(modifier = modifier) {
-   *         Text("A", modifier = Modifier.focusable())  // Own state
-   *         Text("B", modifier = Modifier.focusable())  // Own state
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun reason_stateConflictsAndSingleNodeDesign() {
     assertTrue(rule.enabledByDefault)

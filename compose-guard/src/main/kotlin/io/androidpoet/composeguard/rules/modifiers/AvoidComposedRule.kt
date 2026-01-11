@@ -25,14 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Avoid composed {} modifier factory.
- *
- * The `composed` API has performance issues and is considered deprecated.
- * Use Modifier.Node instead for better performance and semantics.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#avoid-modifier-extension-factory-functions">Avoid Modifier Extension Factory Functions</a>
- */
 public class AvoidComposedRule : AnyFunctionRule() {
   override val id: String = "AvoidComposed"
   override val name: String = "Avoid composed {} Modifier"

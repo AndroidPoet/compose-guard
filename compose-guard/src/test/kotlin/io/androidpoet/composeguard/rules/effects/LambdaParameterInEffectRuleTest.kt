@@ -22,15 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for LambdaParameterInEffectRule.
- *
- * Rule: Lambda parameters should not be directly used in restartable effects.
- *
- * When a lambda parameter is used directly inside LaunchedEffect, DisposableEffect,
- * or other restartable effects without being included as a key, the effect may
- * capture a stale reference to the lambda.
- */
 class LambdaParameterInEffectRuleTest {
 
   private val rule = LambdaParameterInEffectRule()
@@ -78,119 +69,34 @@ class LambdaParameterInEffectRuleTest {
   }
 
 
-  /**
-   * Pattern: Lambda used in LaunchedEffect without key - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyComponent(onClick: () -> Unit) {
-   *     LaunchedEffect(Unit) {
-   *         onClick()  // Stale reference!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_lambdaInLaunchedEffectWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: Lambda as key in LaunchedEffect - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyComponent(onClick: () -> Unit) {
-   *     LaunchedEffect(onClick) {  // Lambda is key
-   *         onClick()
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_lambdaAsKeyInLaunchedEffect_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: Lambda with rememberUpdatedState - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyComponent(onClick: () -> Unit) {
-   *     val currentOnClick by rememberUpdatedState(onClick)
-   *     LaunchedEffect(Unit) {
-   *         currentOnClick()  // Always current reference
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_lambdaWithRememberUpdatedState_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
 
-  /**
-   * Pattern: Lambda used in DisposableEffect without key - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyComponent(onDispose: () -> Unit) {
-   *     DisposableEffect(Unit) {
-   *         onDispose { onDispose() }  // Stale reference!
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_lambdaInDisposableEffectWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
 
-  /**
-   * Pattern: Non-lambda parameter in effect - NO VIOLATION (not checked)
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyComponent(id: String) {
-   *     LaunchedEffect(Unit) {
-   *         doSomething(id)  // Not a lambda
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_nonLambdaParameter_shouldNotBeChecked() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
 
-  /**
-   * Why lambda references in effects matter:
-   *
-   * 1. **Stale closures**: Effect captures old lambda reference
-   * 2. **Incorrect behavior**: Calling old callback instead of new one
-   * 3. **Hard to debug**: Issues only appear when lambda changes
-   *
-   * Example of the problem:
-   * ```kotlin
-   * @Composable
-   * fun Timer(onTick: () -> Unit) {
-   *     LaunchedEffect(Unit) {
-   *         while (true) {
-   *             delay(1000)
-   *             onTick()  // Always calls the ORIGINAL onTick!
-   *         }
-   *     }
-   * }
-   * ```
-   *
-   * Solutions:
-   * 1. Add lambda as key (restarts effect)
-   * 2. Use rememberUpdatedState (doesn't restart)
-   */
   @Test
   fun reason_avoidStaleClosures() {
     assertTrue(rule.enabledByDefault)

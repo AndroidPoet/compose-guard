@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Quick fix that makes a @Preview function private.
- */
 public class MakePreviewPrivateFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Make private"

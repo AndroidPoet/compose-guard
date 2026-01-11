@@ -27,31 +27,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: LazyList with multiple item types should use contentType.
- *
- * When a LazyColumn/LazyRow contains different types of items (heterogeneous list),
- * using contentType helps Compose reuse compositions more efficiently.
- *
- * Example violation:
- * ```kotlin
- * LazyColumn {
- *     item { Header() }           // Type 1
- *     items(users) { UserItem() } // Type 2
- *     item { Footer() }           // Type 3
- *     // Missing contentType!
- * }
- * ```
- *
- * Correct usage:
- * ```kotlin
- * LazyColumn {
- *     item(contentType = "header") { Header() }
- *     items(users, contentType = { "listItem" }) { UserItem() }
- *     item(contentType = "footer") { Footer() }
- * }
- * ```
- */
 public class LazyListContentTypeRule : ComposableFunctionRule() {
 
   override val id: String = "LazyListContentType"

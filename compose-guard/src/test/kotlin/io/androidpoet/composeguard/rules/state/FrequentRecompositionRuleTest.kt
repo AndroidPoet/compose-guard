@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for FrequentRecompositionRule.
- *
- * Rule: Detect patterns that may cause excessive recompositions.
- *
- * This rule identifies common anti-patterns that lead to unnecessary
- * recompositions and performance issues in Compose.
- */
 class FrequentRecompositionRuleTest {
 
   private val rule = FrequentRecompositionRule()
@@ -76,70 +68,22 @@ class FrequentRecompositionRuleTest {
   }
 
 
-  /**
-   * Pattern: collectAsState without lifecycle awareness - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyScreen(viewModel: MyViewModel) {
-   *     // Continues collecting even in background
-   *     val state by viewModel.stateFlow.collectAsState()
-   * }
-   * ```
-   */
   @Test
   fun pattern_collectAsStateWithoutLifecycle_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: collectAsStateWithLifecycle - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyScreen(viewModel: MyViewModel) {
-   *     // Stops collecting when app is in background
-   *     val state by viewModel.stateFlow.collectAsStateWithLifecycle()
-   * }
-   * ```
-   */
   @Test
   fun pattern_collectAsStateWithLifecycle_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: observeAsState (LiveData) - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyScreen(viewModel: MyViewModel) {
-   *     val state by viewModel.liveData.observeAsState()
-   * }
-   * ```
-   */
   @Test
   fun pattern_observeAsState_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
 
-  /**
-   * Why lifecycle-aware collection matters:
-   *
-   * 1. **Resource usage**: collectAsState keeps collecting in background
-   * 2. **Battery**: Background collection wastes battery
-   * 3. **Crashes**: Emitting to inactive UI can cause issues
-   *
-   * Example:
-   * ```kotlin
-   * // Bad - continues in background
-   * val state by flow.collectAsState()
-   *
-   * // Good - stops when lifecycle is below STARTED
-   * val state by flow.collectAsStateWithLifecycle()
-   * ```
-   */
   @Test
   fun reason_lifecycleAwareness() {
     assertTrue(rule.enabledByDefault)

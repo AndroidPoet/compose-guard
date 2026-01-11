@@ -53,10 +53,6 @@ import io.androidpoet.composeguard.rules.stricter.Material2Rule
 import io.androidpoet.composeguard.rules.stricter.UnstableCollectionsRule
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
 
-/**
- * Central registry for all compose rules.
- * Provides access to all registered rules and filtering capabilities.
- */
 public object ComposeRuleRegistry {
 
   private val rules = mutableListOf<ComposeRule>()
@@ -107,24 +103,14 @@ public object ComposeRuleRegistry {
     register(UnstableCollectionsRule())
   }
 
-  /**
-   * Register a new rule.
-   */
   public fun register(rule: ComposeRule) {
     rules.add(rule)
   }
 
-  /**
-   * Get all registered rules.
-   */
   public fun getAllRules(): List<ComposeRule> {
     return rules.toList()
   }
 
-  /**
-   * Get all enabled rules based on current settings.
-   * A rule is enabled if its state in ruleEnabledStates is true (or defaults to enabledByDefault).
-   */
   public fun getEnabledRules(): List<ComposeRule> {
     val settings = ComposeGuardSettingsState.getInstance()
     return rules.filter { rule ->
@@ -132,34 +118,19 @@ public object ComposeRuleRegistry {
     }
   }
 
-  /**
-   * Get rules by category.
-   */
   public fun getRulesByCategory(category: RuleCategory): List<ComposeRule> {
     return rules.filter { it.category == category }
   }
 
-  /**
-   * Get a rule by its ID.
-   */
   public fun getRuleById(id: String): ComposeRule? {
     return rules.find { it.id == id }
   }
 
-  /**
-   * Get all rule categories with their rules.
-   */
   public fun getRulesByCategories(): Map<RuleCategory, List<ComposeRule>> {
     return rules.groupBy { it.category }
   }
 
-  /**
-   * Get the total count of rules.
-   */
   public fun getRuleCount(): Int = rules.size
 
-  /**
-   * Get the count of enabled rules.
-   */
   public fun getEnabledRuleCount(): Int = getEnabledRules().size
 }

@@ -42,10 +42,6 @@ import java.awt.Color
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-/**
- * Provides inline hints showing compose rule violations.
- * Shows small badges next to violations indicating the rule that was violated.
- */
 @Suppress("UnstableApiUsage")
 public class ComposeGuardInlayHintsProvider :
   InlayHintsProvider<ComposeGuardInlayHintsProvider.Settings> {

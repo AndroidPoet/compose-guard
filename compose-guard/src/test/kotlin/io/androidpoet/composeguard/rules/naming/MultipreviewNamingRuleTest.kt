@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for MultipreviewNamingRule.
- *
- * Rule: Multipreview annotations should be named with "Previews" prefix.
- *
- * Functions with multiple @Preview annotations should follow the
- * naming pattern 'PreviewsXxx'.
- */
 class MultipreviewNamingRuleTest {
 
   private val rule = MultipreviewNamingRule()
@@ -77,88 +69,27 @@ class MultipreviewNamingRuleTest {
   }
 
 
-  /**
-   * Pattern: Multipreview with 'Previews' prefix - NO VIOLATION
-   *
-   * ```kotlin
-   * @Preview(name = "Light")
-   * @Preview(name = "Dark")
-   * @Composable
-   * fun PreviewsButton() { ... }
-   * ```
-   */
   @Test
   fun pattern_withPreviewsPrefix_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: Multipreview without 'Previews' prefix - VIOLATION
-   *
-   * ```kotlin
-   * @Preview(name = "Light")
-   * @Preview(name = "Dark")
-   * @Composable
-   * fun Button() { ... }  // Should be PreviewsButton
-   * ```
-   */
   @Test
   fun pattern_withoutPreviewsPrefix_shouldViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: Single preview - NO VIOLATION (not a multipreview)
-   *
-   * ```kotlin
-   * @Preview
-   * @Composable
-   * fun ButtonPreview() { ... }  // Single preview, different rule applies
-   * ```
-   */
   @Test
   fun pattern_singlePreview_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: No preview annotations - NO VIOLATION (not checked)
-   *
-   * ```kotlin
-   * @Composable
-   * fun Button() { ... }  // Not a preview
-   * ```
-   */
   @Test
   fun pattern_noPreviewAnnotations_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
 
-  /**
-   * Why Previews prefix matters for multipreviews:
-   *
-   * 1. **Distinction**: Distinguishes from single previews
-   * 2. **Clarity**: Indicates multiple preview configurations
-   * 3. **Convention**: Standard pattern in Compose community
-   *
-   * Example:
-   * ```kotlin
-   * // Good - clearly indicates multiple previews
-   * @Preview(name = "Light", uiMode = UI_MODE_NIGHT_NO)
-   * @Preview(name = "Dark", uiMode = UI_MODE_NIGHT_YES)
-   * @Composable
-   * fun PreviewsButton() {
-   *     Button("Click me")
-   * }
-   *
-   * // Bad - not clear this has multiple configurations
-   * @Preview(name = "Light")
-   * @Preview(name = "Dark")
-   * @Composable
-   * fun ButtonPreview() { ... }
-   * ```
-   */
   @Test
   fun reason_distinctionAndClarity() {
     assertTrue(rule.enabledByDefault)

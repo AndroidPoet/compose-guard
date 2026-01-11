@@ -22,13 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for PreviewVisibilityRule.
- *
- * Rule: Preview composables should not be public.
- *
- * Preview functions should be private to prevent accidental use in production.
- */
 class PreviewVisibilityRuleTest {
 
   private val rule = PreviewVisibilityRule()
@@ -75,90 +68,27 @@ class PreviewVisibilityRuleTest {
   }
 
 
-  /**
-   * Pattern: Public preview - VIOLATION
-   *
-   * ```kotlin
-   * @Preview
-   * @Composable
-   * fun ButtonPreview() {  // Public preview!
-   *     Button()
-   * }
-   * ```
-   */
   @Test
   fun pattern_publicPreview_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Private preview - NO VIOLATION
-   *
-   * ```kotlin
-   * @Preview
-   * @Composable
-   * private fun ButtonPreview() {  // Private is correct
-   *     Button()
-   * }
-   * ```
-   */
   @Test
   fun pattern_privatePreview_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Internal preview - NO VIOLATION (arguably)
-   *
-   * ```kotlin
-   * @Preview
-   * @Composable
-   * internal fun ButtonPreview() {  // Internal OK
-   *     Button()
-   * }
-   * ```
-   */
   @Test
   fun pattern_internalPreview_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: Non-preview public composable - NO VIOLATION (not checked)
-   *
-   * ```kotlin
-   * @Composable
-   * fun Button() {  // Not a preview, public is fine
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_nonPreviewPublic_shouldNotBeChecked() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Why previews should be private:
-   *
-   * 1. **Accidental usage**: Could be called in production
-   * 2. **API pollution**: Public previews clutter the API
-   * 3. **Testing data**: Previews often use fake data
-   *
-   * Example:
-   * ```kotlin
-   * // Someone might accidentally use the preview
-   * @Preview
-   * @Composable
-   * fun LoginScreenPreview() {
-   *     LoginScreen(user = fakeUser)  // Fake data!
-   * }
-   *
-   * // In production code:
-   * LoginScreenPreview()  // Oops! Shows fake data
-   * ```
-   */
   @Test
   fun reason_preventAccidentalUsage() {
     assertTrue(rule.enabledByDefault)

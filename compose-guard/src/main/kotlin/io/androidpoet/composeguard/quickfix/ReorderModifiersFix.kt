@@ -23,14 +23,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that reorders modifier chain to put clickable/selectable before padding/offset.
- * This ensures proper touch target sizing.
- *
- * Example transformation:
- * ❌ modifier.padding(16.dp).clickable { }
- * ✅ modifier.clickable { }.padding(16.dp)
- */
 public class ReorderModifiersFix(
   private val boundReducingModifier: String,
   private val interactionModifier: String,

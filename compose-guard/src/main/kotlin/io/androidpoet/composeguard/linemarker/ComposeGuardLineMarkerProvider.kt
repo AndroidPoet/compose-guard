@@ -32,10 +32,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import java.awt.Color
 import javax.swing.Icon
 
-/**
- * Provides gutter icons showing compose rule violations for @Composable functions.
- * Shows a colored icon indicating whether there are rule violations.
- */
 public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
 
   private val settings: ComposeGuardSettingsState
@@ -91,15 +87,6 @@ public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
     return allViolations
   }
 
-  /**
-   * Gets the appropriate icon based on violation severity.
-   *
-   * Colors:
-   * - Red: Has ERROR severity violations
-   * - Orange: Has WARNING severity violations
-   * - Yellow: Has WEAK_WARNING severity violations
-   * - Blue: Has INFO severity violations
-   */
   private fun getIcon(violations: List<ComposeRuleViolation>): Icon {
     val hasError = violations.any { it.rule.severity == RuleSeverity.ERROR }
     val hasWarning = violations.any { it.rule.severity == RuleSeverity.WARNING }
@@ -115,9 +102,6 @@ public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
     return ColorIcon(JBUI.scale(10), color)
   }
 
-  /**
-   * Builds a tooltip string for the gutter icon.
-   */
   private fun buildTooltip(violations: List<ComposeRuleViolation>): String {
     return buildString {
       append("<html><body>")
@@ -149,20 +133,20 @@ public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
 
   private companion object {
     private val ERROR_COLOR = JBColor(
-      Color(232, 104, 74), // Light theme: red/orange
-      Color(232, 104, 74), // Dark theme: red/orange
+      Color(232, 104, 74),
+      Color(232, 104, 74),
     )
     private val WARNING_COLOR = JBColor(
-      Color(240, 198, 116), // Light theme: orange/yellow
-      Color(240, 198, 116), // Dark theme: orange/yellow
+      Color(240, 198, 116),
+      Color(240, 198, 116),
     )
     private val WEAK_WARNING_COLOR = JBColor(
-      Color(174, 174, 174), // Light theme: gray
-      Color(174, 174, 174), // Dark theme: gray
+      Color(174, 174, 174),
+      Color(174, 174, 174),
     )
     private val INFO_COLOR = JBColor(
-      Color(95, 184, 101), // Light theme: green
-      Color(95, 184, 101), // Dark theme: green
+      Color(95, 184, 101),
+      Color(95, 184, 101),
     )
   }
 }

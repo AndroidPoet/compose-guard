@@ -20,24 +20,8 @@ import com.intellij.codeInspection.SuppressQuickFix
 import com.intellij.psi.PsiElement
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
 
-/**
- * Suppresses Android Studio's built-in Compose lint inspections when
- * Compose Guard's corresponding rules are enabled.
- *
- * This prevents duplicate warnings from appearing when both Compose Guard
- * and Android Studio's built-in inspections are active.
- *
- * Built-in inspections suppressed:
- * - ModifierParameter: Covered by ParameterOrderingRule, ModifierNamingRule, ModifierDefaultValueRule
- * - ComposableNaming: Covered by ComposableNamingRule
- * - ComposableModifierFactory: Covered by ModifierNamingRule
- * - LambdaParameterInRestartableEffect: Covered by LambdaParameterInEffect
- */
 public class ComposeBuiltInInspectionSuppressor : InspectionSuppressor {
 
-  /**
-   * Map of built-in Compose inspection IDs to the Compose Guard rule IDs that cover them.
-   */
   private val suppressedInspections = mapOf(
     "ModifierParameter" to listOf("ModifierRequired", "ModifierDefaultValue", "ModifierNaming"),
     "ComposableModifierFactory" to listOf("ModifierNaming"),

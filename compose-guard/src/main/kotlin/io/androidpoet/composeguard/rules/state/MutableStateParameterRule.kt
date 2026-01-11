@@ -23,15 +23,6 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Don't use MutableState as a parameter.
- *
- * Passing MutableState as a parameter splits state ownership between
- * the composable and its caller, making it harder to reason about
- * when changes occur.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#do-not-use-mutablestate-as-a-parameter">Don't Use MutableState as Parameter</a>
- */
 public class MutableStateParameterRule : ComposableFunctionRule() {
 
   override val id: String = "MutableStateParameter"

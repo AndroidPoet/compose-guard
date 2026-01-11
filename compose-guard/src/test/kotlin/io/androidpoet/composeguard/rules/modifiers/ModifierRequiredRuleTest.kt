@@ -22,19 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ModifierRequiredRule.
- *
- * Rule: Public composables that emit UI should have a modifier parameter.
- *
- * This enables composition over inheritance and allows callers to customize
- * the composable's appearance and behavior.
- *
- * Exceptions:
- * - Preview functions
- * - Private/internal functions
- * - Value-returning composables
- */
 class ModifierRequiredRuleTest {
 
   private val rule = ModifierRequiredRule()
@@ -81,151 +68,43 @@ class ModifierRequiredRuleTest {
   }
 
 
-  /**
-   * Pattern: Public composable without modifier - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyButton(text: String) {  // Missing modifier parameter
-   *     Button(onClick = {}) {
-   *         Text(text)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_publicComposableWithoutModifier_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Public composable with modifier - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyButton(
-   *     text: String,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     Button(
-   *         onClick = {},
-   *         modifier = modifier
-   *     ) {
-   *         Text(text)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_publicComposableWithModifier_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Private composable without modifier - NO VIOLATION (skipped)
-   *
-   * ```kotlin
-   * @Composable
-   * private fun PrivateContent() {
-   *     Text("Private")
-   * }
-   * ```
-   */
   @Test
   fun pattern_privateComposable_shouldBeSkipped() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Internal composable without modifier - NO VIOLATION (skipped)
-   *
-   * ```kotlin
-   * @Composable
-   * internal fun InternalContent() {
-   *     Text("Internal")
-   * }
-   * ```
-   */
   @Test
   fun pattern_internalComposable_shouldBeSkipped() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Preview composable without modifier - NO VIOLATION (skipped)
-   *
-   * ```kotlin
-   * @Preview
-   * @Composable
-   * fun MyButtonPreview() {
-   *     MyButton(text = "Click me")
-   * }
-   * ```
-   */
   @Test
   fun pattern_previewComposable_shouldBeSkipped() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Value-returning composable without modifier - NO VIOLATION (skipped)
-   *
-   * ```kotlin
-   * @Composable
-   * fun rememberMyState(): MyState {
-   *     return remember { MyState() }
-   * }
-   * ```
-   */
   @Test
   fun pattern_valueReturningComposable_shouldBeSkipped() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
 
-  /**
-   * QuickFix should add: modifier: Modifier = Modifier
-   */
   @Test
   fun quickFix_shouldAddModifierParameter() {
     assertTrue(rule.description.contains("Modifier") || rule.description.contains("modifier"))
   }
 
 
-  /**
-   * Why composables need modifier parameter:
-   *
-   * 1. **Composition over inheritance**: Callers can customize behavior
-   * 2. **Flexibility**: Parent can control size, position, appearance
-   * 3. **Testability**: Easier to test with custom modifiers
-   * 4. **Consistency**: Standard pattern across Compose ecosystem
-   *
-   * Example of the problem:
-   * ```kotlin
-   * // Without modifier - can't customize
-   * @Composable
-   * fun Avatar(imageUrl: String) {
-   *     Image(...)  // Fixed 48.dp size
-   * }
-   *
-   * // In parent - can't change size!
-   * Avatar(imageUrl = url)  // Stuck with 48.dp
-   * ```
-   *
-   * Solution:
-   * ```kotlin
-   * @Composable
-   * fun Avatar(
-   *     imageUrl: String,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     Image(modifier = modifier, ...)
-   * }
-   *
-   * // Now parent controls size
-   * Avatar(imageUrl = url, modifier = Modifier.size(64.dp))
-   * ```
-   */
   @Test
   fun reason_compositionOverInheritance() {
     assertTrue(rule.enabledByDefault)

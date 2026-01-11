@@ -25,18 +25,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.returnsUnit
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Composable functions should follow naming conventions.
- *
- * - Unit-returning composables should use PascalCase (e.g., `UserCard`, `HomeScreen`)
- * - Value-returning composables should use camelCase (e.g., `rememberScrollState`)
- *
- * This convention helps distinguish between composables that emit UI
- * (treated like UI components/entities) and those that return values
- * (treated like functions).
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#naming-composable-functions-properly">Naming Composable Functions Properly</a>
- */
 public class ComposableNamingRule : ComposableFunctionRule() {
 
   override val id: String = "ComposableNaming"

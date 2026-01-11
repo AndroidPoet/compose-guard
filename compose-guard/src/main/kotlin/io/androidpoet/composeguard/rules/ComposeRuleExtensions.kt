@@ -27,25 +27,15 @@ import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtUserType
 
-/**
- * Extension functions for compose rule analysis.
- */
-
 private const val COMPOSABLE_ANNOTATION = "Composable"
 private const val PREVIEW_ANNOTATION = "Preview"
 
-/**
- * Check if a function is annotated with @Composable.
- */
 internal fun KtNamedFunction.isComposable(): Boolean {
   return annotationEntries.any {
     it.shortName?.asString() == COMPOSABLE_ANNOTATION
   }
 }
 
-/**
- * Check if a function is annotated with @Preview or a meta-annotation of @Preview.
- */
 internal fun KtNamedFunction.isPreview(): Boolean {
   return annotationEntries.any { annotation ->
     if (annotation.shortName?.asString() == PREVIEW_ANNOTATION) {
@@ -67,40 +57,25 @@ internal fun KtNamedFunction.isPreview(): Boolean {
   }
 }
 
-/**
- * Check if a function has public visibility.
- */
 internal fun KtNamedFunction.isPublic(): Boolean {
   return !hasModifier(org.jetbrains.kotlin.lexer.KtTokens.PRIVATE_KEYWORD) &&
     !hasModifier(org.jetbrains.kotlin.lexer.KtTokens.INTERNAL_KEYWORD) &&
     !hasModifier(org.jetbrains.kotlin.lexer.KtTokens.PROTECTED_KEYWORD)
 }
 
-/**
- * Check if a function has internal visibility.
- */
 internal fun KtNamedFunction.isInternal(): Boolean {
   return hasModifier(org.jetbrains.kotlin.lexer.KtTokens.INTERNAL_KEYWORD)
 }
 
-/**
- * Check if a function has private visibility.
- */
 internal fun KtNamedFunction.isPrivate(): Boolean {
   return hasModifier(org.jetbrains.kotlin.lexer.KtTokens.PRIVATE_KEYWORD)
 }
 
-/**
- * Check if a function returns Unit (or has no explicit return type).
- */
 internal fun KtNamedFunction.returnsUnit(): Boolean {
   val returnType = typeReference?.text
   return returnType == null || returnType == "Unit"
 }
 
-/**
- * Get the modifier parameter if it exists.
- */
 internal fun KtNamedFunction.getModifierParameter(): KtParameter? {
   return valueParameters.find { param ->
     val typeName = param.typeReference?.text ?: return@find false
@@ -108,16 +83,10 @@ internal fun KtNamedFunction.getModifierParameter(): KtParameter? {
   }
 }
 
-/**
- * Check if a function has a modifier parameter.
- */
 internal fun KtNamedFunction.hasModifierParameter(): Boolean {
   return getModifierParameter() != null
 }
 
-/**
- * Get all parameters that are lambda types (potential content slots).
- */
 internal fun KtNamedFunction.getLambdaParameters(): List<KtParameter> {
   return valueParameters.filter { param ->
     val typeText = param.typeReference?.text ?: return@filter false
@@ -125,31 +94,19 @@ internal fun KtNamedFunction.getLambdaParameters(): List<KtParameter> {
   }
 }
 
-/**
- * Get the last parameter (potential trailing lambda).
- */
 internal fun KtNamedFunction.getLastParameter(): KtParameter? {
   return valueParameters.lastOrNull()
 }
 
-/**
- * Check if a parameter is a composable lambda.
- */
 internal fun KtParameter.isComposableLambda(): Boolean {
   val typeText = typeReference?.text ?: return false
   return typeText.contains("@Composable") && typeText.contains("->")
 }
 
-/**
- * Check if a parameter has a default value.
- */
 internal fun KtParameter.hasDefaultValue(): Boolean {
   return defaultValue != null
 }
 
-/**
- * Check if a property is a CompositionLocal.
- */
 internal fun KtProperty.isCompositionLocal(): Boolean {
   val initializer = initializer ?: return false
   val callText = initializer.text
@@ -157,47 +114,29 @@ internal fun KtProperty.isCompositionLocal(): Boolean {
     callText.contains("staticCompositionLocalOf")
 }
 
-/**
- * Find all call expressions within a function body.
- */
 internal fun KtNamedFunction.findCallExpressions(): List<KtCallExpression> {
   val body = bodyExpression ?: bodyBlockExpression ?: return emptyList()
   return PsiTreeUtil.findChildrenOfType(body, KtCallExpression::class.java).toList()
 }
 
-/**
- * Find all dot-qualified expressions within a function body.
- */
 internal fun KtNamedFunction.findDotQualifiedExpressions(): List<KtDotQualifiedExpression> {
   val body = bodyExpression ?: bodyBlockExpression ?: return emptyList()
   return PsiTreeUtil.findChildrenOfType(body, KtDotQualifiedExpression::class.java).toList()
 }
 
-/**
- * Get the function name or a fallback if null.
- */
 internal fun KtNamedFunction.getNameOrDefault(): String {
   return name ?: "<anonymous>"
 }
 
-/**
- * Check if an annotation matches a specific name.
- */
 internal fun KtAnnotationEntry.matchesName(vararg names: String): Boolean {
   val shortName = shortName?.asString() ?: return false
   return names.any { it == shortName }
 }
 
-/**
- * Get the parent function of an element if it exists.
- */
 internal fun PsiElement.getParentFunction(): KtNamedFunction? {
   return PsiTreeUtil.getParentOfType(this, KtNamedFunction::class.java)
 }
 
-/**
- * Check if a type string represents a mutable type.
- */
 internal fun String.isMutableType(): Boolean {
   return startsWith("Mutable") ||
     contains("MutableList") ||
@@ -209,17 +148,11 @@ internal fun String.isMutableType(): Boolean {
     contains("HashSet")
 }
 
-/**
- * Check if a type string represents a standard collection interface.
- */
 internal fun String.isStandardCollection(): Boolean {
   val cleanType = this.substringBefore("<").trim()
   return cleanType in setOf("List", "Set", "Map", "Collection", "Iterable")
 }
 
-/**
- * Convert first character to uppercase for PascalCase.
- */
 internal fun String.toPascalCase(): String {
   return if (isNotEmpty()) {
     this[0].uppercaseChar() + substring(1)
@@ -228,9 +161,6 @@ internal fun String.toPascalCase(): String {
   }
 }
 
-/**
- * Convert first character to lowercase for camelCase.
- */
 internal fun String.toCamelCase(): String {
   return if (isNotEmpty()) {
     this[0].lowercaseChar() + substring(1)

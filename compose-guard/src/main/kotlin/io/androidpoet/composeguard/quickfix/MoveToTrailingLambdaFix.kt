@@ -23,9 +23,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that moves a content lambda parameter to the trailing position.
- */
 public class MoveToTrailingLambdaFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Move to trailing position"

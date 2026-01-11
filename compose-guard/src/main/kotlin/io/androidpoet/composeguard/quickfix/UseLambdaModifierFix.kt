@@ -22,26 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that converts a non-lambda modifier to its lambda-based alternative
- * for deferred state reads.
- *
- * Transforms:
- * ```kotlin
- * // offset(x, y) -> offset { IntOffset(x, y) }
- * Modifier.offset(x = scrollOffset.dp, y = 0.dp)
- * ```
- *
- * To:
- * ```kotlin
- * Modifier.offset { IntOffset(scrollOffset.roundToInt(), 0) }
- * ```
- *
- * Per Android's official guidance: "Defer state reads as long as possible
- * by wrapping them in lambda functions."
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/performance#defer-reads">Defer Reads</a>
- */
 public class UseLambdaModifierFix(
   private val modifierName: String,
   private val lambdaVersion: String,
@@ -74,9 +54,6 @@ public class UseLambdaModifierFix(
     }
   }
 
-  /**
-   * Converts offset(x, y) to offset { IntOffset(x, y) }
-   */
   private fun convertOffset(factory: KtPsiFactory, callExpr: KtCallExpression, args: List<org.jetbrains.kotlin.psi.KtValueArgument>) {
     val xArg = args.find { it.getArgumentName()?.asName?.asString() == "x" }?.getArgumentExpression()?.text
       ?: args.getOrNull(0)?.getArgumentExpression()?.text
@@ -93,9 +70,6 @@ public class UseLambdaModifierFix(
     callExpr.replace(newCall)
   }
 
-  /**
-   * Converts alpha(value) to graphicsLayer { alpha = value }
-   */
   private fun convertAlpha(factory: KtPsiFactory, callExpr: KtCallExpression, args: List<org.jetbrains.kotlin.psi.KtValueArgument>) {
     val alphaValue = args.firstOrNull()?.getArgumentExpression()?.text ?: "1f"
     val newCallText = "graphicsLayer { alpha = $alphaValue }"
@@ -103,9 +77,6 @@ public class UseLambdaModifierFix(
     callExpr.replace(newCall)
   }
 
-  /**
-   * Converts rotate(degrees) to graphicsLayer { rotationZ = degrees }
-   */
   private fun convertRotate(factory: KtPsiFactory, callExpr: KtCallExpression, args: List<org.jetbrains.kotlin.psi.KtValueArgument>) {
     val degrees = args.firstOrNull()?.getArgumentExpression()?.text ?: "0f"
     val newCallText = "graphicsLayer { rotationZ = $degrees }"
@@ -113,9 +84,6 @@ public class UseLambdaModifierFix(
     callExpr.replace(newCall)
   }
 
-  /**
-   * Converts scale(value) to graphicsLayer { scaleX = value; scaleY = value }
-   */
   private fun convertScale(factory: KtPsiFactory, callExpr: KtCallExpression, args: List<org.jetbrains.kotlin.psi.KtValueArgument>) {
     val scaleX = args.find { it.getArgumentName()?.asName?.asString() == "scaleX" }?.getArgumentExpression()?.text
     val scaleY = args.find { it.getArgumentName()?.asName?.asString() == "scaleY" }?.getArgumentExpression()?.text
@@ -132,10 +100,6 @@ public class UseLambdaModifierFix(
     callExpr.replace(newCall)
   }
 
-  /**
-   * Converts a Dp expression to pixels representation for IntOffset.
-   * User may need to adjust with proper density conversion.
-   */
   private fun convertDpToPixels(dpValue: String): String {
     return when {
       dpValue.endsWith(".dp") -> {

@@ -26,27 +26,6 @@ import io.androidpoet.composeguard.rules.hasDefaultValue
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 
-/**
- * Rule: Order composable parameters following Compose API guidelines.
- *
- * Official Compose API parameter order:
- * 1. Required parameters (no defaults) - data first, then metadata
- * 2. Modifier parameter (FIRST optional - easily accessible at call site)
- * 3. Other optional parameters (with defaults)
- * 4. Trailing @Composable lambda (if any)
- *
- * From the official Compose Component API Guidelines:
- * > "Since the modifier is recommended for any component and is used often,
- * > placing it first ensures that it can be set without a named parameter
- * > and provides a consistent place for this parameter in any component."
- *
- * Key conventions:
- * - Keep state and its callback paired: (value: T, onValueChange: (T) -> Unit)
- * - Modifier is always `modifier: Modifier = Modifier`
- * - Content lambda enables trailing lambda syntax
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/components">Compose Components</a>
- */
 public class ParameterOrderingRule : ComposableFunctionRule() {
 
   override val id: String = "ParameterOrdering"
@@ -87,17 +66,6 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     return violations
   }
 
-  /**
-   * Rule 1: Required parameters (no defaults) must come before optional ones.
-   *
-   * According to official Compose API guidelines:
-   * 1. Required parameters (no defaults)
-   * 2. Modifier parameter (FIRST optional)
-   * 3. Other optional parameters (with defaults)
-   * 4. Content lambda (trailing, if any)
-   *
-   * @return true if any required params were found after optional params
-   */
   private fun checkRequiredBeforeOptional(
     params: List<KtParameter>,
     violations: MutableList<ComposeRuleViolation>,
@@ -140,16 +108,6 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     return hasViolation
   }
 
-  /**
-   * Rule 2: Modifier must be the FIRST optional parameter.
-   *
-   * From the official Compose Component API Guidelines:
-   * "Since the modifier is recommended for any component and is used often,
-   * placing it first ensures that it can be set without a named parameter
-   * and provides a consistent place for this parameter in any component."
-   *
-   * Correct order: required → modifier (FIRST optional) → other optionals → content lambda
-   */
   private fun checkModifierPosition(
     params: List<KtParameter>,
     violations: MutableList<ComposeRuleViolation>,
@@ -203,9 +161,6 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     }
   }
 
-  /**
-   * Rule 3: Content lambdas should be at the end for trailing lambda syntax.
-   */
   private fun checkContentLambdaTrailing(
     params: List<KtParameter>,
     violations: MutableList<ComposeRuleViolation>,
@@ -245,11 +200,6 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     }
   }
 
-  /**
-   * Rule 4: State values and their callbacks should be paired together.
-   *
-   * Pattern: (value: T, onValueChange: (T) -> Unit) should be adjacent.
-   */
   private fun checkStateCallbackPairing(
     params: List<KtParameter>,
     violations: MutableList<ComposeRuleViolation>,
@@ -302,10 +252,6 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     }
   }
 
-  /**
-   * Checks if a parameter is a content slot lambda (typically @Composable () -> Unit).
-   * Event handlers like onClick should NOT be treated as content lambdas.
-   */
   private fun isContentLambda(param: KtParameter): Boolean {
     val typeText = param.typeReference?.text ?: return false
     val name = param.name ?: return false

@@ -22,17 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ExplicitDependenciesRule.
- *
- * Rule: Make dependencies explicit as parameters.
- *
- * Why:
- * - Improves testability - no need to mock viewModel() or CompositionLocal
- * - Enables preview - can provide fake data
- * - Clear data flow - easy to understand what the composable needs
- * - Better reusability - not tied to specific DI mechanism
- */
 class ExplicitDependenciesRuleTest {
 
   private val rule = ExplicitDependenciesRule()
@@ -80,183 +69,29 @@ class ExplicitDependenciesRuleTest {
   }
 
 
-  /**
-   * Pattern: Don't call viewModel() inside composable.
-   *
-   * Wrong:
-   * ```kotlin
-   * @Composable
-   * fun ProfileScreen() {
-   *     val viewModel: ProfileViewModel = viewModel()
-   *     val state by viewModel.state.collectAsState()
-   *     ProfileContent(state)
-   * }
-   * ```
-   *
-   * Correct:
-   * ```kotlin
-   * @Composable
-   * fun ProfileScreen(
-   *     viewModel: ProfileViewModel = viewModel()  // Default in signature
-   * ) {
-   *     val state by viewModel.state.collectAsState()
-   *     ProfileContent(state)
-   * }
-   * ```
-   *
-   * Even better (data-based):
-   * ```kotlin
-   * @Composable
-   * fun ProfileScreen(
-   *     state: ProfileState,
-   *     onAction: (ProfileAction) -> Unit,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     // Pure UI component
-   * }
-   * ```
-   */
   @Test
   fun pattern_viewModelInBody() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Pattern: Prefer explicit parameters over CompositionLocal.current.
-   *
-   * Less ideal (implicit):
-   * ```kotlin
-   * @Composable
-   * fun ThemedText(text: String) {
-   *     val theme = LocalTheme.current  // Implicit dependency
-   *     Text(text, color = theme.textColor)
-   * }
-   * ```
-   *
-   * Better (explicit):
-   * ```kotlin
-   * @Composable
-   * fun ThemedText(
-   *     text: String,
-   *     theme: Theme = LocalTheme.current,  // Explicit with default
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     Text(text, color = theme.textColor, modifier = modifier)
-   * }
-   * ```
-   */
   @Test
   fun pattern_compositionLocalCurrent() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Benefits of explicit dependencies for testing:
-   *
-   * Implicit (hard to test):
-   * ```kotlin
-   * @Composable
-   * fun UserProfile() {
-   *     val vm: UserViewModel = viewModel()  // How to mock?
-   *     // ...
-   * }
-   * ```
-   *
-   * Explicit (easy to test):
-   * ```kotlin
-   * @Composable
-   * fun UserProfile(
-   *     userName: String,
-   *     userAvatar: String,
-   *     onEditClick: () -> Unit,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     // Easy to test with any data!
-   * }
-   *
-   * // Test:
-   * composeTestRule.setContent {
-   *     UserProfile(
-   *         userName = "Test User",
-   *         userAvatar = "test.png",
-   *         onEditClick = {}
-   *     )
-   * }
-   * ```
-   */
   @Test
   fun benefit_testability() {
     assertTrue(rule.enabledByDefault)
   }
 
-  /**
-   * Benefits of explicit dependencies for previews:
-   *
-   * Implicit (no preview):
-   * ```kotlin
-   * @Composable
-   * fun UserProfile() {
-   *     val vm: UserViewModel = viewModel()  // Can't work in preview!
-   *     // ...
-   * }
-   *
-   * @Preview
-   * @Composable
-   * fun UserProfilePreview() {
-   *     UserProfile()  // Crashes!
-   * }
-   * ```
-   *
-   * Explicit (easy preview):
-   * ```kotlin
-   * @Preview
-   * @Composable
-   * fun UserProfilePreview() {
-   *     UserProfile(
-   *         userName = "Jane Doe",
-   *         userAvatar = "avatar.png",
-   *         onEditClick = {}
-   *     )
-   * }
-   * ```
-   */
   @Test
   fun benefit_previewSupport() {
     assertTrue(rule.enabledByDefault)
   }
 
 
-  /**
-   * Pattern: Screen composable can use viewModel(), content composables should be pure.
-   *
-   * Screen (integration point):
-   * ```kotlin
-   * @Composable
-   * fun ProfileScreenRoute(
-   *     viewModel: ProfileViewModel = viewModel()
-   * ) {
-   *     val state by viewModel.state.collectAsState()
-   *     ProfileScreen(
-   *         state = state,
-   *         onAction = viewModel::onAction
-   *     )
-   * }
-   * ```
-   *
-   * Content (pure, testable):
-   * ```kotlin
-   * @Composable
-   * fun ProfileScreen(
-   *     state: ProfileState,
-   *     onAction: (ProfileAction) -> Unit,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     // Pure UI rendering
-   * }
-   * ```
-   */
   @Test
   fun pattern_screenVsComponent() {
     assertEquals(RuleCategory.PARAMETER, rule.category)

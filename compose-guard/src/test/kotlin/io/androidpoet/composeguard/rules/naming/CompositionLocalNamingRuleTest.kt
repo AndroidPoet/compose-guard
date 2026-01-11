@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for CompositionLocalNamingRule.
- *
- * Rule: CompositionLocal should be named with "Local" prefix.
- *
- * CompositionLocal instances should follow the naming convention of
- * starting with "Local" prefix to make their purpose clear.
- */
 class CompositionLocalNamingRuleTest {
 
   private val rule = CompositionLocalNamingRule()
@@ -76,90 +68,32 @@ class CompositionLocalNamingRuleTest {
   }
 
 
-  /**
-   * Pattern: CompositionLocal with Local prefix - NO VIOLATION
-   *
-   * ```kotlin
-   * val LocalCurrentUser = compositionLocalOf { User() }
-   * val LocalTheme = staticCompositionLocalOf { Theme() }
-   * ```
-   */
   @Test
   fun pattern_withLocalPrefix_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: CompositionLocal without Local prefix - VIOLATION
-   *
-   * ```kotlin
-   * val CurrentUser = compositionLocalOf { User() }  // Should be LocalCurrentUser
-   * val Theme = staticCompositionLocalOf { Theme() }  // Should be LocalTheme
-   * ```
-   */
   @Test
   fun pattern_withoutLocalPrefix_shouldViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: compositionLocalOf - should be checked
-   *
-   * ```kotlin
-   * val MySettings = compositionLocalOf { Settings() }  // VIOLATION
-   * ```
-   */
   @Test
   fun pattern_compositionLocalOf_shouldBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: staticCompositionLocalOf - should be checked
-   *
-   * ```kotlin
-   * val Analytics = staticCompositionLocalOf { AnalyticsService() }  // VIOLATION
-   * ```
-   */
   @Test
   fun pattern_staticCompositionLocalOf_shouldBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: Non-CompositionLocal property - NO VIOLATION (not checked)
-   *
-   * ```kotlin
-   * val CurrentUser = User()  // Not a CompositionLocal
-   * ```
-   */
   @Test
   fun pattern_nonCompositionLocal_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
 
-  /**
-   * Why Local prefix matters:
-   *
-   * 1. **Discoverability**: Easy to find all CompositionLocals
-   * 2. **Clarity**: Immediately clear this is ambient data
-   * 3. **Convention**: Standard pattern in Compose ecosystem
-   *
-   * Example:
-   * ```kotlin
-   * // Standard Compose locals use this pattern
-   * LocalContext
-   * LocalConfiguration
-   * LocalDensity
-   * LocalLifecycleOwner
-   *
-   * // Your custom locals should too
-   * LocalCurrentUser
-   * LocalTheme
-   * LocalAnalytics
-   * ```
-   */
   @Test
   fun reason_discoverabilityAndClarity() {
     assertTrue(rule.enabledByDefault)

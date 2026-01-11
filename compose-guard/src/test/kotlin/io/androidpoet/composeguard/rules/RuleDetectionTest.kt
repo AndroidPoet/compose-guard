@@ -20,12 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Tests to verify all 31 rules are properly registered and have correct metadata.
- * These tests ensure the rule detection infrastructure is working correctly.
- *
- * For actual PSI-based detection tests, see the IntelliJ Platform test classes.
- */
 class RuleDetectionTest {
 
 

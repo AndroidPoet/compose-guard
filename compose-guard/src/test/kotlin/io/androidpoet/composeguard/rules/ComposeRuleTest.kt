@@ -18,9 +18,6 @@ package io.androidpoet.composeguard.rules
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/**
- * Tests for ComposeRule enums and data classes.
- */
 class ComposeRuleTest {
 
 

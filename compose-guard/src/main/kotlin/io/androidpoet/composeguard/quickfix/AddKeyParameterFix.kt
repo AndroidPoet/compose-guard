@@ -23,20 +23,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that adds a key parameter to LazyList items() or itemsIndexed() calls.
- *
- * Per Android's official documentation:
- * - Keys should be stable, unique, and Bundle-compatible
- * - Keys enable efficient recomposition and proper state preservation
- * - Keys allow animations to work correctly with animateItem()
- *
- * Function signatures:
- * - items(items: List<T>, key: ((T) -> Any)? = null, contentType: (T) -> Any? = null, itemContent: (T) -> Unit)
- * - itemsIndexed(items: List<T>, key: ((Int, T) -> Any)? = null, contentType: (Int, T) -> Any? = null, itemContent: (Int, T) -> Unit)
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/lists#item-keys">Item Keys</a>
- */
 public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Add key parameter"
@@ -62,11 +48,6 @@ public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
     callExpr.replace(newCall)
   }
 
-  /**
-   * Detects the item parameter name from the trailing lambda.
-   * e.g., `{ user -> UserItem(user) }` returns "user"
-   * e.g., `{ index, item -> ... }` returns "item" (for itemsIndexed)
-   */
   private fun detectItemParameterName(callExpr: KtCallExpression): String {
     val lambdaExpr = callExpr.lambdaArguments.firstOrNull()?.getLambdaExpression()
       ?: return "it"
@@ -75,14 +56,11 @@ public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
     return when {
       params.isEmpty() -> "it"
       params.size == 1 -> params[0].name ?: "it"
-      params.size == 2 -> params[1].name ?: "item" // For itemsIndexed: (index, item)
+      params.size == 2 -> params[1].name ?: "item"
       else -> "it"
     }
   }
 
-  /**
-   * Builds the key lambda based on function type.
-   */
   private fun buildKeyLambda(calleeName: String, itemParamName: String): String {
     return when (calleeName) {
       "itemsIndexed" -> {
@@ -98,11 +76,6 @@ public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
     }
   }
 
-  /**
-   * Builds the new call expression with key parameter inserted in the correct position.
-   *
-   * Parameter order: items(items, key, contentType) { itemContent }
-   */
   private fun buildCallWithKey(
     callExpr: KtCallExpression,
     calleeName: String,

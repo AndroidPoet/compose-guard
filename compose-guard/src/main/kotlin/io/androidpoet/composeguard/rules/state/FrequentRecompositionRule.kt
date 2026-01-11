@@ -27,33 +27,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Detect patterns that may cause excessive recompositions.
- *
- * This rule identifies common anti-patterns that lead to unnecessary
- * recompositions and performance issues in Compose.
- *
- * Detected patterns:
- * 1. Object creation in composition (new instances on every recomposition)
- * 2. Flow/LiveData collection without proper handling
- * 3. Frequently changing state reads at high levels
- * 4. Non-skippable composables with unstable parameters
- *
- * Example violations:
- * ```kotlin
- * @Composable
- * fun BadExample() {
- *     // BAD: New object created every recomposition
- *     val config = Config(color = Color.Red, size = 16.dp)
- *
- *     // BAD: New list created every recomposition
- *     val items = listOf("A", "B", "C")
- *
- *     // BAD: Collecting flow without lifecycle awareness
- *     val state = viewModel.stateFlow.collectAsState()
- * }
- * ```
- */
 public class FrequentRecompositionRule : ComposableFunctionRule() {
 
   override val id: String = "FrequentRecomposition"

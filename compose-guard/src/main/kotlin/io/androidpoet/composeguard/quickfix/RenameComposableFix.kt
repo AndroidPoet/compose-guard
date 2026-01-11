@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that renames a composable function to follow naming conventions.
- */
 public class RenameComposableFix(
   private val suggestedName: String,
 ) : LocalQuickFix, HighPriorityAction {

@@ -67,7 +67,6 @@ fun ComposeGuardSampleApp(modifier: Modifier = Modifier) {
       modifier = Modifier.padding(bottom = 24.dp),
     )
 
-    // Sample composables that trigger various rules
     SampleSection(title = "Naming Rules") {
       NamingRulesDemo()
     }

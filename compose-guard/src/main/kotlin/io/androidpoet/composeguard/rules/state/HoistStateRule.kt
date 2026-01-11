@@ -31,28 +31,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
-/**
- * Rule: Hoist state to the lowest common ancestor when appropriate.
- *
- * State hoisting is a pattern where state is moved up to make a composable
- * stateless. Per Android's official guidance: "You should hoist UI state to
- * the lowest common ancestor between all the composables that read and write it."
- *
- * This rule uses smart heuristics to detect when state SHOULD be hoisted:
- * - State shared between multiple child composables (lowest common ancestor)
- * - State passed to child composables (parent should own it)
- * - State that could be controlled by parent for reusability
- *
- * And when state is ACCEPTABLE to keep local (reduces false positives):
- * - Screen-level composables (with ViewModel, ending in Screen/Page)
- * - Simple single-element wrappers (e.g., custom Button with press state)
- * - Private/Preview composables
- * - Internal UI state only used within this composable (expand/collapse toggles)
- * - UI element state holders (LazyListState, DrawerState, etc.)
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/state-hoisting">Android: State Hoisting</a>
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#hoist-all-the-things">Compose Rules: Hoist All The Things</a>
- */
 public class HoistStateRule : ComposableFunctionRule() {
 
   override val id: String = "HoistState"
@@ -196,9 +174,6 @@ public class HoistStateRule : ComposableFunctionRule() {
     return violations
   }
 
-  /**
-   * Classifies the composable as SCREEN, COMPONENT, or SIMPLE_ELEMENT.
-   */
   private fun classifyComposableType(function: KtNamedFunction): ComposableType {
     val name = function.name ?: return ComposableType.COMPONENT
     val params = function.valueParameters
@@ -222,9 +197,6 @@ public class HoistStateRule : ComposableFunctionRule() {
     return ComposableType.COMPONENT
   }
 
-  /**
-   * Checks if the composable is a simple wrapper around a single UI element.
-   */
   private fun isSimpleElementComposable(function: KtNamedFunction, body: PsiElement): Boolean {
     val blockBody = body as? KtBlockExpression ?: return false
 
@@ -246,9 +218,6 @@ public class HoistStateRule : ComposableFunctionRule() {
     return false
   }
 
-  /**
-   * Checks if the function is defined inside a navigation context.
-   */
   private fun isInNavigationContext(function: KtNamedFunction): Boolean {
     var parent = function.parent
     while (parent != null) {
@@ -263,9 +232,6 @@ public class HoistStateRule : ComposableFunctionRule() {
     return false
   }
 
-  /**
-   * Analyzes how a state variable is used within the function.
-   */
   private fun analyzeStateUsage(
     function: KtNamedFunction,
     body: PsiElement,
@@ -324,9 +290,6 @@ public class HoistStateRule : ComposableFunctionRule() {
     return StateUsagePattern.INTERNAL_ONLY
   }
 
-  /**
-   * Finds direct child composable calls (at top level of a block, not nested).
-   */
   private fun findDirectChildComposableCalls(body: KtBlockExpression): List<KtCallExpression> {
     val directCalls = PsiTreeUtil.getChildrenOfType(body, KtCallExpression::class.java)
       ?: return emptyList()
@@ -338,9 +301,6 @@ public class HoistStateRule : ComposableFunctionRule() {
     }
   }
 
-  /**
-   * Infers the state type from a property for the quick fix.
-   */
   private fun inferStateType(property: KtProperty): String {
     val initializer = property.initializer?.text ?: return "String"
 
@@ -472,34 +432,16 @@ public class HoistStateRule : ComposableFunctionRule() {
     """.trimIndent()
   }
 
-  /**
-   * Classifies a composable function's intended use.
-   */
   private enum class ComposableType {
-    /** Screen-level composable (e.g., HomeScreen, LoginPage) - state often appropriate */
     SCREEN,
-
-    /** Reusable component - state should typically be hoisted */
     COMPONENT,
   }
 
-  /**
-   * Describes how a state variable is used within a composable.
-   */
   private enum class StateUsagePattern {
-    /** State is passed to multiple child composables - strong signal for hoisting */
     SHARED_BETWEEN_CHILDREN,
-
-    /** State is passed to a single child composable - moderate signal */
     PASSED_TO_CHILDREN,
-
-    /** State is modified through user interaction callbacks */
     MODIFIED_IN_CALLBACK,
-
-    /** State is used in LaunchedEffect/DisposableEffect */
     USED_IN_EFFECT,
-
-    /** State is only used internally (e.g., expanded/collapsed toggle) */
     INTERNAL_ONLY,
   }
 }

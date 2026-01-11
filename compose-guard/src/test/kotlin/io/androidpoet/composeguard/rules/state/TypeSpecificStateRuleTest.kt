@@ -22,15 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for TypeSpecificStateRule.
- *
- * Rule: Use type-specific mutableStateOf variants when possible.
- *
- * For primitive types like Int, Long, Float, Double, using type-specific
- * variants (mutableIntStateOf, mutableLongStateOf, etc.) eliminates
- * autoboxing on JVM and improves memory efficiency.
- */
 class TypeSpecificStateRuleTest {
 
   private val rule = TypeSpecificStateRule()
@@ -77,113 +68,37 @@ class TypeSpecificStateRuleTest {
   }
 
 
-  /**
-   * Pattern: mutableStateOf<Int> - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Counter() {
-   *     val count = remember { mutableStateOf<Int>(0) }  // Should use mutableIntStateOf
-   * }
-   * ```
-   */
   @Test
   fun pattern_mutableStateOfInt_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: mutableIntStateOf - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Counter() {
-   *     val count = remember { mutableIntStateOf(0) }  // Correct!
-   * }
-   * ```
-   */
   @Test
   fun pattern_mutableIntStateOf_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: mutableStateOf<Long> - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Timer() {
-   *     val time = remember { mutableStateOf<Long>(0L) }  // Should use mutableLongStateOf
-   * }
-   * ```
-   */
   @Test
   fun pattern_mutableStateOfLong_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: mutableStateOf<Float> - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Slider() {
-   *     val progress = remember { mutableStateOf<Float>(0f) }  // Should use mutableFloatStateOf
-   * }
-   * ```
-   */
   @Test
   fun pattern_mutableStateOfFloat_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: mutableStateOf<Double> - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Calculator() {
-   *     val result = remember { mutableStateOf<Double>(0.0) }  // Should use mutableDoubleStateOf
-   * }
-   * ```
-   */
   @Test
   fun pattern_mutableStateOfDouble_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-  /**
-   * Pattern: mutableStateOf<String> - NO VIOLATION (no primitive variant)
-   *
-   * ```kotlin
-   * @Composable
-   * fun TextField() {
-   *     val text = remember { mutableStateOf("") }  // Correct - no String variant
-   * }
-   * ```
-   */
   @Test
   fun pattern_mutableStateOfString_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
 
-  /**
-   * Why type-specific variants matter:
-   *
-   * 1. **Autoboxing**: Generic mutableStateOf<Int> boxes/unboxes on JVM
-   * 2. **Memory**: Type-specific variants use primitive backing fields
-   * 3. **Performance**: Less GC pressure from boxing
-   *
-   * Example:
-   * ```kotlin
-   * // Bad - autoboxing overhead
-   * val count = mutableStateOf<Int>(0)  // Int -> Integer boxing
-   *
-   * // Good - primitive backing
-   * val count = mutableIntStateOf(0)  // No boxing!
-   * ```
-   */
   @Test
   fun reason_avoidAutoboxing() {
     assertTrue(rule.enabledByDefault)

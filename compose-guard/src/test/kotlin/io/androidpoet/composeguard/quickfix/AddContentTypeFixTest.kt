@@ -19,15 +19,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * Tests for AddContentTypeFix.
- *
- * This quick fix adds contentType parameter to LazyList item/items calls.
- * Key behaviors tested:
- * - Correctly adds contentType to item(), items(), itemsIndexed(), stickyHeader()
- * - Does NOT incorrectly treat content lambdas as key parameters
- * - Properly handles trailing lambdas vs value argument lambdas
- */
 class AddContentTypeFixTest {
 
   private val fix = AddContentTypeFix()
@@ -49,14 +40,6 @@ class AddContentTypeFixTest {
   }
 
 
-  /**
-   * Documents expected transformation for item() calls.
-   *
-   * Input: item { Text("Header") }
-   * Expected: item(contentType = "contentType1") { Text("Header") }
-   *
-   * NOT: item(key = { Text("Header") }, contentType = "contentType1") { Text("Header") }
-   */
   @Test
   fun testExpectedBehavior_itemWithTrailingLambda() {
     val inputDescription = "item { Text(\"Header\") }"
@@ -66,15 +49,9 @@ class AddContentTypeFixTest {
 
     assertTrue(expectedOutput.contains("contentType"))
     assertTrue(!expectedOutput.contains("key = {"))
-    assertTrue(incorrectOutput.contains("key = {")) // This is what was happening before the fix
+    assertTrue(incorrectOutput.contains("key = {"))
   }
 
-  /**
-   * Documents expected transformation for item() with existing key.
-   *
-   * Input: item(key = "myKey") { Text("Header") }
-   * Expected: item(key = "myKey", contentType = "contentType1") { Text("Header") }
-   */
   @Test
   fun testExpectedBehavior_itemWithExistingKey() {
     val inputDescription = "item(key = \"myKey\") { Text(\"Header\") }"
@@ -85,12 +62,6 @@ class AddContentTypeFixTest {
     assertTrue(expectedOutput.contains("contentType = \"contentType1\""))
   }
 
-  /**
-   * Documents expected transformation for items() calls.
-   *
-   * Input: items(users) { Text(it.name) }
-   * Expected: items(items = users, contentType = { _ -> "contentType1" }) { Text(it.name) }
-   */
   @Test
   fun testExpectedBehavior_itemsWithList() {
     val inputDescription = "items(users) { Text(it.name) }"
@@ -101,12 +72,6 @@ class AddContentTypeFixTest {
     assertTrue(expectedOutput.contains("contentType = { _ ->"))
   }
 
-  /**
-   * Documents expected transformation for items() with existing key.
-   *
-   * Input: items(users, key = { it.id }) { Text(it.name) }
-   * Expected: items(users, key = { it.id }, contentType = { _ -> "..." }) { ... }
-   */
   @Test
   fun testExpectedBehavior_itemsWithExistingKey() {
     val inputDescription = "items(users, key = { it.id }) { Text(it.name) }"
@@ -117,12 +82,6 @@ class AddContentTypeFixTest {
     assertTrue(expectedOutput.contains("contentType = { _ ->"))
   }
 
-  /**
-   * Documents expected transformation for itemsIndexed() calls.
-   *
-   * Input: itemsIndexed(users) { index, user -> Text(user.name) }
-   * Expected: itemsIndexed(users, contentType = { _, _ -> "ct1" }) { index, user -> ... }
-   */
   @Test
   fun testExpectedBehavior_itemsIndexed() {
     val inputDescription = "itemsIndexed(users) { index, user -> Text(user.name) }"
@@ -133,12 +92,6 @@ class AddContentTypeFixTest {
     assertTrue(expectedOutput.contains("contentType = { _, _"))
   }
 
-  /**
-   * Documents expected transformation for stickyHeader() calls.
-   *
-   * Input: stickyHeader { Text("Header") }
-   * Expected: stickyHeader(contentType = "contentType1") { Text("Header") }
-   */
   @Test
   fun testExpectedBehavior_stickyHeader() {
     val inputDescription = "stickyHeader { Text(\"Header\") }"
@@ -149,14 +102,6 @@ class AddContentTypeFixTest {
   }
 
 
-  /**
-   * Verifies that the bug where content lambda was treated as key is fixed.
-   *
-   * Bug: When content was passed as positional arg like item({ Text() }),
-   * it was incorrectly converted to key = { Text() }.
-   *
-   * Fix: Lambda arguments should be recognized as content, not key.
-   */
   @Test
   fun testBugFix_lambdaNotTreatedAsKey() {
 
@@ -168,12 +113,6 @@ class AddContentTypeFixTest {
     assertTrue(!fixedOutput.contains("key = { Text"))
   }
 
-  /**
-   * Documents that named 'content' argument should be moved to trailing position.
-   *
-   * Input: item(content = { Text("Header") })
-   * Expected: item(contentType = "contentType1") { Text("Header") }
-   */
   @Test
   fun testExpectedBehavior_namedContentArgMovedToTrailing() {
     val inputDescription = "item(content = { Text(\"Header\") })"

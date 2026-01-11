@@ -45,9 +45,6 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtTreeVisitorVoid
 import java.util.concurrent.CopyOnWriteArrayList
 
-/**
- * Service for scanning the project and collecting violation statistics.
- */
 @Service(Service.Level.PROJECT)
 public class ComposeGuardStatisticsService(private val project: Project) {
 
@@ -55,45 +52,27 @@ public class ComposeGuardStatisticsService(private val project: Project) {
   private val listeners = CopyOnWriteArrayList<StatisticsListener>()
   private var isScanning = false
 
-  /**
-   * Listener for statistics updates.
-   */
   public fun interface StatisticsListener {
     public fun onStatisticsUpdated(statistics: ProjectStatistics)
   }
 
-  /**
-   * Add a listener for statistics updates.
-   */
   public fun addListener(listener: StatisticsListener) {
     listeners.add(listener)
   }
 
-  /**
-   * Remove a statistics listener.
-   */
   public fun removeListener(listener: StatisticsListener) {
     listeners.remove(listener)
   }
 
-  /**
-   * Get the current statistics.
-   */
   public fun getCurrentStatistics(): ProjectStatistics = currentStatistics
 
-  /**
-   * Check if a scan is currently in progress.
-   */
   public fun isScanning(): Boolean = isScanning
 
-  /**
-   * Scan the entire project for violations.
-   */
   public fun scanProject(onComplete: (() -> Unit)? = null) {
     if (isScanning) return
 
     isScanning = true
-    notifyListeners(currentStatistics.copy()) // Notify with current state to show loading
+    notifyListeners(currentStatistics.copy())
 
     ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Scanning Compose Files", true) {
       override fun run(indicator: ProgressIndicator) {

@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ModifierNamingRule.
- *
- * Rule: Modifier parameters should be named properly.
- *
- * - Main modifier should be named `modifier`
- * - Sub-component modifiers should be named `xModifier` (e.g., `contentModifier`, `iconModifier`)
- */
 class ModifierNamingRuleTest {
 
   private val rule = ModifierNamingRule()
@@ -77,104 +69,32 @@ class ModifierNamingRuleTest {
   }
 
 
-  /**
-   * Pattern: Main modifier named 'modifier' - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyCard(
-   *     modifier: Modifier = Modifier  // Correct!
-   * ) { ... }
-   * ```
-   */
   @Test
   fun pattern_mainModifierNamedCorrectly_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Main modifier not named 'modifier' - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyCard(
-   *     mod: Modifier = Modifier  // Wrong name!
-   * ) { ... }
-   * ```
-   */
   @Test
   fun pattern_mainModifierWrongName_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Sub-component modifier named 'xModifier' - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun IconButton(
-   *     modifier: Modifier = Modifier,
-   *     iconModifier: Modifier = Modifier,  // Correct pattern!
-   *     contentModifier: Modifier = Modifier
-   * ) { ... }
-   * ```
-   */
   @Test
   fun pattern_subModifierWithXModifierPattern_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Multiple modifiers named 'modifier' - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun IconButton(
-   *     modifier: Modifier = Modifier,
-   *     modifier: Modifier = Modifier  // Duplicate!
-   * ) { ... }
-   * ```
-   */
   @Test
   fun pattern_duplicateModifierName_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Sub-component modifier not following xModifier pattern - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun IconButton(
-   *     modifier: Modifier = Modifier,
-   *     icon: Modifier = Modifier  // Should be iconModifier!
-   * ) { ... }
-   * ```
-   */
   @Test
   fun pattern_subModifierWrongPattern_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
 
-  /**
-   * Why proper modifier naming matters:
-   *
-   * 1. **Consistency**: 'modifier' is the standard name across Compose
-   * 2. **Discoverability**: IDE autocomplete expects 'modifier'
-   * 3. **Clarity**: xModifier pattern clarifies which component gets modified
-   *
-   * Example:
-   * ```kotlin
-   * // Clear which modifier affects what
-   * @Composable
-   * fun IconCard(
-   *     modifier: Modifier = Modifier,        // The whole card
-   *     iconModifier: Modifier = Modifier,    // Just the icon
-   *     textModifier: Modifier = Modifier     // Just the text
-   * )
-   * ```
-   */
   @Test
   fun reason_consistencyAndClarity() {
     assertTrue(rule.enabledByDefault)

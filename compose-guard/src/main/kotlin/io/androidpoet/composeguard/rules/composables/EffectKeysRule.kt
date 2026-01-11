@@ -26,15 +26,6 @@ import io.androidpoet.composeguard.rules.isSuppressed
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Be mindful of effect keys.
- *
- * Using constant keys like Unit or true means the effect runs once and never restarts.
- * This may be intentional, but often indicates a bug where the effect should restart
- * when some state changes.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#be-mindful-of-effect-keys">Effect Keys</a>
- */
 public class EffectKeysRule : ComposableFunctionRule() {
   override val id: String = "EffectKeys"
   override val name: String = "Effect Keys Correctness"

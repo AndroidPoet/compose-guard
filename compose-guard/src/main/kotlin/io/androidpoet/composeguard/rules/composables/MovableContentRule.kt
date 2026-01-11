@@ -26,9 +26,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Movable content should be remembered.
- */
 public class MovableContentRule : ComposableFunctionRule() {
   override val id: String = "MovableContent"
   override val name: String = "Movable Content Should Be Remembered"

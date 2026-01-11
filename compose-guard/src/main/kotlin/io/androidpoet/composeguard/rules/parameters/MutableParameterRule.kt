@@ -24,17 +24,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isMutableType
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Don't use inherently mutable types as parameters.
- *
- * Mutable types like MutableList, ArrayList, HashMap, etc. are not stable
- * and won't trigger recomposition when their contents change. Consider using:
- * - @Immutable annotation for your custom classes
- * - kotlinx.collections.immutable library for collections (ImmutableList, etc.)
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#do-not-use-inherently-mutable-types-as-parameters">Don't Use Mutable Types</a>
- * @see <a href="https://github.com/Kotlin/kotlinx.collections.immutable">kotlinx.collections.immutable</a>
- */
 public class MutableParameterRule : ComposableFunctionRule() {
   override val id: String = "MutableParameter"
   override val name: String = "Don't Use Mutable Types as Parameters"

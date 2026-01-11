@@ -24,15 +24,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.returnsUnit
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Don't emit content and return a result.
- *
- * Composable functions should either emit UI content to the composition tree
- * OR return a value to the caller, but not both. Mixing these responsibilities
- * can lead to confusing APIs and unexpected behavior.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#do-not-emit-content-and-return-a-result">Don't Emit and Return</a>
- */
 public class ContentEmissionRule : ComposableFunctionRule() {
   override val id: String = "ContentEmission"
   override val name: String = "Don't Emit Content and Return"

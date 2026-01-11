@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for TrailingLambdaRule.
- *
- * Rules:
- * 1. Content slots (@Composable () -> Unit) should be trailing lambdas
- * 2. Event handlers (onClick, onValueChange) should NOT be trailing lambdas
- * 3. The primary content lambda should be the last parameter
- */
 class TrailingLambdaRuleTest {
 
   private val rule = TrailingLambdaRule()
@@ -77,136 +69,30 @@ class TrailingLambdaRuleTest {
   }
 
 
-  /**
-   * Pattern: Content lambda should be last for trailing lambda syntax.
-   *
-   * Correct:
-   * ```kotlin
-   * @Composable
-   * fun Card(
-   *     title: String,
-   *     modifier: Modifier = Modifier,
-   *     content: @Composable () -> Unit  // Last
-   * )
-   *
-   * // Call site:
-   * Card("Title", Modifier.padding(16.dp)) {
-   *     Text("Content")
-   * }
-   * ```
-   *
-   * Wrong:
-   * ```kotlin
-   * @Composable
-   * fun Card(
-   *     content: @Composable () -> Unit,  // Not last!
-   *     title: String,
-   *     modifier: Modifier = Modifier
-   * )
-   *
-   * // Awkward call site:
-   * Card(content = { Text("Content") }, title = "Title")
-   * ```
-   */
   @Test
   fun pattern_contentLambdaTrailing() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Pattern: Event handlers should NOT be trailing, content should.
-   *
-   * Correct:
-   * ```kotlin
-   * @Composable
-   * fun Button(
-   *     onClick: () -> Unit,           // Event handler - NOT trailing
-   *     modifier: Modifier = Modifier,
-   *     content: @Composable RowScope.() -> Unit  // Content - trailing
-   * )
-   * ```
-   *
-   * Wrong:
-   * ```kotlin
-   * @Composable
-   * fun Button(
-   *     content: @Composable RowScope.() -> Unit,
-   *     modifier: Modifier = Modifier,
-   *     onClick: () -> Unit  // Event handler at the end - BAD
-   * )
-   * ```
-   */
   @Test
   fun pattern_eventHandlersNotTrailing() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Pattern: Multiple content slots - primary content is last.
-   *
-   * ```kotlin
-   * @Composable
-   * fun Scaffold(
-   *     topBar: @Composable () -> Unit = {},          // Optional slot
-   *     bottomBar: @Composable () -> Unit = {},       // Optional slot
-   *     floatingActionButton: @Composable () -> Unit = {},
-   *     modifier: Modifier = Modifier,
-   *     content: @Composable (PaddingValues) -> Unit  // Primary content - last
-   * )
-   * ```
-   */
   @Test
   fun pattern_multipleContentSlots() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Pattern: Single content lambda should be named "content".
-   *
-   * Correct: content: @Composable () -> Unit
-   * Acceptable: body: @Composable () -> Unit (if context-appropriate)
-   *
-   * Multiple content slots should have descriptive names:
-   * - icon: @Composable () -> Unit
-   * - title: @Composable () -> Unit
-   * - actions: @Composable () -> Unit
-   * - content: @Composable () -> Unit
-   */
   @Test
   fun pattern_namedLambdas() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Document call site benefits of trailing lambda.
-   *
-   * With trailing lambda:
-   * ```kotlin
-   * Card("Title") {
-   *     Column {
-   *         Text("Line 1")
-   *         Text("Line 2")
-   *     }
-   * }
-   * ```
-   *
-   * Without trailing lambda:
-   * ```kotlin
-   * Card(
-   *     content = {
-   *         Column {
-   *             Text("Line 1")
-   *             Text("Line 2")
-   *         }
-   *     },
-   *     title = "Title"
-   * )
-   * ```
-   */
   @Test
   fun benefit_cleanCallSite() {
     assertTrue(rule.enabledByDefault)

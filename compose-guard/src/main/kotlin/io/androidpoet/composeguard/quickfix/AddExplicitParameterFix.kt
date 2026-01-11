@@ -26,11 +26,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that adds an implicit dependency as an explicit parameter with default value,
- * replaces all usages of the local variable with the parameter,
- * and removes the redundant property declaration.
- */
 public class AddExplicitParameterFix(
   private val dependencyName: String,
   private val parameterType: String,

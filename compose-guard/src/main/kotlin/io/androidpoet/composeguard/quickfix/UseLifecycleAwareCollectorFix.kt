@@ -23,9 +23,6 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that replaces collectAsState() with collectAsStateWithLifecycle().
- */
 public class UseLifecycleAwareCollectorFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Use lifecycle-aware collector"

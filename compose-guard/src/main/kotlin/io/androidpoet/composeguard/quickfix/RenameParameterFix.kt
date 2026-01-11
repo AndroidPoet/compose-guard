@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that renames a parameter.
- */
 public class RenameParameterFix(
   private val suggestedName: String,
 ) : LocalQuickFix, HighPriorityAction {

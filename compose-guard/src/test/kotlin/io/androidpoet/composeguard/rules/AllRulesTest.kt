@@ -55,10 +55,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for all 35 ComposeGuard rules.
- * Tests rule metadata, categories, severities, and documentation URLs.
- */
 class AllRulesTest {
 
 

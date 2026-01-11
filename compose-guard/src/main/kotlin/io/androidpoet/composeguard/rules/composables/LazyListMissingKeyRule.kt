@@ -26,31 +26,6 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: LazyList items() should have a key parameter.
- *
- * Without a key parameter, LazyColumn/LazyRow cannot efficiently track
- * item identity across recompositions, leading to unnecessary recompositions
- * and potential issues with state preservation.
- *
- * Example violation:
- * ```kotlin
- * LazyColumn {
- *     items(users) { user ->  // Missing key!
- *         UserItem(user)
- *     }
- * }
- * ```
- *
- * Correct usage:
- * ```kotlin
- * LazyColumn {
- *     items(users, key = { it.id }) { user ->
- *         UserItem(user)
- *     }
- * }
- * ```
- */
 public class LazyListMissingKeyRule : ComposableFunctionRule() {
 
   override val id: String = "LazyListMissingKey"

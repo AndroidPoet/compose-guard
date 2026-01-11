@@ -27,9 +27,6 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-/**
- * Rule: Don't use Material 2.
- */
 public class Material2Rule : ComposeRule {
   override val id: String = "Material2Usage"
   override val name: String = "Don't Use Material 2"

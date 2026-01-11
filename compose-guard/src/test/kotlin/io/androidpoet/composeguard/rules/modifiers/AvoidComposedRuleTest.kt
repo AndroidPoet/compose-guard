@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for AvoidComposedRule.
- *
- * Rule: Avoid composed {} modifier factory.
- *
- * The `composed` API has performance issues and is considered deprecated.
- * Use Modifier.Node instead for better performance and semantics.
- */
 class AvoidComposedRuleTest {
 
   private val rule = AvoidComposedRule()
@@ -77,113 +69,32 @@ class AvoidComposedRuleTest {
   }
 
 
-  /**
-   * Pattern: Using composed {} - VIOLATION
-   *
-   * ```kotlin
-   * fun Modifier.customEffect(): Modifier = composed {
-   *     val color = remember { ... }
-   *     this.background(color)
-   * }
-   * ```
-   */
   @Test
   fun pattern_usingComposed_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Using composed with key - VIOLATION
-   *
-   * ```kotlin
-   * fun Modifier.keyedEffect(key: Any): Modifier = composed(
-   *     inspectorInfo = ...,
-   *     key1 = key
-   * ) {
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_usingComposedWithKey_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Using Modifier.Node - NO VIOLATION
-   *
-   * ```kotlin
-   * class CustomEffectNode : Modifier.Node() { ... }
-   *
-   * class CustomEffectElement : ModifierNodeElement<CustomEffectNode>() { ... }
-   *
-   * fun Modifier.customEffect(): Modifier = this.then(CustomEffectElement())
-   * ```
-   */
   @Test
   fun pattern_usingModifierNode_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Using then() without composed - NO VIOLATION
-   *
-   * ```kotlin
-   * fun Modifier.chainedEffect(): Modifier = this
-   *     .background(Color.Red)
-   *     .padding(8.dp)
-   * ```
-   */
   @Test
   fun pattern_usingThenWithoutComposed_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Non-Modifier extension function using composed - NO VIOLATION (not checked)
-   *
-   * ```kotlin
-   * fun String.composed(): String = ...  // Not a Modifier extension
-   * ```
-   */
   @Test
   fun pattern_nonModifierExtension_shouldNotBeChecked() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
 
-  /**
-   * Why avoid composed:
-   *
-   * 1. **Performance**: composed creates a new composition per instance
-   * 2. **Deprecation**: Google recommends Modifier.Node instead
-   * 3. **Overhead**: Extra allocations during recomposition
-   *
-   * Example of the problem:
-   * ```kotlin
-   * // Bad: Using composed
-   * fun Modifier.ripple(): Modifier = composed {
-   *     val interactionSource = remember { MutableInteractionSource() }
-   *     // Creates new composition every time
-   *     this.indication(interactionSource, rememberRipple())
-   * }
-   * ```
-   *
-   * Solution using Modifier.Node:
-   * ```kotlin
-   * // Good: Using Modifier.Node
-   * class RippleNode : DelegatingNode() {
-   *     // Efficient, lifecycle-aware
-   * }
-   *
-   * class RippleElement : ModifierNodeElement<RippleNode>() {
-   *     override fun create() = RippleNode()
-   *     override fun update(node: RippleNode) { }
-   * }
-   *
-   * fun Modifier.ripple(): Modifier = this.then(RippleElement())
-   * ```
-   */
   @Test
   fun reason_performanceAndDeprecation() {
     assertTrue(rule.enabledByDefault)

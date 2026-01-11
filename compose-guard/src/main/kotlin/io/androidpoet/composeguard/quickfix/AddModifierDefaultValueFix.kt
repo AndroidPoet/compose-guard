@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that adds a default value to a modifier parameter.
- */
 public class AddModifierDefaultValueFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Add default value"

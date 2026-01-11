@@ -30,10 +30,6 @@ import io.androidpoet.composeguard.rules.isSuppressed
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
-/**
- * Annotator that provides real-time highlighting for compose rule violations.
- * This runs as the user types and provides immediate feedback.
- */
 public class ComposeGuardAnnotator : Annotator {
 
   override fun annotate(element: PsiElement, holder: AnnotationHolder) {

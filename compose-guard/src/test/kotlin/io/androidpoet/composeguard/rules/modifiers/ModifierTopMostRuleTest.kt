@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ModifierTopMostRule.
- *
- * Rule: Modifiers should be used at the top-most layout of a composable.
- *
- * The modifier parameter passed to a composable should be applied to the
- * root layout node, not nested children.
- */
 class ModifierTopMostRuleTest {
 
   private val rule = ModifierTopMostRule()
@@ -77,127 +69,32 @@ class ModifierTopMostRuleTest {
   }
 
 
-  /**
-   * Pattern: Modifier at root layout - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyCard(modifier: Modifier = Modifier) {
-   *     Box(modifier = modifier) {  // Correct - at root
-   *         Text("Content")
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_modifierAtRoot_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Modifier on nested layout - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun MyCard(modifier: Modifier = Modifier) {
-   *     Box {  // Root without modifier
-   *         Column(modifier = modifier) {  // Wrong - nested!
-   *             Text("Content")
-   *         }
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_modifierOnNestedLayout_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Modifier on deeply nested layout - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun DeepNesting(modifier: Modifier = Modifier) {
-   *     Surface {
-   *         Box {
-   *             Column(modifier = modifier) {  // Wrong - deeply nested!
-   *                 Text("Content")
-   *             }
-   *         }
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_modifierOnDeeplyNestedLayout_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: No modifier parameter - NO VIOLATION (nothing to check)
-   *
-   * ```kotlin
-   * @Composable
-   * fun NoModifier() {
-   *     Text("Hello")
-   * }
-   * ```
-   */
   @Test
   fun pattern_noModifierParameter_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-  /**
-   * Pattern: Expression body with modifier at root - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Compact(modifier: Modifier = Modifier) = Box(modifier = modifier) {
-   *     Text("Content")
-   * }
-   * ```
-   */
   @Test
   fun pattern_expressionBodyWithModifierAtRoot_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
 
-  /**
-   * Why modifier should be at root:
-   *
-   * 1. **Parent control**: Parent composables expect to control size/position
-   * 2. **Reusability**: Composable works correctly in any parent layout
-   * 3. **Predictability**: Standard pattern makes behavior predictable
-   *
-   * Example of the problem:
-   * ```kotlin
-   * // Bad: modifier on nested element
-   * @Composable
-   * fun Avatar(modifier: Modifier = Modifier) {
-   *     Box {  // Root gets NO modifier!
-   *         Image(modifier = modifier, ...)  // Modifier on child
-   *     }
-   * }
-   *
-   * // When used in Row:
-   * Row {
-   *     Avatar(modifier = Modifier.weight(1f))  // Won't work as expected!
-   * }
-   * ```
-   *
-   * Solution:
-   * ```kotlin
-   * @Composable
-   * fun Avatar(modifier: Modifier = Modifier) {
-   *     Box(modifier = modifier) {  // Root gets modifier
-   *         Image(...)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun reason_parentControlAndReusability() {
     assertTrue(rule.enabledByDefault)

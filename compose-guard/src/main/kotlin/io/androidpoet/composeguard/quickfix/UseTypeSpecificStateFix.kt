@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that replaces mutableStateOf with type-specific variant.
- */
 public class UseTypeSpecificStateFix(
   private val targetFunction: String,
 ) : LocalQuickFix, HighPriorityAction {

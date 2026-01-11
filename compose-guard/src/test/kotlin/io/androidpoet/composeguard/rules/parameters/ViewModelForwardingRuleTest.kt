@@ -22,21 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ViewModelForwardingRule.
- *
- * Rule: Don't forward ViewModels to child composables.
- *
- * Why:
- * - Couples child to specific ViewModel implementation
- * - Makes child untestable without the ViewModel
- * - Breaks preview support
- * - Violates single responsibility - child knows too much
- *
- * Instead:
- * - Pass only the data child needs
- * - Pass callbacks for child to trigger actions
- */
 class ViewModelForwardingRuleTest {
 
   private val rule = ViewModelForwardingRule()
@@ -83,181 +68,30 @@ class ViewModelForwardingRuleTest {
   }
 
 
-  /**
-   * Pattern: Don't forward ViewModel to child.
-   *
-   * Wrong:
-   * ```kotlin
-   * @Composable
-   * fun ParentScreen(viewModel: ProfileViewModel) {
-   *     Column {
-   *         ProfileHeader(viewModel)  // Forwarding ViewModel!
-   *         ProfileContent(viewModel) // Forwarding ViewModel!
-   *     }
-   * }
-   *
-   * @Composable
-   * fun ProfileHeader(viewModel: ProfileViewModel) {
-   *     // Child is coupled to ViewModel
-   *     Text(viewModel.name)
-   * }
-   * ```
-   *
-   * Correct:
-   * ```kotlin
-   * @Composable
-   * fun ParentScreen(viewModel: ProfileViewModel) {
-   *     Column {
-   *         ProfileHeader(
-   *             name = viewModel.name,
-   *             avatarUrl = viewModel.avatarUrl
-   *         )
-   *         ProfileContent(
-   *             items = viewModel.items,
-   *             onItemClick = viewModel::onItemClick
-   *         )
-   *     }
-   * }
-   *
-   * @Composable
-   * fun ProfileHeader(
-   *     name: String,
-   *     avatarUrl: String,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     // Pure, testable, previewable
-   *     Text(name)
-   * }
-   * ```
-   */
   @Test
   fun pattern_forwardingBad() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Pattern: Pass only the data needed, not the entire ViewModel.
-   *
-   * Wrong:
-   * ```kotlin
-   * @Composable
-   * fun UserCard(viewModel: UserViewModel) {
-   *     Card {
-   *         Text(viewModel.user.name)  // Only needs name
-   *         Text(viewModel.user.email) // Only needs email
-   *     }
-   * }
-   * ```
-   *
-   * Correct:
-   * ```kotlin
-   * @Composable
-   * fun UserCard(
-   *     name: String,
-   *     email: String,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     Card(modifier) {
-   *         Text(name)
-   *         Text(email)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_dataOnly() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Pattern: Use callbacks instead of ViewModel for actions.
-   *
-   * Wrong:
-   * ```kotlin
-   * @Composable
-   * fun ActionButtons(viewModel: ProfileViewModel) {
-   *     Button(onClick = { viewModel.onSave() }) { Text("Save") }
-   *     Button(onClick = { viewModel.onDelete() }) { Text("Delete") }
-   * }
-   * ```
-   *
-   * Correct:
-   * ```kotlin
-   * @Composable
-   * fun ActionButtons(
-   *     onSave: () -> Unit,
-   *     onDelete: () -> Unit,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     Row(modifier) {
-   *         Button(onClick = onSave) { Text("Save") }
-   *         Button(onClick = onDelete) { Text("Delete") }
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_callbacks() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Pattern: Use state holder classes for complex state.
-   *
-   * ```kotlin
-   * // State holder (not ViewModel)
-   * @Stable
-   * class ProfileState(
-   *     val name: String,
-   *     val email: String,
-   *     val isLoading: Boolean
-   * )
-   *
-   * // Actions sealed class
-   * sealed class ProfileAction {
-   *     object Save : ProfileAction()
-   *     object Delete : ProfileAction()
-   * }
-   *
-   * // Screen composable - integration point
-   * @Composable
-   * fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
-   *     val state by viewModel.state.collectAsState()
-   *     ProfileContent(
-   *         state = state,
-   *         onAction = viewModel::onAction
-   *     )
-   * }
-   *
-   * // Content composable - pure, testable
-   * @Composable
-   * fun ProfileContent(
-   *     state: ProfileState,
-   *     onAction: (ProfileAction) -> Unit,
-   *     modifier: Modifier = Modifier
-   * ) {
-   *     // Pure UI rendering
-   * }
-   * ```
-   */
   @Test
   fun pattern_stateHolder() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
 
-  /**
-   * Benefits of not forwarding ViewModels:
-   *
-   * 1. **Testability**: Easy to test with fake data
-   * 2. **Previewability**: Works in @Preview without mocking
-   * 3. **Reusability**: Not tied to specific ViewModel
-   * 4. **Clear API**: Parameters show exactly what's needed
-   * 5. **Separation of concerns**: UI doesn't know about business logic
-   */
   @Test
   fun benefits() {
     assertTrue(rule.enabledByDefault)

@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that adds "Local" prefix to a CompositionLocal property.
- */
 public class AddLocalPrefixFix(
   private val currentName: String,
 ) : LocalQuickFix, HighPriorityAction {

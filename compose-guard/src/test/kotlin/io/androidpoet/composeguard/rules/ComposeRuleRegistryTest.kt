@@ -21,9 +21,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Tests for ComposeRuleRegistry.
- */
 class ComposeRuleRegistryTest {
 
   @Test

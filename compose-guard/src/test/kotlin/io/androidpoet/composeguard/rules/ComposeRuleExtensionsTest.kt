@@ -20,11 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/**
- * Tests for ComposeRuleExtensions utility functions.
- * Note: PSI-based functions require IDE test framework and are tested in integration tests.
- * These tests cover the pure Kotlin extension functions.
- */
 class ComposeRuleExtensionsTest {
 
 

@@ -18,9 +18,6 @@ package io.androidpoet.composeguard.statistics
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 
-/**
- * Represents a single violation found during analysis.
- */
 public data class ViolationInfo(
   val ruleId: String,
   val ruleName: String,
@@ -32,9 +29,6 @@ public data class ViolationInfo(
   val lineNumber: Int,
 )
 
-/**
- * Statistics for a single rule.
- */
 public data class RuleStatistics(
   val ruleId: String,
   val ruleName: String,
@@ -44,9 +38,6 @@ public data class RuleStatistics(
   val violations: List<ViolationInfo>,
 )
 
-/**
- * Statistics for a category of rules.
- */
 public data class CategoryStatistics(
   val category: RuleCategory,
   val totalViolations: Int,
@@ -57,9 +48,6 @@ public data class CategoryStatistics(
   val infoCount: Int,
 )
 
-/**
- * Statistics for a single file.
- */
 public data class FileStatistics(
   val filePath: String,
   val fileName: String,
@@ -69,9 +57,6 @@ public data class FileStatistics(
   val warningCount: Int,
 )
 
-/**
- * Overall project statistics.
- */
 public data class ProjectStatistics(
   val totalFiles: Int,
   val filesWithViolations: Int,

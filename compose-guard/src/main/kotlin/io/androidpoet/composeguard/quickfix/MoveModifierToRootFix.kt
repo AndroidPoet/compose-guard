@@ -25,23 +25,6 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.parents
 
-/**
- * Quick fix that moves a modifier argument from a nested composable to the root layout.
- *
- * Before:
- * Box {
- *     Column(modifier = modifier) {
- *         Text("Hello")
- *     }
- * }
- *
- * After:
- * Box(modifier = modifier) {
- *     Column {
- *         Text("Hello")
- *     }
- * }
- */
 public class MoveModifierToRootFix(
   private val modifierName: String,
 ) : LocalQuickFix, HighPriorityAction {

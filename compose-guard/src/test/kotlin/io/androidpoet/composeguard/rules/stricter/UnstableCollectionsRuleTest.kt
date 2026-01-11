@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for UnstableCollectionsRule.
- *
- * Rule: Avoid using unstable collections as parameters.
- *
- * Standard collection interfaces (List, Set, Map) may be backed by mutable
- * implementations, making them unstable for compose.
- */
 class UnstableCollectionsRuleTest {
 
   private val rule = UnstableCollectionsRule()
@@ -77,117 +69,39 @@ class UnstableCollectionsRuleTest {
   }
 
 
-  /**
-   * Pattern: List parameter - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun ItemList(items: List<Item>) {  // Unstable!
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_listParameter_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-  /**
-   * Pattern: ImmutableList parameter - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun ItemList(items: ImmutableList<Item>) {  // Stable!
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_immutableListParameter_shouldNotViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
 
-  /**
-   * Pattern: Set parameter - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun TagView(tags: Set<String>) {  // Unstable!
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_setParameter_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-  /**
-   * Pattern: ImmutableSet parameter - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun TagView(tags: ImmutableSet<String>) {  // Stable!
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_immutableSetParameter_shouldNotViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
 
-  /**
-   * Pattern: Map parameter - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Settings(config: Map<String, Any>) {  // Unstable!
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_mapParameter_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-  /**
-   * Pattern: ImmutableMap parameter - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * fun Settings(config: ImmutableMap<String, Any>) {  // Stable!
-   *     ...
-   * }
-   * ```
-   */
   @Test
   fun pattern_immutableMapParameter_shouldNotViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
 
-  /**
-   * Why unstable collections cause issues:
-   *
-   * 1. **Compose stability**: Collections may be backed by mutable implementations
-   * 2. **Skipping**: Compose can't skip recomposition if parameters aren't stable
-   * 3. **Performance**: Unnecessary recompositions waste resources
-   *
-   * Example:
-   * ```kotlin
-   * // Bad - List could be mutable, Compose can't prove it hasn't changed
-   * @Composable
-   * fun ItemList(items: List<Item>)
-   *
-   * // Good - ImmutableList is guaranteed stable
-   * @Composable
-   * fun ItemList(items: ImmutableList<Item>)
-   * ```
-   */
   @Test
   fun reason_composeStabilityAndPerformance() {
     assertTrue(rule.enabledByDefault)

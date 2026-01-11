@@ -28,18 +28,6 @@ import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtSafeQualifiedExpression
 
-/**
- * Rule: Content slots should not be reused across different code paths.
- *
- * Invoking the same content slot lambda multiple times in different branches
- * or scopes of a composable function can cause the slot's internal state to
- * be lost or behave unexpectedly.
- *
- * Solution: Wrap the slot in `remember { movableContentOf { slot() } }` to
- * preserve internal state across different invocation sites.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#content-slots-should-not-be-reused">Content Slots Should Not Be Reused</a>
- */
 public class ContentSlotReusedRule : ComposableFunctionRule() {
   override val id: String = "ContentSlotReused"
   override val name: String = "Content Slots Should Not Be Reused"

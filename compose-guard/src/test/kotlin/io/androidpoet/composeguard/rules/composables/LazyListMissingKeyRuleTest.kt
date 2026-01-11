@@ -22,14 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for LazyListMissingKeyRule.
- *
- * Rule: LazyList items() should have a key parameter.
- *
- * Without a key parameter, LazyColumn/LazyRow cannot efficiently track
- * item identity across recompositions.
- */
 class LazyListMissingKeyRuleTest {
 
   private val rule = LazyListMissingKeyRule()
@@ -77,111 +69,39 @@ class LazyListMissingKeyRuleTest {
   }
 
 
-  /**
-   * Pattern: items without key - VIOLATION
-   *
-   * ```kotlin
-   * LazyColumn {
-   *     items(users) { user ->  // Missing key!
-   *         UserItem(user)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_itemsWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: itemsIndexed without key - VIOLATION
-   *
-   * ```kotlin
-   * LazyColumn {
-   *     itemsIndexed(users) { index, user ->  // Missing key!
-   *         UserItem(user)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_itemsIndexedWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Pattern: items with key - NO VIOLATION
-   *
-   * ```kotlin
-   * LazyColumn {
-   *     items(users, key = { it.id }) { user ->
-   *         UserItem(user)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_itemsWithKey_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: items with positional key - NO VIOLATION
-   *
-   * ```kotlin
-   * LazyColumn {
-   *     items(users, { it.id }) { user ->
-   *         UserItem(user)
-   *     }
-   * }
-   * ```
-   */
   @Test
   fun pattern_itemsWithPositionalKey_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Pattern: LazyRow items without key - VIOLATION
-   */
   @Test
   fun pattern_lazyRowItemsWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-  /**
-   * Pattern: LazyVerticalGrid items without key - VIOLATION
-   */
   @Test
   fun pattern_lazyVerticalGridItemsWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
 
-  /**
-   * Why keys matter for lazy lists:
-   *
-   * 1. **Efficient recomposition**: Compose can reuse existing items
-   * 2. **State preservation**: Item state survives reordering
-   * 3. **Animations**: Proper add/remove/move animations
-   *
-   * Example:
-   * ```kotlin
-   * // Without key - state is lost on reorder
-   * items(users) { user ->
-   *     var expanded by remember { mutableStateOf(false) }  // Reset on reorder!
-   *     UserItem(user, expanded)
-   * }
-   *
-   * // With key - state is preserved
-   * items(users, key = { it.id }) { user ->
-   *     var expanded by remember { mutableStateOf(false) }  // Preserved!
-   *     UserItem(user, expanded)
-   * }
-   * ```
-   */
   @Test
   fun reason_efficientRecompositionAndStatePreservation() {
     assertTrue(rule.enabledByDefault)

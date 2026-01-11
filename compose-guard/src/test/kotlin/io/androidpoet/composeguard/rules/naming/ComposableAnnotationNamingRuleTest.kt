@@ -22,15 +22,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Comprehensive tests for ComposableAnnotationNamingRule.
- *
- * Rule: Custom composable annotations should end with "Composable" suffix.
- *
- * When creating custom annotations that are meant to be used on @Composable functions
- * (like custom previews or markers), they should follow the naming convention of
- * ending with "Composable" to make their purpose clear.
- */
 class ComposableAnnotationNamingRuleTest {
 
   private val rule = ComposableAnnotationNamingRule()
@@ -78,77 +69,27 @@ class ComposableAnnotationNamingRuleTest {
   }
 
 
-  /**
-   * Pattern: Composable annotation with 'Composable' suffix - NO VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * annotation class MyCustomComposable
-   * ```
-   */
   @Test
   fun pattern_withComposableSuffix_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: Composable annotation without 'Composable' suffix - VIOLATION
-   *
-   * ```kotlin
-   * @Composable
-   * annotation class MyCustom  // Should be MyCustomComposable
-   * ```
-   */
   @Test
   fun pattern_withoutComposableSuffix_shouldViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: Non-composable annotation - NO VIOLATION (not checked)
-   *
-   * ```kotlin
-   * annotation class MyAnnotation  // Not a composable annotation
-   * ```
-   */
   @Test
   fun pattern_nonComposableAnnotation_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-  /**
-   * Pattern: Preview annotation with @Preview - allowed exception
-   *
-   * ```kotlin
-   * @Preview
-   * @Composable
-   * annotation class MyCustomPreview  // Preview annotations are an exception
-   * ```
-   */
   @Test
   fun pattern_previewAnnotation_specialCase() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
 
-  /**
-   * Why 'Composable' suffix matters for annotations:
-   *
-   * 1. **Clarity**: Clear that annotation is related to Compose
-   * 2. **Intent**: Shows the annotation is for composable functions
-   * 3. **Discovery**: Easy to find Compose-related annotations
-   *
-   * Example:
-   * ```kotlin
-   * // Good - clearly a Compose-related annotation
-   * @Composable
-   * annotation class FeatureFlagComposable
-   *
-   * // Bad - not clear this is for composables
-   * @Composable
-   * annotation class FeatureFlag
-   * ```
-   */
   @Test
   fun reason_clarityAndIntent() {
     assertTrue(rule.enabledByDefault)

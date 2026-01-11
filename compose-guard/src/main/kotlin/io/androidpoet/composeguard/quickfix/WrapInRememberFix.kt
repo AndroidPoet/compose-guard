@@ -27,12 +27,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Smart quick fix that wraps an expression in the appropriate remember pattern:
- * - remember(keys) { } - when expression uses function parameters
- * - remember { derivedStateOf { } } - when expression reads state (.value)
- * - remember { } - fallback for other cases
- */
 public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Wrap in remember"
@@ -81,10 +75,6 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
     }
   }
 
-  /**
-   * Find function parameters that are used in the expression.
-   * These become the keys for remember(key1, key2) { }.
-   */
   private fun findUsedParameters(
     expression: KtExpression,
     containingFunction: KtNamedFunction?,
@@ -93,7 +83,7 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
 
     val parameterNames = containingFunction.valueParameters
       .mapNotNull { it.name }
-      .filter { it != "modifier" } // Exclude modifier as it's not typically a key
+      .filter { it != "modifier" }
       .toSet()
 
     if (parameterNames.isEmpty()) return emptyList()
@@ -111,10 +101,6 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
     return usedParams.toList()
   }
 
-  /**
-   * Check if the expression reads state values (contains .value access).
-   * This indicates derivedStateOf should be used.
-   */
   private fun containsStateValueRead(expression: KtExpression): Boolean {
     val dotExpressions = PsiTreeUtil.findChildrenOfType(expression, KtDotQualifiedExpression::class.java)
 

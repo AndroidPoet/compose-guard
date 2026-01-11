@@ -31,27 +31,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.parents
 
-/**
- * Rule: Modifiers should be used at the top-most layout of a composable.
- *
- * The modifier parameter passed to a composable should be applied to the
- * root layout node, not nested children. This ensures the composable
- * behaves correctly when embedded in different parent layouts.
- *
- * Example violation:
- * ```
- * @Composable
- * fun MyComposable(modifier: Modifier = Modifier) {
- *     Box {  // modifier should be here
- *         Column(modifier = modifier) { // Wrong - not at root
- *             Text("Nested")
- *         }
- *     }
- * }
- * ```
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#modifiers-should-be-used-at-the-top-most-layout-of-the-component">Modifiers at Top-Most Layout</a>
- */
 public class ModifierTopMostRule : ComposableFunctionRule() {
 
   override val id: String = "ModifierTopMost"
@@ -137,9 +116,6 @@ public class ModifierTopMostRule : ComposableFunctionRule() {
     return violations
   }
 
-  /**
-   * Finds the modifier argument in a call expression if it uses the given modifier name.
-   */
   private fun findModifierArgument(call: KtCallExpression, modifierName: String): KtValueArgument? {
     val valueArguments = call.valueArgumentList?.arguments ?: return null
     for (arg in valueArguments) {
@@ -155,9 +131,6 @@ public class ModifierTopMostRule : ComposableFunctionRule() {
     return null
   }
 
-  /**
-   * Checks if there's a parent composable that emits content (i.e., this call is nested).
-   */
   private fun hasParentContentEmitter(call: KtCallExpression, functionBody: KtBlockExpression): Boolean {
     for (parent in call.parents) {
       if (parent == functionBody) break

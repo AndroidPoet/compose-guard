@@ -28,39 +28,6 @@ import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
-/**
- * Rule: Use lambda-based modifiers for frequently changing state.
- *
- * Per Android's official performance guidance: "Defer state reads as long as possible
- * by wrapping them in lambda functions."
- *
- * This rule detects when state values are passed directly to modifiers that have
- * lambda-based alternatives, which can reduce unnecessary recompositions.
- *
- * Example violations:
- * ```kotlin
- * @Composable
- * fun BadExample(scrollOffset: Float) {
- *     // BAD: Reads state during composition, causes recomposition on every scroll
- *     Box(modifier = Modifier.offset(y = scrollOffset.dp))
- *
- *     // BAD: State read during composition
- *     val alpha by animateFloatAsState(targetValue = if (visible) 1f else 0f)
- *     Box(modifier = Modifier.alpha(alpha))
- * }
- *
- * @Composable
- * fun GoodExample(scrollOffset: () -> Float) {
- *     // GOOD: Defers read until layout phase
- *     Box(modifier = Modifier.offset { IntOffset(0, scrollOffset().toInt()) })
- *
- *     // GOOD: Uses graphicsLayer for deferred alpha
- *     Box(modifier = Modifier.graphicsLayer { alpha = if (visible) 1f else 0f })
- * }
- * ```
- *
- * @see <a href="https://developer.android.com/develop/ui/compose/performance#defer-reads">Defer Reads</a>
- */
 public class DeferStateReadsRule : ComposableFunctionRule() {
 
   override val id: String = "DeferStateReads"
@@ -81,10 +48,6 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
   override val documentationUrl: String =
     "https://developer.android.com/develop/ui/compose/performance#defer-reads"
 
-  /**
-   * Modifiers that have lambda-based alternatives for deferred reads.
-   * Maps: modifier name -> (lambda alternative, parameter names to check)
-   */
   private val modifiersWithLambdaAlternatives = mapOf(
     "offset" to LambdaAlternative(
       lambdaVersion = "offset { IntOffset(x, y) }",
@@ -118,9 +81,6 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
     ),
   )
 
-  /**
-   * State patterns that indicate frequently changing values.
-   */
   private val frequentlyChangingStatePatterns = setOf(
     "animateFloatAsState",
     "animateDpAsState",
@@ -136,9 +96,6 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
     "derivedStateOf",
   )
 
-  /**
-   * Property names that typically indicate animated or frequently changing state.
-   */
   private val animatedPropertyPatterns = setOf(
     "offset", "scroll", "position", "alpha", "scale", "rotation", "angle",
     "progress", "fraction", "animated", "transition", "x", "y", "dx", "dy",
@@ -162,9 +119,6 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
     return violations
   }
 
-  /**
-   * Finds properties that are likely to change frequently (animated values, scroll offsets, etc.)
-   */
   private fun findFrequentlyChangingState(body: com.intellij.psi.PsiElement): Set<String> {
     val stateNames = mutableSetOf<String>()
 
@@ -189,9 +143,6 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
     return stateNames
   }
 
-  /**
-   * Checks a modifier chain for non-deferred state reads.
-   */
   private fun checkModifierChain(
     dotExpr: KtDotQualifiedExpression,
     frequentlyChangingState: Set<String>,
@@ -234,18 +185,12 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
     }
   }
 
-  /**
-   * Checks if the argument string references any frequently changing state.
-   */
   private fun hasStateReference(args: String, frequentlyChangingState: Set<String>): Boolean {
     return frequentlyChangingState.any { stateName ->
       args.contains(stateName)
     }
   }
 
-  /**
-   * Finds the KtCallExpression for a specific modifier in the chain.
-   */
   private fun findModifierCall(dotExpr: KtDotQualifiedExpression, modifierName: String): KtCallExpression? {
     val calls = PsiTreeUtil.findChildrenOfType(dotExpr, KtCallExpression::class.java)
     return calls.find { it.calleeExpression?.text == modifierName }

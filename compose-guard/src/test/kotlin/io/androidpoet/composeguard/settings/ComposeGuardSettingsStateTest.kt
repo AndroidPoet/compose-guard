@@ -20,13 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/**
- * Tests for ComposeGuardSettingsState configuration.
- *
- * The settings use a simple design:
- * - Each rule has its own enabled/disabled state in ruleEnabledStates map
- * - If a rule is not in the map, it uses its default enabled state
- */
 class ComposeGuardSettingsStateTest {
 
 

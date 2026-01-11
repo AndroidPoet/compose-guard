@@ -22,9 +22,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
-/**
- * Quick fix that adds a modifier parameter to a composable function.
- */
 public class AddModifierParameterFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Add modifier parameter"

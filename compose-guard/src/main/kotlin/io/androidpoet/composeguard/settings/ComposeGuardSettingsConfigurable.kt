@@ -38,16 +38,6 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JSeparator
 
-/**
- * Settings UI for ComposeGuard plugin.
- * Allows users to enable/disable individual rules or entire categories.
- *
- * Simple design:
- * - Master switch: toggles ALL rules on/off (convenience)
- * - Category checkbox: toggles all rules in that category (convenience)
- * - Individual rule checkbox: toggles that specific rule
- * - All state is stored per-rule in ruleEnabledStates map
- */
 public class ComposeGuardSettingsConfigurable : Configurable {
 
   private var mainPanel: JPanel? = null
@@ -289,9 +279,6 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     }
   }
 
-  /**
-   * Load checkbox states from settings.
-   */
   private fun loadCheckboxStates(settings: ComposeGuardSettingsState) {
     for ((_, rules) in rulesByCategory) {
       for (rule in rules) {
@@ -308,9 +295,6 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     updateMasterSwitchState()
   }
 
-  /**
-   * Set all rules to enabled/disabled.
-   */
   private fun setAllRulesEnabled(enabled: Boolean) {
     for ((_, checkbox) in categoryCheckboxes) {
       checkbox.isSelected = enabled
@@ -321,9 +305,6 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     }
   }
 
-  /**
-   * Set all rules in a category to enabled/disabled.
-   */
   private fun setCategoryRulesEnabled(category: RuleCategory, enabled: Boolean) {
     val rules = rulesByCategory[category] ?: return
     for (rule in rules) {
@@ -331,28 +312,17 @@ public class ComposeGuardSettingsConfigurable : Configurable {
     }
   }
 
-  /**
-   * Update category checkbox state based on its rules.
-   * Category is checked if ALL rules in it are checked.
-   */
   private fun updateCategoryCheckboxState(category: RuleCategory) {
     val rules = rulesByCategory[category] ?: return
     val allEnabled = rules.all { ruleCheckboxes[it.id]?.isSelected == true }
     categoryCheckboxes[category]?.isSelected = allEnabled
   }
 
-  /**
-   * Update master switch state based on all rules.
-   * Master switch is checked if ALL rules are checked.
-   */
   private fun updateMasterSwitchState() {
     val allEnabled = ruleCheckboxes.values.all { it.isSelected }
     masterSwitch?.isSelected = allEnabled
   }
 
-  /**
-   * Reset all settings to defaults.
-   */
   private fun resetToDefaults() {
     gutterIconsCheckbox?.isSelected = true
     inlayHintsCheckbox?.isSelected = true

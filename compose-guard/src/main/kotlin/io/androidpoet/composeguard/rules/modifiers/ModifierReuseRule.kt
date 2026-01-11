@@ -28,14 +28,6 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtValueArgument
 
-/**
- * Rule: Don't re-use modifiers across multiple layout nodes.
- *
- * Reusing the same modifier instance across multiple composables can cause
- * unexpected behavior because modifiers apply their effects to a single node.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#dont-re-use-modifiers">Don't Re-use Modifiers</a>
- */
 public class ModifierReuseRule : ComposableFunctionRule() {
 
   override val id: String = "ModifierReuse"

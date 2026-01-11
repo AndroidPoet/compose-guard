@@ -24,15 +24,6 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtClass
 
-/**
- * Rule: Custom composable annotations should end with "Composable" suffix.
- *
- * When creating custom annotations that are meant to be used on @Composable functions
- * (like custom previews or markers), they should follow the naming convention of
- * ending with "Composable" to make their purpose clear.
- *
- * @see <a href="https://mrmans0n.github.io/compose-rules/latest/rules/#naming-composable-annotations-properly">Naming Composable Annotations</a>
- */
 public class ComposableAnnotationNamingRule : AnnotationClassRule() {
   override val id: String = "ComposableAnnotationNaming"
   override val name: String = "Composable Annotation Naming"

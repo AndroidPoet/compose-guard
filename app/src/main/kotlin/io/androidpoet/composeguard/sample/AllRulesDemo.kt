@@ -50,189 +50,157 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// NAMING RULES (6)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Rule 1: ComposableNaming - Should start with uppercase
 @Composable
-fun badNamingButton() { // BAD: lowercase
+fun badNamingButton() {
   Button(onClick = {}) { Text("Click") }
 }
 
 @Composable
-fun GoodNamingButton(modifier: Modifier = Modifier) { // GOOD: uppercase
+fun GoodNamingButton(modifier: Modifier = Modifier) {
   Button(onClick = {}, modifier = modifier) { Text("Click") }
 }
 
-// Rule 2: CompositionLocalNaming - Should start with "Local"
-val CurrentTheme = compositionLocalOf { "Light" } // BAD: doesn't start with Local
-val LocalTheme = compositionLocalOf { "Light" } // GOOD: starts with Local
-
-// Rule 3: PreviewNaming - Should contain "Preview"
-@Preview
-@Composable
-fun NamingButtonTest() { Text("Test") } // BAD: no "Preview" in name
+val CurrentTheme = compositionLocalOf { "Light" }
+val LocalTheme = compositionLocalOf { "Light" }
 
 @Preview
 @Composable
-private fun NamingButtonPreview() { Text("Test") } // GOOD: contains "Preview"
+fun NamingButtonTest() { Text("Test") }
 
-// Rule 4: MultipreviewNaming - Should start with "Preview"
-@Preview(name = "Light")
-@Preview(name = "Dark")
-annotation class ThemeVariants // BAD: doesn't start with Preview
-
-@Preview(name = "Light")
-@Preview(name = "Dark")
-annotation class PreviewThemeVariants // GOOD: starts with Preview
-
-// Rule 5: ComposableAnnotationNaming - (commented: @Composable can't apply to annotation)
-// annotation class MyScreen // BAD: should be MyScreenComposable
-
-// Rule 6: EventParameterNaming - No past tense
+@Preview
 @Composable
-fun BadEventNaming(onClicked: () -> Unit, modifier: Modifier = Modifier) { // BAD: past tense
+private fun NamingButtonPreview() { Text("Test") }
+
+@Preview(name = "Light")
+@Preview(name = "Dark")
+annotation class ThemeVariants
+
+@Preview(name = "Light")
+@Preview(name = "Dark")
+annotation class PreviewThemeVariants
+
+@Composable
+fun BadEventNaming(onClicked: () -> Unit, modifier: Modifier = Modifier) {
   Button(onClick = onClicked, modifier = modifier) { Text("Click") }
 }
 
 @Composable
-fun GoodEventNaming(onClick: () -> Unit, modifier: Modifier = Modifier) { // GOOD: present
+fun GoodEventNaming(onClick: () -> Unit, modifier: Modifier = Modifier) {
   Button(onClick = onClick, modifier = modifier) { Text("Click") }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MODIFIER RULES (7)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Rule 7: ModifierRequired - Should have modifier parameter
 @Composable
-fun NoModifierParam() { // BAD: no modifier
+fun NoModifierParam() {
   Column { Text("Content") }
 }
 
 @Composable
-fun WithModifierParam(modifier: Modifier = Modifier) { // GOOD
+fun WithModifierParam(modifier: Modifier = Modifier) {
   Column(modifier = modifier) { Text("Content") }
 }
 
-// Rule 8: ModifierDefaultValue - Modifier should have default
 @Composable
-fun NoModifierDefault(modifier: Modifier) { // BAD: no default
+fun NoModifierDefault(modifier: Modifier) {
   Column(modifier = modifier) { Text("Content") }
 }
 
-// Rule 9: ModifierNaming - Should be named "modifier"
 @Composable
-fun WrongModifierName(buttonModifier: Modifier = Modifier) { // BAD: wrong name
+fun WrongModifierName(buttonModifier: Modifier = Modifier) {
   Column(modifier = buttonModifier) { Text("Content") }
 }
 
-// Rule 10: ModifierTopMost - Modifier on root element
 @Composable
-fun ModifierNotOnRoot(modifier: Modifier = Modifier) { // BAD: not on root
+fun ModifierNotOnRoot(modifier: Modifier = Modifier) {
   Column {
     Box(modifier = modifier) { Text("Content") }
   }
 }
 
 @Composable
-fun ModifierOnRoot(modifier: Modifier = Modifier) { // GOOD
+fun ModifierOnRoot(modifier: Modifier = Modifier) {
   Column(modifier = modifier) {
     Box { Text("Content") }
   }
 }
 
-// Rule 11: ModifierReuse - Don't reuse on multiple elements
 @Composable
-fun ModifierReused(modifier: Modifier = Modifier) { // BAD: reused
+fun ModifierReused(modifier: Modifier = Modifier) {
   Column {
     Text("A", modifier = modifier)
     Text("B", modifier = modifier)
   }
 }
 
-// Rule 12: ModifierOrder - Chain order matters
 @Composable
-fun BadModifierOrder(modifier: Modifier = Modifier) { // BAD: padding before clickable
+fun BadModifierOrder(modifier: Modifier = Modifier) {
   Box(modifier = modifier.clickable { }.padding(16.dp)) { Text("Card") }
 }
 
 @Composable
-fun GoodModifierOrder(modifier: Modifier = Modifier) { // GOOD: clickable before padding
+fun GoodModifierOrder(modifier: Modifier = Modifier) {
   Box(modifier = modifier.clickable { }.padding(16.dp)) { Text("Card") }
 }
 
-// Rule: AvoidComposed - Use Modifier.Node
-fun Modifier.avoidComposedBorder() = composed { // BAD: use Modifier.Node
+fun Modifier.avoidComposedBorder() = composed {
   this.border(1.dp, Color.Black)
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// STATE RULES (6)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Rule 13: RememberState - State should be remembered
 @Composable
-fun StateNotRemembered() { // BAD: not remembered
+fun StateNotRemembered() {
   var count by mutableStateOf(0)
   Button(onClick = { count++ }) { Text("$count") }
 }
 
 @Composable
-fun StateRemembered(modifier: Modifier = Modifier) { // GOOD
+fun StateRemembered(modifier: Modifier = Modifier) {
   var count by remember { mutableStateOf(0) }
   Button(onClick = { count++ }, modifier = modifier) { Text("$count") }
 }
 
-// Rule 14: TypeSpecificState - Use mutableIntStateOf for primitives
 @Composable
-fun GenericIntState(modifier: Modifier = Modifier) { // BAD: generic for Int
+fun GenericIntState(modifier: Modifier = Modifier) {
   var count by remember { mutableStateOf(0) }
   Text("$count", modifier = modifier)
 }
 
 @Composable
-fun SpecificIntState(modifier: Modifier = Modifier) { // GOOD: type-specific
+fun SpecificIntState(modifier: Modifier = Modifier) {
   var count by remember { mutableIntStateOf(0) }
   Text("$count", modifier = modifier)
 }
 
-// Rule 15: DerivedStateOfCandidate - Use remember for computed values
 @Composable
 fun ComputedNotRemembered(items: List<String>, query: String, modifier: Modifier = Modifier) {
-  val filtered = items.filter { it.contains(query) } // BAD: recomputes every time
+  val filtered = items.filter { it.contains(query) }
   Column(modifier = modifier) { filtered.forEach { Text(it) } }
 }
 
 @Composable
 fun ComputedRemembered(items: List<String>, query: String, modifier: Modifier = Modifier) {
-  val filtered = remember(items, query) { items.filter { it.contains(query) } } // GOOD
+  val filtered = remember(items, query) { items.filter { it.contains(query) } }
   Column(modifier = modifier) { filtered.forEach { Text(it) } }
 }
 
-// Rule 16: FrequentRecomposition - Remember expensive objects
 @Composable
-fun ObjectCreatedEveryTime(modifier: Modifier = Modifier) { // BAD
+fun ObjectCreatedEveryTime(modifier: Modifier = Modifier) {
   val style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
   Text("Hello", style = style, modifier = modifier)
 }
 
 @Composable
-fun ObjectRememberedProperly(modifier: Modifier = Modifier) { // GOOD
+fun ObjectRememberedProperly(modifier: Modifier = Modifier) {
   val style = remember { TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold) }
   Text("Hello", style = style, modifier = modifier)
 }
 
 @Composable
-fun FlowWithoutLifecycle(flow: Flow<String>, modifier: Modifier = Modifier) { // BAD
+fun FlowWithoutLifecycle(flow: Flow<String>, modifier: Modifier = Modifier) {
   val state by flow.collectAsState(initial = "")
   Text(state, modifier = modifier)
 }
 
-// Rule 17: MutableStateParameter - Use value + callback pattern
 @Composable
-fun MutableStateAsParam(count: MutableState<Int>, modifier: Modifier = Modifier) { // BAD
+fun MutableStateAsParam(count: MutableState<Int>, modifier: Modifier = Modifier) {
   Text("${count.value}", modifier = modifier)
 }
 
@@ -241,13 +209,12 @@ fun ValueCallbackPattern(
   count: Int,
   onChange: (Int) -> Unit,
   modifier: Modifier = Modifier,
-) { // GOOD
+) {
   Button(onClick = { onChange(count + 1) }, modifier = modifier) { Text("$count") }
 }
 
-// Rule 18: HoistState - Hoist shared state
 @Composable
-fun StateSharedWithChild() { // BAD: should hoist
+fun StateSharedWithChild() {
   var expanded by remember { mutableStateOf(false) }
   ExpandableHeader(expanded = expanded, onToggle = { expanded = !expanded })
   if (expanded) ExpandableContent()
@@ -267,13 +234,8 @@ private fun ExpandableContent(modifier: Modifier = Modifier) {
   Box(modifier = modifier) { Text("Content") }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PARAMETER RULES (5)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Rule 19: ParameterOrdering - Required first, optional last
 @Composable
-fun BadParamOrdering(enabled: Boolean = true, modifier: Modifier = Modifier, title: String) { // BAD
+fun BadParamOrdering(enabled: Boolean = true, modifier: Modifier = Modifier, title: String) {
   Column(modifier = modifier) { Text(title) }
 }
 
@@ -282,13 +244,12 @@ fun GoodParamOrdering(
   title: String,
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
-) { // GOOD
+) {
   Column(modifier = modifier) { Text(title) }
 }
 
-// Rule 20: TrailingLambda - Content should be last
 @Composable
-fun ContentNotTrailing(
+fun ContentNotTrailingDemo(
   title: String,
   modifier: Modifier = Modifier,
   content: @Composable () -> Unit,
@@ -300,10 +261,10 @@ fun ContentNotTrailing(
 }
 
 @Composable
-fun ContentTrailing(
+fun ContentTrailingDemo(
   title: String,
   modifier: Modifier = Modifier,
-  content: @Composable () -> Unit, // GOOD: last
+  content: @Composable () -> Unit,
 ) {
   Column(modifier = modifier) {
     Text(title)
@@ -311,32 +272,29 @@ fun ContentTrailing(
   }
 }
 
-// Rule 21: MutableParameter - Use immutable collections
 @Composable
-fun MutableListParameter(items: MutableList<String>, modifier: Modifier = Modifier) { // BAD
+fun MutableListParameter(items: MutableList<String>, modifier: Modifier = Modifier) {
   Column(modifier = modifier) { items.forEach { Text(it) } }
 }
 
 @Composable
-fun ImmutableListParameter(items: List<String>, modifier: Modifier = Modifier) { // GOOD
+fun ImmutableListParameter(items: List<String>, modifier: Modifier = Modifier) {
   Column(modifier = modifier) { items.forEach { Text(it) } }
 }
 
-// Rule 22: ExplicitDependencies - Make dependencies explicit
 @Composable
-fun ImplicitDependency() { // BAD: implicit ViewModel
+fun ImplicitDependency() {
   val vm = viewModel<AllRulesViewModel>()
   Text("Data")
 }
 
 @Composable
-fun ExplicitDependency(viewModel: AllRulesViewModel, modifier: Modifier = Modifier) { // GOOD
+fun ExplicitDependency(viewModel: AllRulesViewModel, modifier: Modifier = Modifier) {
   Text("Data", modifier = modifier)
 }
 
-// Rule 23: ViewModelForwarding - Don't forward ViewModel
 @Composable
-fun ParentForwardsViewModel(viewModel: AllRulesViewModel, modifier: Modifier = Modifier) { // BAD
+fun ParentForwardsViewModel(viewModel: AllRulesViewModel, modifier: Modifier = Modifier) {
   Column(modifier = modifier) {
     ChildWithViewModel(viewModel = viewModel)
   }
@@ -348,7 +306,7 @@ fun ChildWithViewModel(viewModel: AllRulesViewModel, modifier: Modifier = Modifi
 }
 
 @Composable
-fun ParentPassesData(data: String, modifier: Modifier = Modifier) { // GOOD: pass data
+fun ParentPassesData(data: String, modifier: Modifier = Modifier) {
   Column(modifier = modifier) {
     ChildWithData(data = data)
   }
@@ -359,80 +317,70 @@ fun ChildWithData(data: String, modifier: Modifier = Modifier) {
   Text(data, modifier = modifier)
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// COMPOSABLE RULES (9)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Rule 24: ContentEmission - Emit OR return, not both
 @Composable
-fun EmitsAndReturns(): String { // BAD: both emit and return
+fun EmitsAndReturns(): String {
   Column { Text("Hello") }
   return "World"
 }
 
 @Composable
-fun OnlyEmits(modifier: Modifier = Modifier) { // GOOD: only emit
+fun OnlyEmits(modifier: Modifier = Modifier) {
   Column(modifier = modifier) { Text("Hello") }
 }
 
-// Rule 25: MultipleContent - Single root
 @Composable
-fun MultipleRoots() { // BAD: multiple roots
+fun MultipleRoots() {
   Text("First")
   Text("Second")
 }
 
 @Composable
-fun SingleRootElement(modifier: Modifier = Modifier) { // GOOD
+fun SingleRootElement(modifier: Modifier = Modifier) {
   Column(modifier = modifier) {
     Text("First")
     Text("Second")
   }
 }
 
-// Rule 26: ContentSlotReused - Don't invoke slot twice
 @Composable
 fun SlotInvokedTwice(
   flag: Boolean,
   modifier: Modifier = Modifier,
   content: @Composable () -> Unit,
-) { // BAD
+) {
   Column(modifier = modifier) {
     if (flag) content() else content()
   }
 }
 
-// Rule 27: EffectKeys - Use proper keys
 @Composable
-fun EffectWithUnitKey(id: String, modifier: Modifier = Modifier) { // BAD: Unit key
+fun EffectWithUnitKey(id: String, modifier: Modifier = Modifier) {
   LaunchedEffect(Unit) { println("never restarts") }
   Box(modifier = modifier) { Text(id) }
 }
 
 @Composable
-fun EffectWithProperKey(id: String, modifier: Modifier = Modifier) { // GOOD
+fun EffectWithProperKey(id: String, modifier: Modifier = Modifier) {
   LaunchedEffect(id) { println("restarts on change") }
   Box(modifier = modifier) { Text(id) }
 }
 
-// Rule 28: LazyListMissingKey - items() should have key
 @Composable
-fun LazyListNoKey(users: List<UserData>, modifier: Modifier = Modifier) { // BAD
+fun LazyListNoKey(users: List<UserData>, modifier: Modifier = Modifier) {
   LazyColumn(modifier = modifier) {
     items(users) { Text(it.name) }
   }
 }
 
 @Composable
-fun LazyListWithKey(users: List<UserData>, modifier: Modifier = Modifier) { // GOOD
+fun LazyListWithKey(users: List<UserData>, modifier: Modifier = Modifier) {
   LazyColumn(modifier = modifier) {
     items(users, key = { it.id }) { Text(it.name) }
   }
 }
 
-// Rule 29: LambdaParameterInEffect - Key lambda params
 @Composable
-fun LambdaNotInEffectKey(onComplete: () -> Unit, modifier: Modifier = Modifier) { // BAD
+fun LambdaNotInEffectKey(onComplete: () -> Unit, modifier: Modifier = Modifier) {
   LaunchedEffect(Unit) {
     delay(1000)
     onComplete()
@@ -441,7 +389,7 @@ fun LambdaNotInEffectKey(onComplete: () -> Unit, modifier: Modifier = Modifier) 
 }
 
 @Composable
-fun LambdaInEffectKey(onComplete: () -> Unit, modifier: Modifier = Modifier) { // GOOD
+fun LambdaInEffectKey(onComplete: () -> Unit, modifier: Modifier = Modifier) {
   LaunchedEffect(onComplete) {
     delay(1000)
     onComplete()
@@ -449,31 +397,28 @@ fun LambdaInEffectKey(onComplete: () -> Unit, modifier: Modifier = Modifier) { /
   Box(modifier = modifier) { Text("Effect") }
 }
 
-// Rule 30: MovableContent - Should be remembered
 @Composable
-fun MovableContentNotRemembered(modifier: Modifier = Modifier) { // BAD
+fun MovableContentNotRemembered(modifier: Modifier = Modifier) {
   val content = remember { movableContentOf { Text("Movable") } }
   Box(modifier = modifier) { content() }
 }
 
 @Composable
-fun MovableContentRemembered(modifier: Modifier = Modifier) { // GOOD
+fun MovableContentRemembered(modifier: Modifier = Modifier) {
   val content = remember { movableContentOf { Text("Movable") } }
   Box(modifier = modifier) { content() }
 }
 
-// Rule 31: PreviewVisibility - Preview should be private
 @Preview
 @Composable
-fun PublicPreviewFunction() { Text("Preview") } // BAD: public
+fun PublicPreviewFunction() { Text("Preview") }
 
 @Preview
 @Composable
-private fun PrivatePreviewFunction() { Text("Preview") } // GOOD: private
+private fun PrivatePreviewFunction() { Text("Preview") }
 
-// Rule 32: LazyListContentType - Use contentType for heterogeneous lists
 @Composable
-fun LazyListNoContentType(users: List<UserData>, modifier: Modifier = Modifier) { // BAD
+fun LazyListNoContentType(users: List<UserData>, modifier: Modifier = Modifier) {
   LazyColumn(modifier = modifier) {
     item(contentType = "contentType1") { Text("Header") }
     items(items = users, key = { it.id }, contentType = { _ -> "contentType2" }) { Text(it.name) }
@@ -482,7 +427,7 @@ fun LazyListNoContentType(users: List<UserData>, modifier: Modifier = Modifier) 
 }
 
 @Composable
-fun LazyListWithContentType(users: List<UserData>, modifier: Modifier = Modifier) { // GOOD
+fun LazyListWithContentType(users: List<UserData>, modifier: Modifier = Modifier) {
   LazyColumn(modifier = modifier) {
     item(contentType = "header") { Text("Header") }
     items(
@@ -494,22 +439,10 @@ fun LazyListWithContentType(users: List<UserData>, modifier: Modifier = Modifier
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// STRICTER RULES (2)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Rule 33: Material2Usage - Prefer Material3
-// (This file uses Material3, so no violation here)
-
-// Rule 34: UnstableCollections - Use ImmutableList
 @Composable
-fun UnstableListParam(items: List<String>, modifier: Modifier = Modifier) { // INFO
+fun UnstableListParam(items: List<String>, modifier: Modifier = Modifier) {
   Column(modifier = modifier) { items.forEach { Text(it) } }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// HELPER CLASSES
-// ═══════════════════════════════════════════════════════════════════════════════
 
 class AllRulesViewModel : ViewModel()
 data class UserData(val id: String, val name: String)

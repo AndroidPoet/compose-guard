@@ -29,10 +29,6 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MODIFIER RULES DEMO
-// ═══════════════════════════════════════════════════════════════════════════════
-
 @Composable
 fun ModifierRulesDemo(modifier: Modifier = Modifier) {
   Column(modifier = modifier) {
@@ -41,47 +37,26 @@ fun ModifierRulesDemo(modifier: Modifier = Modifier) {
   }
 }
 
-// -------------------------------------------------------------------------------
-// 7. ModifierRequired - Should have modifier parameter
-// -------------------------------------------------------------------------------
-
-/** BAD: No modifier parameter */
 @Composable
 fun NoModifier(modifier: Modifier = Modifier) {
   Column { Text("Content") }
 }
 
-/** GOOD: Has modifier parameter with default */
 @Composable
 fun WithModifier(modifier: Modifier = Modifier) {
   Column(modifier = modifier) { Text("Content") }
 }
 
-// -------------------------------------------------------------------------------
-// 8. ModifierDefaultValue - Modifier should have default
-// -------------------------------------------------------------------------------
-
-/** BAD: Modifier parameter has no default value */
 @Composable
 fun NoDefault(modifier: Modifier) {
   Column(modifier = modifier) { Text("Card") }
 }
 
-// -------------------------------------------------------------------------------
-// 9. ModifierNaming - Should be named "modifier"
-// -------------------------------------------------------------------------------
-
-/** BAD: Modifier parameter not named "modifier" */
 @Composable
 fun WrongName(cardModifier: Modifier = Modifier) {
   Column(modifier = cardModifier) { Text("Card") }
 }
 
-// -------------------------------------------------------------------------------
-// 10. ModifierTopMost - Modifier on root element
-// -------------------------------------------------------------------------------
-
-/** BAD: Modifier not applied to root element */
 @Composable
 fun NotOnRoot(modifier: Modifier = Modifier) {
   Column(modifier = modifier) {
@@ -89,7 +64,6 @@ fun NotOnRoot(modifier: Modifier = Modifier) {
   }
 }
 
-/** GOOD: Modifier applied to root element */
 @Composable
 fun OnRoot(modifier: Modifier = Modifier) {
   Column(modifier = modifier) {
@@ -97,11 +71,6 @@ fun OnRoot(modifier: Modifier = Modifier) {
   }
 }
 
-// -------------------------------------------------------------------------------
-// 11. ModifierReuse - Don't reuse on multiple elements
-// -------------------------------------------------------------------------------
-
-/** BAD: Same modifier instance used on multiple elements */
 @Composable
 fun Reused(modifier: Modifier = Modifier) {
   Column {
@@ -110,11 +79,6 @@ fun Reused(modifier: Modifier = Modifier) {
   }
 }
 
-// -------------------------------------------------------------------------------
-// 12. ModifierOrder - Chain order matters
-// -------------------------------------------------------------------------------
-
-/** BAD: padding before clickable (click area includes padding) */
 @Composable
 fun BadOrder(modifier: Modifier = Modifier) {
   Box(
@@ -122,7 +86,6 @@ fun BadOrder(modifier: Modifier = Modifier) {
   ) { Text("Card") }
 }
 
-/** GOOD: clickable before padding (padding is visual only) */
 @Composable
 fun GoodOrder(modifier: Modifier = Modifier) {
   Box(
@@ -132,11 +95,6 @@ fun GoodOrder(modifier: Modifier = Modifier) {
   ) { Text("Card") }
 }
 
-// -------------------------------------------------------------------------------
-// 13. AvoidComposed - Use Modifier.Node instead
-// -------------------------------------------------------------------------------
-
-/** BAD: Using Modifier.composed (prefer Modifier.Node) */
 fun Modifier.badBorder() = composed {
   this.border(1.dp, Color.Black)
 }
