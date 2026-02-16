@@ -24,6 +24,7 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
@@ -69,6 +70,12 @@ public class RememberStateRule : ComposableFunctionRule() {
       val expression = property.initializer
         ?: property.delegateExpression
         ?: continue
+
+      // Skip if the expression itself is already a remember call
+      // This prevents false positives when remember { mutableStateOf(...) } is used
+      if (isDirectRememberCall(expression)) {
+        continue
+      }
 
       val callExpression = expression as? KtCallExpression
         ?: PsiTreeUtil.findChildOfType(expression, KtCallExpression::class.java)
@@ -117,17 +124,38 @@ public class RememberStateRule : ComposableFunctionRule() {
     return violations
   }
 
+  private val rememberFunctionNames = setOf(
+    "remember",
+    "rememberSaveable",
+    "rememberCoroutineScope",
+    "rememberUpdatedState",
+  )
+
   private fun isInsideRemember(element: KtCallExpression): Boolean {
     var parent = element.parent
     while (parent != null) {
       if (parent is KtCallExpression) {
         val calleeName = parent.calleeExpression?.text
-        if (calleeName == "remember" || calleeName == "rememberSaveable") {
+        if (calleeName != null && rememberFunctionNames.contains(calleeName)) {
           return true
         }
+      }
+      // Stop searching at function boundaries to avoid false positives
+      if (parent is KtNamedFunction) {
+        break
       }
       parent = parent.parent
     }
     return false
+  }
+
+  /**
+   * Additional check: verify the property's direct expression isn't already a remember call.
+   * This handles cases where the PSI tree might not be fully updated yet.
+   */
+  private fun isDirectRememberCall(expression: KtExpression): Boolean {
+    val callExpression = expression as? KtCallExpression ?: return false
+    val calleeName = callExpression.calleeExpression?.text ?: return false
+    return rememberFunctionNames.contains(calleeName)
   }
 }

@@ -20,7 +20,7 @@ import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -31,7 +31,7 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
 
   override fun getFamilyName(): String = "Wrap in remember"
 
-  override fun getName(): String = "Wrap in remember (smart)"
+  override fun getName(): String = "Wrap in remember { }"
 
   override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
     val element = descriptor.psiElement
@@ -45,34 +45,57 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
       }
     } ?: return
 
+    // Prevent endless wrapping: check if already inside remember
+    if (isAlreadyInsideRemember(expression)) {
+      return
+    }
+
     val file = expression.containingKtFile
 
     val containingFunction = PsiTreeUtil.getParentOfType(expression, KtNamedFunction::class.java)
     val usedParameters = findUsedParameters(expression, containingFunction)
-    val readsStateValue = containsStateValueRead(expression)
 
     val factory = KtPsiFactory(project)
     val exprText = expression.text
 
-    val rememberCall = when {
-      readsStateValue -> {
-        factory.createExpression("remember { derivedStateOf { $exprText } }")
-      }
-      usedParameters.isNotEmpty() -> {
-        val keys = usedParameters.joinToString(", ")
-        factory.createExpression("remember($keys) { $exprText }")
-      }
-      else -> {
-        factory.createExpression("remember { $exprText }")
-      }
+    // Simple wrapping: just wrap in remember, optionally with parameter keys
+    val rememberCall = if (usedParameters.isNotEmpty()) {
+      val keys = usedParameters.joinToString(", ")
+      factory.createExpression("remember($keys) { $exprText }")
+    } else {
+      factory.createExpression("remember { $exprText }")
     }
 
     expression.replace(rememberCall)
 
     addRememberImportIfNeeded(project, file)
-    if (readsStateValue) {
-      addDerivedStateOfImportIfNeeded(project, file)
+  }
+
+  private fun isAlreadyInsideRemember(expression: KtExpression): Boolean {
+    var parent = expression.parent
+    while (parent != null) {
+      if (parent is KtCallExpression) {
+        val calleeName = parent.calleeExpression?.text
+        if (calleeName != null && REMEMBER_FUNCTION_NAMES.contains(calleeName)) {
+          return true
+        }
+      }
+      // Stop searching at function boundaries
+      if (parent is KtNamedFunction) {
+        break
+      }
+      parent = parent.parent
     }
+    return false
+  }
+
+  private companion object {
+    private val REMEMBER_FUNCTION_NAMES = setOf(
+      "remember",
+      "rememberSaveable",
+      "rememberCoroutineScope",
+      "rememberUpdatedState",
+    )
   }
 
   private fun findUsedParameters(
@@ -101,19 +124,6 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
     return usedParams.toList()
   }
 
-  private fun containsStateValueRead(expression: KtExpression): Boolean {
-    val dotExpressions = PsiTreeUtil.findChildrenOfType(expression, KtDotQualifiedExpression::class.java)
-
-    for (dotExpr in dotExpressions) {
-      val selector = dotExpr.selectorExpression
-      if (selector is KtNameReferenceExpression && selector.getReferencedName() == "value") {
-        return true
-      }
-    }
-
-    return false
-  }
-
   private fun addRememberImportIfNeeded(
     project: Project,
     file: org.jetbrains.kotlin.psi.KtFile,
@@ -133,22 +143,4 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
     }
   }
 
-  private fun addDerivedStateOfImportIfNeeded(
-    project: Project,
-    file: org.jetbrains.kotlin.psi.KtFile,
-  ) {
-    val imports = file.importDirectives
-
-    val hasDerivedStateOfImport = imports.any {
-      it.importedFqName?.asString() == "androidx.compose.runtime.derivedStateOf"
-    }
-
-    if (!hasDerivedStateOfImport) {
-      val factory = KtPsiFactory(project)
-      val fqName = org.jetbrains.kotlin.name.FqName("androidx.compose.runtime.derivedStateOf")
-      val importPath = org.jetbrains.kotlin.resolve.ImportPath(fqName, false)
-      val importDirective = factory.createImportDirective(importPath)
-      file.importList?.add(importDirective)
-    }
-  }
 }
