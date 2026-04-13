@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.1.1"
+version = "1.2.0"
 
 repositories {
   mavenCentral()
@@ -53,7 +53,7 @@ intellijPlatform {
   pluginConfiguration {
     ideaVersion {
       sinceBuild = "242"
-      untilBuild = "253.*"
+      untilBuild = "262.*"
     }
 
     description = """
