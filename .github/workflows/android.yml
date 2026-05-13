@@ -1,4 +1,4 @@
-name: Android CI
+name: CI
 
 on:
   push:
@@ -7,9 +7,9 @@ on:
     branches: [ '*' ]
 
 jobs:
-  lint:
-    name: Spotless check
-    runs-on: macos-latest
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v5.0.0
@@ -21,9 +21,9 @@ jobs:
       - name: spotless
         run: ./gradlew spotlessCheck
 
-  api_check:
-    name: API check
-    runs-on: macos-latest
+  sample-app:
+    name: Sample App
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v5.0.0
@@ -32,55 +32,42 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 21
-      - name: API check
-        run: ./gradlew apiCheck
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
 
-  build:
-    name: Build and Tests
-    runs-on: macos-latest
+      - name: Assemble sample app
+        run: |
+          ./gradlew --stacktrace \
+              app:assembleDebug
+
+      - name: Run sample app unit tests
+        run: |
+          ./gradlew --stacktrace \
+              app:testDebugUnitTest
+
+  plugin:
+    name: IntelliJ Plugin
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5.0.0
-
-      - name: set up JDK
+      - name: Check out code
+        uses: actions/checkout@v5.0.0
+      - name: Set up JDK
         uses: actions/setup-java@v5.0.0
         with:
           distribution: 'zulu'
           java-version: 21
-
-      - name: Cache Gradle and wrapper
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: |
-          ./gradlew --scan --stacktrace \
-              assemble
+      - name: Validate plugin project configuration
+        run: ./gradlew --stacktrace compose-guard:verifyPluginProjectConfiguration
 
-      - name: Run unit tests
-        run: |
-          ./gradlew --scan --stacktrace \
-              testDebugUnitTest
+      - name: Build plugin
+        run: ./gradlew --stacktrace compose-guard:buildPlugin
 
-  stability_check:
-    name: Compose Stability Check
-    runs-on: macos-latest
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v5.0.0
-      - name: Set up JDK
-        uses: actions/setup-java@v5.0.0
-        with:
-          distribution: 'zulu'
-          java-version: 21
-      - name: compose stability check
-        run: ./gradlew stabilityCheck
+      - name: Run plugin tests
+        run: ./gradlew --stacktrace compose-guard:test
+
+      - name: Validate plugin archive structure
+        run: ./gradlew --stacktrace compose-guard:verifyPluginStructure

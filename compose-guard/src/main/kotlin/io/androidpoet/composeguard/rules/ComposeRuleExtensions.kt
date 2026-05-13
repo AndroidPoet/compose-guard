@@ -22,13 +22,29 @@ import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
+import org.jetbrains.kotlin.psi.KtLambdaArgument
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtUserType
+import org.jetbrains.kotlin.psi.psiUtil.parents
 
 private const val COMPOSABLE_ANNOTATION = "Composable"
 private const val PREVIEW_ANNOTATION = "Preview"
+
+private val transparentComposableWrappers = setOf(
+  "CompositionLocalProvider",
+  "key",
+)
+
+private val sideEffectComposables = setOf(
+  "LaunchedEffect",
+  "DisposableEffect",
+  "SideEffect",
+  "remember",
+  "rememberSaveable",
+  "derivedStateOf",
+)
 
 internal fun KtNamedFunction.isComposable(): Boolean {
   return annotationEntries.any {
@@ -103,10 +119,6 @@ internal fun KtParameter.isComposableLambda(): Boolean {
   return typeText.contains("@Composable") && typeText.contains("->")
 }
 
-internal fun KtParameter.hasDefaultValue(): Boolean {
-  return defaultValue != null
-}
-
 internal fun KtProperty.isCompositionLocal(): Boolean {
   val initializer = initializer ?: return false
   val callText = initializer.text
@@ -122,6 +134,33 @@ internal fun KtNamedFunction.findCallExpressions(): List<KtCallExpression> {
 internal fun KtNamedFunction.findDotQualifiedExpressions(): List<KtDotQualifiedExpression> {
   val body = bodyExpression ?: bodyBlockExpression ?: return emptyList()
   return PsiTreeUtil.findChildrenOfType(body, KtDotQualifiedExpression::class.java).toList()
+}
+
+internal fun KtNamedFunction.emitsComposableContent(): Boolean {
+  val body = bodyExpression ?: bodyBlockExpression ?: return false
+  val calls = PsiTreeUtil.findChildrenOfType(body, KtCallExpression::class.java)
+
+  for (call in calls) {
+    val callName = call.calleeExpression?.text ?: continue
+
+    if (callName in transparentComposableWrappers || callName in sideEffectComposables) {
+      continue
+    }
+
+    if (callName.firstOrNull()?.isUpperCase() == true) {
+      return true
+    }
+
+    if (call.parents.any { parent ->
+        parent is KtLambdaArgument &&
+          (parent.parent as? KtCallExpression)?.calleeExpression?.text in transparentComposableWrappers
+      }
+    ) {
+      continue
+    }
+  }
+
+  return false
 }
 
 internal fun KtNamedFunction.getNameOrDefault(): String {

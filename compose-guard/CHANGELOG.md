@@ -2,6 +2,21 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
+## [1.2.0] - 2026-05-13
+
+### Fixed
+- **DerivedStateOfCandidate False Positives** - Expensive computations inside named event callbacks such as `onClick` and `onRemove` no longer trigger remember suggestions
+- **ModifierTopMost Root Detection** - `CompositionLocalProvider` is now treated as a transparent wrapper instead of a root layout
+- **MoveModifierToRootFix Targeting** - The quick fix now moves modifiers to the nearest real root layout instead of wrapper composables
+- **TrailingLambda Event Detection** - Custom event callbacks following the `onX` naming pattern are now recognized consistently
+
+### Improved
+- **Composable Emission Detection** - `ModifierRequired` and `ContentEmission` now use PSI-based detection instead of broad text matching
+- **MultipleContent Rule Accuracy** - Top-level custom composables with trailing lambdas are now counted correctly
+- **Release Metadata Consistency** - Version notes, rule counts, and marketplace-facing descriptions are now aligned for release
+
+---
+
 ## [1.0.7] - 2025-12-13
 
 ### Added

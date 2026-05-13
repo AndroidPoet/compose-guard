@@ -57,6 +57,11 @@ public class ModifierTopMostRule : ComposableFunctionRule() {
     "NavigationRail", "NavigationBar", "TopAppBar", "BottomAppBar",
   )
 
+  private val transparentWrappers = setOf(
+    "CompositionLocalProvider",
+    "key",
+  )
+
   override fun doAnalyze(
     function: KtNamedFunction,
     context: AnalysisContext,
@@ -78,7 +83,7 @@ public class ModifierTopMostRule : ComposableFunctionRule() {
 
       val hasContentEmitterParent = hasParentContentEmitter(call, body)
 
-      if (hasContentEmitterParent) {
+      if (hasContentEmitterParent && isContentEmitterName(callName)) {
         violations.add(
           createViolation(
             element = modifierArgument,
@@ -139,15 +144,17 @@ public class ModifierTopMostRule : ComposableFunctionRule() {
         val parentCall = parent.parent as? KtCallExpression ?: continue
         val parentCallName = parentCall.calleeExpression?.text ?: continue
 
-        if (parentCallName.first().isUpperCase() && parentCallName in contentEmitters) {
+        if (isContentEmitterName(parentCallName)) {
           return true
         }
 
-        if (parentCallName.first().isUpperCase() && parentCall.lambdaArguments.isNotEmpty()) {
-          return true
+        if (parentCallName in transparentWrappers) {
+          continue
         }
       }
     }
     return false
   }
+
+  internal fun isContentEmitterName(name: String): Boolean = name in contentEmitters
 }

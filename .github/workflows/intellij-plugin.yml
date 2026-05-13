@@ -63,6 +63,12 @@ jobs:
       - name: Build IntelliJ plugin
         run: ./gradlew :compose-guard:buildPlugin --no-daemon --stacktrace
 
+      - name: Verify plugin project configuration
+        run: ./gradlew :compose-guard:verifyPluginProjectConfiguration --no-daemon --stacktrace
+
+      - name: Verify plugin archive structure
+        run: ./gradlew :compose-guard:verifyPluginStructure --no-daemon --stacktrace
+
       - name: Upload plugin distribution
         uses: actions/upload-artifact@v4
         with:

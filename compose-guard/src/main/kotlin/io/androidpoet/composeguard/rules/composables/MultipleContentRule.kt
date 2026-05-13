@@ -45,6 +45,11 @@ public class MultipleContentRule : ComposableFunctionRule() {
     "NavigationRail", "NavigationBar", "TopAppBar", "BottomAppBar",
   )
 
+  private val transparentWrappers = setOf(
+    "CompositionLocalProvider",
+    "key",
+  )
+
   private val allowedReceiverTypes = setOf(
     "ColumnScope", "RowScope", "BoxScope", "LazyListScope", "LazyItemScope",
     "LazyGridScope", "LazyGridItemScope", "FlowRowScope", "FlowColumnScope",
@@ -112,12 +117,14 @@ public class MultipleContentRule : ComposableFunctionRule() {
     for (call in directCalls) {
       val callName = call.calleeExpression?.text ?: continue
 
+      if (callName in transparentWrappers) {
+        continue
+      }
+
       if (callName in contentEmitters) {
         count++
-      } else if (callName.first().isUpperCase()) {
-        if (call.lambdaArguments.isEmpty()) {
-          count++
-        }
+      } else if (callName.firstOrNull()?.isUpperCase() == true) {
+        count++
       }
     }
 

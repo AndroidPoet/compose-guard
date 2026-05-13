@@ -92,6 +92,21 @@ class TrailingLambdaRuleTest {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
+  @Test
+  fun test_isEventLambdaName_returnsTrueForKnownCallback() {
+    assertTrue(rule.isEventLambdaName("onClick"))
+  }
+
+  @Test
+  fun test_isEventLambdaName_returnsTrueForCustomCallback() {
+    assertTrue(rule.isEventLambdaName("onPhotoRemoved"))
+  }
+
+  @Test
+  fun test_isEventLambdaName_returnsFalseForContent() {
+    assertTrue(!rule.isEventLambdaName("content"))
+  }
+
 
   @Test
   fun benefit_cleanCallSite() {

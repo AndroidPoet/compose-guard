@@ -34,19 +34,18 @@ Instead of waiting for build-time lint checks or runtime issues, you get instant
 
 ## Features
 
-### 35 Compose Rules
+### 36 Compose Rules
 
 ComposeGuard implements comprehensive rules across 7 categories:
 
 | Category | Rules |
 |----------|-------|
-| **Naming** | Composable naming (PascalCase/camelCase), modifier naming, CompositionLocal naming, preview naming, multipreview naming, event parameter naming |
+| **Naming** | Composable naming, modifier naming, CompositionLocal naming, preview naming, multipreview naming, composable annotation naming, event parameter naming |
 | **Modifiers** | Required modifier parameter, modifier default value, modifier naming, modifier at top-most layout, modifier reuse, modifier order, avoid composed |
-| **State** | Remember state, type-specific mutableStateOf, state hoisting, mutable state as parameter |
-| **Parameters** | Parameter ordering, trailing lambda for content, mutable types as parameters, explicit dependencies |
-| **Composables** | Content emission rules, multiple content slots, effect keys, movable content, preview visibility |
-| **Stricter** | Material 2 usage detection, unstable collections (enabled by default) |
-| **Experimental** | LazyList missing key, LazyList contentType, derivedStateOf candidate, lifecycle-aware collection (opt-in) |
+| **State** | Remember state, type-specific mutableStateOf, derivedStateOf candidate, frequent recomposition collection, defer state reads, state hoisting, mutable state as parameter |
+| **Parameters** | Parameter ordering, trailing lambda placement, mutable types as parameters, explicit dependencies, ViewModel forwarding |
+| **Composables** | Content emission, multiple content emitters, content slot reuse, effect keys, lambda parameters in effects, movable content, preview visibility, LazyList key/contentType checks |
+| **Stricter** | Material 2 usage detection, unstable collections |
 
 ### IDE Integration
 
@@ -141,6 +140,9 @@ fun ItemList(items: List<Item>) { }  // Warning: Use ImmutableList
 |------|-------------|
 | RememberState | State builders (mutableStateOf, etc.) should be wrapped in `remember { }` |
 | TypeSpecificState | Use `mutableIntStateOf`, `mutableFloatStateOf`, etc. for primitives |
+| DerivedStateOfCandidate | Computed values should use `remember(keys)` or `derivedStateOf` when appropriate |
+| FrequentRecomposition | Prefer lifecycle-aware collection for hot observable state sources |
+| DeferStateReads | Defer fast-changing state reads to narrower scopes when possible |
 | HoistState | State should be hoisted to appropriate level |
 | MutableStateParameter | Don't pass MutableState as parameter, use value + callback |
 
@@ -150,17 +152,6 @@ fun ItemList(items: List<Item>) { }  // Warning: Use ImmutableList
 |------|-------------|
 | Material2Usage | Detects Material 2 imports, suggests migration to Material 3 |
 | UnstableCollections | Flags `List`, `Set`, `Map` parameters, suggests `ImmutableList`, etc. |
-
-### Experimental Rules (Opt-in)
-
-Enable in **Settings** → **Tools** → **ComposeGuard** → **Experimental Rules**
-
-| Rule | Description |
-|------|-------------|
-| LazyListMissingKey | LazyColumn/LazyRow items() should have a `key` parameter for efficient recomposition |
-| LazyListContentType | Heterogeneous LazyLists should use `contentType` for composition reuse |
-| DerivedStateOfCandidate | Computed values should use `remember(keys)` to avoid recalculation |
-| FrequentRecomposition | Suggests `collectAsStateWithLifecycle` instead of `collectAsState` |
 
 ## Statistics Dashboard
 
@@ -223,7 +214,7 @@ Toggle individual rules or entire categories on/off based on your project's need
 
 | ComposeGuard | IDE Version |
 |--------------|-------------|
-| 1.0.6 | 2024.2 - 2025.3 |
+| 1.2.0 | 2024.2 - 2026.2 |
 
 ## Contributing
 

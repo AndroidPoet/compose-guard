@@ -29,6 +29,14 @@ public class MoveModifierToRootFix(
   private val modifierName: String,
 ) : LocalQuickFix, HighPriorityAction {
 
+  private val contentEmitters = setOf(
+    "Box", "Column", "Row", "Surface", "Card", "Scaffold",
+    "LazyColumn", "LazyRow", "LazyVerticalGrid", "LazyHorizontalGrid",
+    "ConstraintLayout", "FlowRow", "FlowColumn", "BoxWithConstraints",
+    "AlertDialog", "Dialog", "ModalBottomSheet", "BottomSheet",
+    "NavigationRail", "NavigationBar", "TopAppBar", "BottomAppBar",
+  )
+
   override fun getFamilyName(): String = "Move modifier to root"
 
   override fun getName(): String = "Move '$modifierName' to root layout"
@@ -60,7 +68,7 @@ public class MoveModifierToRootFix(
         val parentCall = parent.parent as? KtCallExpression ?: continue
         val callName = parentCall.calleeExpression?.text ?: continue
 
-        if (callName.first().isUpperCase()) {
+        if (callName in contentEmitters) {
           return parentCall
         }
       }

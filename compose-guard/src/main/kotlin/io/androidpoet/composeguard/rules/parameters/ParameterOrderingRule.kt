@@ -22,7 +22,6 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
-import io.androidpoet.composeguard.rules.hasDefaultValue
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 

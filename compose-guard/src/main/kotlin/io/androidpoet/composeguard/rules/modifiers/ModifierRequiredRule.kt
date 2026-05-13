@@ -22,6 +22,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.emitsComposableContent
 import io.androidpoet.composeguard.rules.hasModifierParameter
 import io.androidpoet.composeguard.rules.isPreview
 import io.androidpoet.composeguard.rules.isPublic
@@ -61,6 +62,10 @@ public class ModifierRequiredRule : ComposableFunctionRule() {
     context: AnalysisContext,
   ): List<ComposeRuleViolation> {
     if (function.hasModifierParameter()) {
+      return emptyList()
+    }
+
+    if (!function.emitsComposableContent()) {
       return emptyList()
     }
 

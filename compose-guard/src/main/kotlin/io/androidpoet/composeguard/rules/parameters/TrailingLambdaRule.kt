@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 public class TrailingLambdaRule : ComposableFunctionRule() {
   override val id: String = "TrailingLambda"
   override val name: String = "Trailing Lambda Rules"
-  override val description: String = "Content slots should be trailing lambdas; event handlers (onClick) should not."
+  override val description: String = "Content slots should be trailing lambdas; event handlers (onX) should not."
   override val category: RuleCategory = RuleCategory.PARAMETER
   override val severity: RuleSeverity = RuleSeverity.WEAK_WARNING
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#slots-for-main-content-should-be-the-trailing-lambda"
@@ -39,8 +39,7 @@ public class TrailingLambdaRule : ComposableFunctionRule() {
     val violations = mutableListOf<ComposeRuleViolation>()
     val lastParam = params.last()
 
-    val eventHandlerNames = setOf("onClick", "onValueChange", "onChange", "onDismiss", "onConfirm")
-    if (lastParam.name in eventHandlerNames && params.any { it.isComposableLambda() }) {
+    if (lastParam.name?.let(::isEventLambdaName) == true && params.any { it.isComposableLambda() }) {
       violations.add(
         createViolation(
           element = lastParam.nameIdentifier ?: lastParam,
@@ -72,5 +71,11 @@ public class TrailingLambdaRule : ComposableFunctionRule() {
     }
 
     return violations
+  }
+
+  internal fun isEventLambdaName(name: String): Boolean {
+    return name.length > 2 &&
+      name.startsWith("on") &&
+      name[2].isUpperCase()
   }
 }

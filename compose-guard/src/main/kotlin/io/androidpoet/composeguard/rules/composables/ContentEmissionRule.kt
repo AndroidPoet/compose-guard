@@ -21,6 +21,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.emitsComposableContent
 import io.androidpoet.composeguard.rules.returnsUnit
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -32,16 +33,10 @@ public class ContentEmissionRule : ComposableFunctionRule() {
   override val severity: RuleSeverity = RuleSeverity.WARNING
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#do-not-emit-content-and-return-a-result"
 
-  private val layoutComposables = setOf(
-    "Box", "Column", "Row", "LazyColumn", "LazyRow", "Card", "Surface", "Scaffold",
-    "ConstraintLayout", "FlowRow", "FlowColumn", "LazyVerticalGrid", "LazyHorizontalGrid",
-  )
-
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
     if (function.returnsUnit()) return emptyList()
 
-    val bodyText = function.bodyExpression?.text ?: function.bodyBlockExpression?.text ?: return emptyList()
-    val emitsContent = layoutComposables.any { bodyText.contains(it) }
+    val emitsContent = function.emitsComposableContent()
 
     if (emitsContent) {
       val returnType = function.typeReference?.text ?: "non-Unit"

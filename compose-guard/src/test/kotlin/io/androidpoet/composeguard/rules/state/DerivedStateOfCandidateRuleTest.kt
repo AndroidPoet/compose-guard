@@ -100,6 +100,21 @@ class DerivedStateOfCandidateRuleTest {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
+  @Test
+  fun test_isEventCallbackName_returnsTrueForOnRemove() {
+    assertTrue(rule.isEventCallbackName("onRemove"))
+  }
+
+  @Test
+  fun test_isEventCallbackName_returnsTrueForCustomOnCallback() {
+    assertTrue(rule.isEventCallbackName("onPhotoRemoved"))
+  }
+
+  @Test
+  fun test_isEventCallbackName_returnsFalseForContent() {
+    assertTrue(!rule.isEventCallbackName("content"))
+  }
+
 
   @Test
   fun reason_scrollPerformance() {

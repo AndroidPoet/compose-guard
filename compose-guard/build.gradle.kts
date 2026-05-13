@@ -62,7 +62,7 @@ intellijPlatform {
             <br/><br/>
             <b>Features:</b>
             <ul>
-                <li>35 Compose Rules: Naming, modifiers, state, parameters, effects, and 4 experimental rules</li>
+                <li>36 Compose Rules: Naming, modifiers, state, parameters, composables, and stricter checks</li>
                 <li>Real-time Highlighting: See violations as you type</li>
                 <li>Gutter Icons: Visual indicators for composable rule status</li>
                 <li>Inline Hints: Parameter-level rule violation hints</li>
@@ -74,16 +74,14 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
-            <b>1.1.0</b>
+            <b>1.2.0</b>
             <ul>
-                <li><b>5 New Performance Rules</b>: Advanced static analysis for recomposition issues</li>
-                <li><b>UnstableLambdaCaptureRule</b>: Detects lambdas capturing var declarations</li>
-                <li><b>ObjectCreationInCompositionRule</b>: Detects object instantiation without remember {}</li>
-                <li><b>WideRecompositionScopeRule</b>: Detects state reads at top of large composables</li>
-                <li><b>DeferStateReadsRule</b>: Suggests lambda-based modifiers for animations</li>
-                <li><b>FrequentRecompositionRule</b>: Suggests lifecycle-aware state collection</li>
-                <li><b>New Quick Fixes</b>: Wrap in Column/Row/Box, UseGraphicsLayerFix, AddStableAnnotationFix</li>
-                <li>Total rules increased from 36 to 39</li>
+                <li><b>False Positive Fixes</b>: DerivedStateOfCandidate now ignores expensive computations inside named event callbacks such as onClick/onRemove</li>
+                <li><b>Modifier Root Fix</b>: ModifierTopMost and its quick fix no longer treat CompositionLocalProvider as a root layout</li>
+                <li><b>Trailing Lambda Fix</b>: Event lambda detection now works for custom callbacks following the onX naming pattern</li>
+                <li><b>Rule Accuracy Improvements</b>: ModifierRequired and ContentEmission now use PSI-based content emission detection</li>
+                <li><b>Multiple Content Detection</b>: Custom top-level composables with trailing lambdas are now counted correctly</li>
+                <li><b>Release Cleanup</b>: Updated rule counts, changelog metadata, and build configuration warnings</li>
             </ul>
             <b>1.0.9</b>
             <ul>
@@ -185,16 +183,16 @@ intellijPlatform {
 
 tasks {
   withType<JavaCompile> {
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
   }
 
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
-      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
       freeCompilerArgs.addAll(
         listOf(
-          "-Xcontext-receivers",
+          "-Xcontext-parameters",
           "-opt-in=org.jetbrains.kotlin.analysis.api.KaExperimentalApi",
           "-opt-in=org.jetbrains.kotlin.analysis.api.KaImplementationDetail",
         ),
@@ -205,6 +203,6 @@ tasks {
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+  sourceCompatibility = JavaVersion.VERSION_21
+  targetCompatibility = JavaVersion.VERSION_21
 }

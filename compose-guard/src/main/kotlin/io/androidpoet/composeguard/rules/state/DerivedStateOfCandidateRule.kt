@@ -27,8 +27,10 @@ import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
+import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtValueArgument
 
 public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
 
@@ -90,6 +92,28 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
     "joinToString",
   )
 
+  private val eventCallbackNames = setOf(
+    "onClick",
+    "onLongClick",
+    "onCheckedChange",
+    "onValueChange",
+    "onSelectedChange",
+    "onDismiss",
+    "onDismissRequest",
+    "onRemove",
+    "onDelete",
+    "onAdd",
+    "onEdit",
+    "onSave",
+    "onCancel",
+    "onSubmit",
+    "onConfirm",
+    "onRetry",
+    "onRefresh",
+    "onNavigate",
+    "onBack",
+  )
+
   override fun doAnalyze(
     function: KtNamedFunction,
     context: AnalysisContext,
@@ -100,6 +124,7 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
     val properties = PsiTreeUtil.findChildrenOfType(body, KtProperty::class.java)
 
     for (property in properties) {
+      if (isInsideEventCallbackLambda(property, function)) continue
       if (isAlreadyOptimized(property)) continue
 
       val initializer = property.initializer ?: continue
@@ -143,6 +168,35 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
     }
 
     return violations
+  }
+
+  private fun isInsideEventCallbackLambda(property: KtProperty, function: KtNamedFunction): Boolean {
+    var parent = property.parent
+
+    while (parent != null && parent != function) {
+      if (parent is KtFunctionLiteral) {
+        val valueArgument = PsiTreeUtil.getParentOfType(parent, KtValueArgument::class.java)
+        val argumentName = valueArgument?.getArgumentName()?.asName?.asString()
+
+        if (argumentName != null && isEventCallbackName(argumentName)) {
+          return true
+        }
+      }
+
+      parent = parent.parent
+    }
+
+    return false
+  }
+
+  internal fun isEventCallbackName(name: String): Boolean {
+    if (name in eventCallbackNames) {
+      return true
+    }
+
+    return name.length > 2 &&
+      name.startsWith("on") &&
+      name[2].isUpperCase()
   }
 
   private fun isScrollStateThresholdPattern(element: com.intellij.psi.PsiElement): Boolean {

@@ -94,6 +94,16 @@ class ModifierTopMostRuleTest {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
+  @Test
+  fun test_isContentEmitterName_returnsTrueForLayout() {
+    assertTrue(rule.isContentEmitterName("Column"))
+  }
+
+  @Test
+  fun test_isContentEmitterName_returnsFalseForCompositionLocalProvider() {
+    assertTrue(!rule.isContentEmitterName("CompositionLocalProvider"))
+  }
+
 
   @Test
   fun reason_parentControlAndReusability() {
