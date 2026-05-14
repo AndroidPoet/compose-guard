@@ -61,13 +61,4 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Validate plugin project configuration
-        run: ./gradlew --stacktrace compose-guard:verifyPluginProjectConfiguration
-
-      - name: Build plugin
-        run: ./gradlew --stacktrace compose-guard:buildPlugin
-
-      - name: Run plugin tests
-        run: ./gradlew --stacktrace compose-guard:test
-
-      - name: Validate plugin archive structure
-        run: ./gradlew --stacktrace compose-guard:verifyPluginStructure
+        run: ./gradlew --stacktrace compose-guard:check

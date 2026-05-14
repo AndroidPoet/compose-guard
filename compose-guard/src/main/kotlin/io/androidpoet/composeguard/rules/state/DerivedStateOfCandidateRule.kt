@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
+import org.jetbrains.kotlin.psi.KtLambdaArgument
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtValueArgument
@@ -175,9 +176,7 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
 
     while (parent != null && parent != function) {
       if (parent is KtFunctionLiteral) {
-        val valueArgument = PsiTreeUtil.getParentOfType(parent, KtValueArgument::class.java)
-        val argumentName = valueArgument?.getArgumentName()?.asName?.asString()
-
+        val argumentName = getEnclosingLambdaArgumentName(parent)
         if (argumentName != null && isEventCallbackName(argumentName)) {
           return true
         }
@@ -187,6 +186,24 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
     }
 
     return false
+  }
+
+  private fun getEnclosingLambdaArgumentName(functionLiteral: KtFunctionLiteral): String? {
+    val valueArgument = PsiTreeUtil.getParentOfType(functionLiteral, KtValueArgument::class.java)
+    val namedArgument = valueArgument?.getArgumentName()?.asName?.asString()
+    if (namedArgument != null) {
+      return namedArgument
+    }
+
+    val lambdaArgument = PsiTreeUtil.getParentOfType(functionLiteral, KtLambdaArgument::class.java)
+    val callExpression = lambdaArgument?.parent as? KtCallExpression ?: return null
+    val namedLambdaArgument = callExpression.valueArguments
+      .lastOrNull()
+      ?.getArgumentName()
+      ?.asName
+      ?.asString()
+
+    return namedLambdaArgument
   }
 
   internal fun isEventCallbackName(name: String): Boolean {

@@ -182,6 +182,11 @@ intellijPlatform {
 }
 
 tasks {
+  named("check") {
+    dependsOn("verifyPluginProjectConfiguration")
+    dependsOn("verifyPluginStructure")
+  }
+
   withType<JavaCompile> {
     sourceCompatibility = "21"
     targetCompatibility = "21"
