@@ -2,6 +2,13 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
+## [1.2.1] - 2026-05-15
+
+### Fixed
+- **DerivedStateOfCandidate Event Handler False Positive** - Computed values inside event callbacks such as `onClick` and `onRemove` are no longer reported as recomposition-time `remember` candidates.
+
+---
+
 ## [1.2.0] - 2026-05-13
 
 ### Fixed
