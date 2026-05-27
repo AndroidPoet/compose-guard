@@ -132,7 +132,7 @@ public class ComposeGuardInspection : LocalInspectionTool() {
 
   override fun getGroupDisplayName(): String = "Compose"
 
-  override fun getShortName(): String = "ComposeRules"
+  override fun getShortName(): String = "ComposeGuard"
 
   override fun isEnabledByDefault(): Boolean = true
 }
