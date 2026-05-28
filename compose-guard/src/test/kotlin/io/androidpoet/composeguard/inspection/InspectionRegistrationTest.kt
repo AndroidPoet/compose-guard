@@ -16,6 +16,7 @@
 package io.androidpoet.composeguard.inspection
 
 import org.xml.sax.InputSource
+import org.w3c.dom.Node
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,17 +24,37 @@ import kotlin.test.assertEquals
 class InspectionRegistrationTest {
 
   @Test
+  fun composeGuardInspectionIsRegisteredInPluginXml() {
+    val xmlInspectionNode = composeGuardInspectionNode()
+    assertEquals(ComposeGuardInspection::class.java.name, xmlInspectionNode.attribute("implementationClass"))
+  }
+
+  @Test
   fun shortNameInPluginXmlMatchesInspectionClass() {
-    val implClass = ComposeGuardInspection::class.java.name
-    val stream = javaClass.classLoader.getResourceAsStream("META-INF/plugin.xml")!!
-    val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(InputSource(stream))
-    val nodes = doc.getElementsByTagName("localInspection")
-
-    val xmlShortName = (0 until nodes.length)
-      .map { nodes.item(it) }
-      .first { it.attributes.getNamedItem("implementationClass")?.nodeValue == implClass }
-      .attributes.getNamedItem("shortName").nodeValue
-
+    val xmlShortName = composeGuardInspectionNode().attribute("shortName")
     assertEquals(xmlShortName, ComposeGuardInspection().shortName)
   }
+
+  @Test
+  fun shortNameRemainsComposeGuard() {
+    val xmlShortName = composeGuardInspectionNode().attribute("shortName")
+    assertEquals("ComposeGuard", xmlShortName)
+    assertEquals("ComposeGuard", ComposeGuardInspection().shortName)
+  }
+
+  private fun composeGuardInspectionNode(): Node {
+    val implClass = ComposeGuardInspection::class.java.name
+    val stream = javaClass.classLoader.getResourceAsStream("META-INF/plugin.xml")!!
+    val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(InputSource(stream))
+    val nodes = document.getElementsByTagName("localInspection")
+    return (0 until nodes.length)
+      .map { nodes.item(it) }
+      .firstOrNull { it.attribute("implementationClass") == implClass }
+      ?: error("Missing localInspection entry for $implClass in META-INF/plugin.xml")
+  }
+}
+
+private fun Node.attribute(name: String): String {
+  return attributes.getNamedItem(name)?.nodeValue
+    ?: error("Missing attribute '$name' on localInspection node")
 }

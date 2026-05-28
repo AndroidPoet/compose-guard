@@ -214,7 +214,7 @@ Toggle individual rules or entire categories on/off based on your project's need
 
 | ComposeGuard | IDE Version |
 |--------------|-------------|
-| 1.2.0 | 2024.2 - 2026.2 |
+| 1.2.2 | 2024.2 - 2026.2 |
 
 ## Contributing
 

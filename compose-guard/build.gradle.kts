@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.2.1"
+version = "1.2.2"
 
 repositories {
   mavenCentral()
@@ -74,6 +74,11 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.2.2</b>
+            <ul>
+                <li><b>Inspection Registration Fix</b>: Corrected ComposeGuard inspection registration mismatch by aligning the inspection shortName with plugin.xml metadata</li>
+                <li><b>Regression Coverage</b>: Added inspection registration tests to prevent future shortName and metadata drift</li>
+            </ul>
             <b>1.2.1</b>
             <ul>
                 <li><b>False Positive Fix</b>: DerivedStateOfCandidate now ignores collection copies and other computed values inside event handlers such as onClick/onRemove, where the work runs only when the event fires rather than on every recomposition</li>
