@@ -26,10 +26,14 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isPreview
 import io.androidpoet.composeguard.rules.isPrivate
+import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtUnaryExpression
+import org.jetbrains.kotlin.psi.KtValueArgumentName
 
 public class HoistStateRule : ComposableFunctionRule() {
 
@@ -237,7 +241,6 @@ public class HoistStateRule : ComposableFunctionRule() {
     body: PsiElement,
     stateName: String,
   ): StateUsagePattern {
-    val bodyText = body.text
     val blockBody = body as? KtBlockExpression
 
     val allCalls = PsiTreeUtil.findChildrenOfType(body, KtCallExpression::class.java)
@@ -248,12 +251,12 @@ public class HoistStateRule : ComposableFunctionRule() {
       emptyList()
     }
 
+    // Count a child as using the state only when it actually READS the state identifier.
+    // Previously this was a raw substring match, which false-positived on parameter names
+    // (`Slider(value = 0f)` for a state named `value`) and on longer identifiers
+    // (`AccountBadge()` for a state named `count`).
     val childrenUsingState = directChildCalls.count { call ->
-      val callText = call.text
-      callText.contains(stateName) ||
-        callText.contains("$stateName.") ||
-        callText.contains("$stateName,") ||
-        callText.contains("= $stateName")
+      readsState(call, stateName)
     }
 
     if (childrenUsingState > 1) {
@@ -264,30 +267,46 @@ public class HoistStateRule : ComposableFunctionRule() {
       return StateUsagePattern.PASSED_TO_CHILDREN
     }
 
-    val hasCallback = allCalls.any { call ->
-      val callText = call.text
-      val hasOnCallback = callText.contains("on") && callText.contains("=")
-      val modifiesState = callText.contains("$stateName =") ||
-        callText.contains("$stateName++") ||
-        callText.contains("$stateName--") ||
-        callText.contains("$stateName +=") ||
-        callText.contains("$stateName -=")
-      hasOnCallback && modifiesState
-    }
-    if (hasCallback) {
+    // The state is modified only when there is a genuine assignment/increment to the state
+    // identifier — not merely text that looks like `state =` (which also matches a same-named
+    // parameter on an unrelated child).
+    val isModified = stateReferences(body, stateName).any { isAssignmentTarget(it) }
+    if (isModified) {
       return StateUsagePattern.MODIFIED_IN_CALLBACK
     }
 
     val effectNames = setOf("LaunchedEffect", "DisposableEffect", "SideEffect")
     val usedInEffect = allCalls.any { call ->
       val callName = call.calleeExpression?.text ?: return@any false
-      callName in effectNames && call.text.contains(stateName)
+      callName in effectNames && readsState(call, stateName)
     }
     if (usedInEffect) {
       return StateUsagePattern.USED_IN_EFFECT
     }
 
     return StateUsagePattern.INTERNAL_ONLY
+  }
+
+  /** All references to [stateName] within [element], excluding named-argument labels (`state = ...`). */
+  private fun stateReferences(element: PsiElement, stateName: String): List<KtNameReferenceExpression> =
+    PsiTreeUtil.findChildrenOfType(element, KtNameReferenceExpression::class.java)
+      .filter { it.getReferencedName() == stateName && it.parent !is KtValueArgumentName }
+
+  /** Whether [element]'s subtree reads the state identifier (any reference that is not an assignment target). */
+  private fun readsState(element: PsiElement, stateName: String): Boolean =
+    stateReferences(element, stateName).any { !isAssignmentTarget(it) }
+
+  /** Whether [ref] is the left-hand side of an assignment (`state = ...`, `state += ...`) or an in/decrement. */
+  private fun isAssignmentTarget(ref: KtNameReferenceExpression): Boolean {
+    val parent = ref.parent
+    if (parent is KtBinaryExpression && parent.left == ref) {
+      val op = parent.operationToken.toString()
+      return op in setOf("EQ", "PLUSEQ", "MINUSEQ", "MULTEQ", "DIVEQ", "PERCEQ")
+    }
+    if (parent is KtUnaryExpression) {
+      return true
+    }
+    return false
   }
 
   private fun findDirectChildComposableCalls(body: KtBlockExpression): List<KtCallExpression> {

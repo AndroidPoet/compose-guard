@@ -9,6 +9,7 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 - **LazyListContentType** - Nested lazy lists no longer contaminate each other's item counts. A `LazyColumn { items(...) { LazyRow { items(...) } } }` is no longer reported as heterogeneous because the inner `LazyRow`'s items are now attributed to the inner list, not the outer one.
 
 - **FrequentRecomposition** - Custom collectors whose names start with `collectAsState` (e.g. `collectAsStateList()`, `collectAsStateMap()`) are no longer flagged. The lifecycle-aware-collection suggestion now matches the `collectAsState` callee exactly instead of by substring.
+- **HoistState** - State-usage detection is now identifier-aware instead of substring-based. A local state named `value` is no longer flagged because a child has a `value =` parameter (`Slider(value = 0f)`), and a state named `count` is no longer flagged because child names contain it as a substring (`AccountBadge`). State genuinely read by, passed to, or reassigned for children is still reported.
 
 ### Fixed (Detection)
 - **LazyListMissingKey** - The rule was silently non-functional: the trailing content lambda was mistaken for a positional `key` argument, so `items(list) { ... }` never reported. Detection now inspects only the in-parentheses arguments, so keyless `items`/`itemsIndexed` are correctly flagged while named and positional `key` forms stay clean. Severity lowered from Warning to **Info** so the now-working rule surfaces as a gentle hint rather than a noisy warning on every list.
