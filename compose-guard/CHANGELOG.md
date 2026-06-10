@@ -2,6 +2,21 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
+## [1.2.4] - 2026-06-11
+
+### Fixed (False Positives — second pass)
+- **DeferStateReads** - Dropped the property-name substring heuristic that matched `x`/`y` inside ordinary identifiers (`text`, `index`, `expanded`, `progress`). Frequently-changing state is now detected only from animation/scroll/derived-state builder initializers, including delegated `by` properties.
+- **TypeSpecificState** - Removed the non-canonical collection-factory branch that flagged plain `mutableListOf<Int>()` and suggested the unrelated androidx `mutableIntListOf`. The rule now only covers `mutableStateOf` primitive variants.
+- **ModifierReuse** / **ContentSlotReused** - A modifier or content slot used once per mutually-exclusive `if`/`when` branch is no longer reported; only usages reachable on the same composition pass are treated as reuse.
+- **ModifierTopMost** - Modifiers applied to content nested inside scope-providing emitters (`Scaffold`, `BoxWithConstraints`) or any content slot that exposes a scope parameter are no longer flagged.
+- **AvoidComposed** - Only the real `Modifier.composed { ... }` factory (invoked with a lambda) is flagged, not unrelated `composed()` member calls.
+- **MovableContent** - Accepts the whole `remember` family (`rememberSaveable`, custom `rememberRetained`, …) instead of only the literal `remember`.
+
+### Tests
+- Added `*FalsePositiveTest` behavioral suites covering each of the above (768 tests total).
+
+---
+
 ## [1.2.3] - 2026-06-11
 
 ### Fixed (False Positives)

@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.2.3"
+version = "1.2.4"
 
 repositories {
   mavenCentral()
@@ -74,6 +74,17 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.2.4</b>
+            <ul>
+                <li><b>More False-Positive Fixes (second pass)</b>:</li>
+                <li><b>DeferStateReads</b>: no longer treats ordinary identifiers (text, index, expanded, progress) as animated state — only values produced by animation/scroll/derived-state builders (including delegated <code>by</code>) are considered frequently-changing.</li>
+                <li><b>TypeSpecificState</b>: removed the non-canonical collection-factory check that flagged plain <code>mutableListOf&lt;Int&gt;()</code>; only <code>mutableStateOf</code> primitive variants are suggested.</li>
+                <li><b>ModifierReuse &amp; ContentSlotReused</b>: a modifier or content slot used once per mutually-exclusive <code>if</code>/<code>when</code> branch is no longer reported as reuse — only usages reachable on the same composition pass count.</li>
+                <li><b>ModifierTopMost</b>: modifiers on content nested inside scope-providing emitters (Scaffold, BoxWithConstraints) or slots that expose a scope parameter are no longer flagged.</li>
+                <li><b>AvoidComposed</b>: only the real <code>Modifier.composed { }</code> factory is flagged, not unrelated <code>composed()</code> calls.</li>
+                <li><b>MovableContent</b>: accepts the whole remember family (rememberSaveable, custom remember wrappers) instead of only the literal <code>remember</code>.</li>
+                <li><b>Tests</b>: added behavioral regression suites for every fix above.</li>
+            </ul>
             <b>1.2.3</b>
             <ul>
                 <li><b>Major False-Positive Reduction</b>: Audited every rule against the official Compose Rules to stop flagging valid code.</li>
