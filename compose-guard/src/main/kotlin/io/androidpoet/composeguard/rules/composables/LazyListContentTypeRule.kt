@@ -84,6 +84,10 @@ public class LazyListContentTypeRule : ComposableFunctionRule() {
 
         val itemCalls = PsiTreeUtil.findChildrenOfType(lambdaBody, KtCallExpression::class.java)
           .filter { it.calleeExpression?.text in lazyItemFunctions }
+          // Only count items that belong to THIS lazy list. A nested LazyRow/LazyColumn
+          // owns its own item()/items() calls, so attributing them to the outer list
+          // produces a false "heterogeneous items" report.
+          .filter { nearestEnclosingLazyList(it) === callExpression }
 
         if (itemCalls.size >= 2) {
           val hasMultipleTypes = hasMultipleItemTypes(itemCalls)
@@ -151,6 +155,22 @@ public class LazyListContentTypeRule : ComposableFunctionRule() {
     }
 
     return violations
+  }
+
+  /**
+   * Returns the innermost lazy-list call expression that encloses [itemCall], or null if none.
+   * Used to attribute an item()/items() call to the specific lazy list it belongs to so that
+   * nested lazy lists do not contaminate each other's item counts.
+   */
+  private fun nearestEnclosingLazyList(itemCall: KtCallExpression): KtCallExpression? {
+    var parent = itemCall.parent
+    while (parent != null) {
+      if (parent is KtCallExpression && parent.calleeExpression?.text in lazyListFunctions) {
+        return parent
+      }
+      parent = parent.parent
+    }
+    return null
   }
 
   private fun hasContentTypeParameter(callExpression: KtCallExpression): Boolean {
