@@ -42,9 +42,11 @@ public class ModifierOrderRule : ComposableFunctionRule() {
     "combinedClickable",
   )
 
+  // Only modifiers that genuinely shrink the tappable area belong here.
+  // `offset` translates the element without reducing its touch target, so it is
+  // intentionally excluded to avoid false positives on `offset(...).clickable { }`.
   private val boundReducingModifiers = setOf(
     "padding",
-    "offset",
   )
 
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {

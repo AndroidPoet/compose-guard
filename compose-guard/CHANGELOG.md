@@ -2,6 +2,13 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
+## [Unreleased]
+
+### Fixed (False Positives)
+- **ModifierOrder** - `offset` is no longer treated as a touch-target-reducing modifier. `Modifier.offset(...).clickable { }` translates the element without shrinking its tappable area, so it is no longer reported; only `padding` before an interaction modifier is flagged.
+
+---
+
 ## [1.2.4] - 2026-06-11
 
 ### Fixed (False Positives — second pass)
