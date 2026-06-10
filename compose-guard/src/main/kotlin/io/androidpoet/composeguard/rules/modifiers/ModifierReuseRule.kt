@@ -22,6 +22,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.anyCoOccurringPair
 import io.androidpoet.composeguard.rules.getModifierParameter
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -91,7 +92,9 @@ public class ModifierReuseRule : ComposableFunctionRule() {
         }
     }
 
-    if (modifierUsages.size > 1) {
+    // Only a genuine reuse if at least two usages can run on the same pass. Usages in different
+    // branches of the same if/when are mutually exclusive and must not be counted as reuse.
+    if (modifierUsages.size > 1 && anyCoOccurringPair(modifierUsages)) {
       return listOf(
         createViolation(
           element = modifierParam.nameIdentifier ?: modifierParam,

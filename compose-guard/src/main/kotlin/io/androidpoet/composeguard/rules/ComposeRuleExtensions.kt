@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtContainerNodeForControlStructureBody
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLambdaArgument
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
@@ -33,6 +34,7 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtQualifiedExpression
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.psi.KtWhenEntry
+import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.psi.psiUtil.parents
 
 private const val COMPOSABLE_ANNOTATION = "Composable"
@@ -215,6 +217,57 @@ internal fun KtAnnotationEntry.matchesName(vararg names: String): Boolean {
 
 internal fun PsiElement.getParentFunction(): KtNamedFunction? {
   return PsiTreeUtil.getParentOfType(this, KtNamedFunction::class.java)
+}
+
+/**
+ * Maps each enclosing `if`/`when` to the specific branch this element lives in. Two elements that
+ * share a conditional but map to different branches can never execute on the same composition pass.
+ */
+private fun PsiElement.conditionalBranches(): Map<PsiElement, PsiElement> {
+  val branches = mutableMapOf<PsiElement, PsiElement>()
+  var parent: PsiElement? = this.parent
+  while (parent != null) {
+    when (parent) {
+      is KtIfExpression -> {
+        val thenBranch = parent.then
+        val elseBranch = parent.`else`
+        when {
+          thenBranch != null && PsiTreeUtil.isAncestor(thenBranch, this, false) ->
+            branches[parent] = thenBranch
+          elseBranch != null && PsiTreeUtil.isAncestor(elseBranch, this, false) ->
+            branches[parent] = elseBranch
+        }
+      }
+      is KtWhenExpression -> {
+        parent.entries.firstOrNull { PsiTreeUtil.isAncestor(it, this, false) }
+          ?.let { branches[parent] = it }
+      }
+    }
+    parent = parent.parent
+  }
+  return branches
+}
+
+/** True when [a] and [b] sit in different branches of a shared `if`/`when`, so only one ever runs. */
+internal fun arePsiMutuallyExclusive(a: PsiElement, b: PsiElement): Boolean {
+  val aBranches = a.conditionalBranches()
+  if (aBranches.isEmpty()) return false
+  val bBranches = b.conditionalBranches()
+  for ((conditional, aBranch) in aBranches) {
+    val bBranch = bBranches[conditional] ?: continue
+    if (aBranch != bBranch) return true
+  }
+  return false
+}
+
+/** True when at least two of [elements] can execute on the same pass (i.e. a genuine reuse). */
+internal fun anyCoOccurringPair(elements: List<PsiElement>): Boolean {
+  for (i in elements.indices) {
+    for (j in i + 1 until elements.size) {
+      if (!arePsiMutuallyExclusive(elements[i], elements[j])) return true
+    }
+  }
+  return false
 }
 
 private val inherentlyMutableHeadTypes = setOf(

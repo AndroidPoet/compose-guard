@@ -22,6 +22,8 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.anyCoOccurringPair
+import io.androidpoet.composeguard.rules.arePsiMutuallyExclusive
 import io.androidpoet.composeguard.rules.isComposableLambda
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
@@ -84,8 +86,15 @@ public class ContentSlotReusedRule : ComposableFunctionRule() {
     }
 
     for ((slotName, invocations) in invocationCounts) {
-      if (invocations.size > 1) {
-        for (i in 1 until invocations.size) {
+      if (invocations.size <= 1) continue
+      // Invoking a slot once per branch of an if/when is the correct single-use pattern; only a
+      // reuse reachable on the same pass should be reported.
+      if (!anyCoOccurringPair(invocations)) continue
+
+      for (i in 1 until invocations.size) {
+        val current = invocations[i]
+        val coOccursWithEarlier = (0 until i).any { !arePsiMutuallyExclusive(invocations[it], current) }
+        if (coOccursWithEarlier) {
           violations.add(
             createViolation(
               element = invocations[i],
