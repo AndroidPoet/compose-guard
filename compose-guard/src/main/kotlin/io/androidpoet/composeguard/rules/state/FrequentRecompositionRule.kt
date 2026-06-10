@@ -47,12 +47,6 @@ public class FrequentRecompositionRule : ComposableFunctionRule() {
   override val documentationUrl: String =
     "https://developer.android.com/develop/ui/compose/performance/bestpractices"
 
-  private val collectionPatterns = setOf(
-    "collectAsState",
-    "collectAsStateWithLifecycle",
-    "observeAsState",
-  )
-
   override fun doAnalyze(
     function: KtNamedFunction,
     context: AnalysisContext,
@@ -72,39 +66,35 @@ public class FrequentRecompositionRule : ComposableFunctionRule() {
     val dotExpressions = PsiTreeUtil.findChildrenOfType(body, KtDotQualifiedExpression::class.java)
 
     for (dotExpr in dotExpressions) {
-      val text = dotExpr.text
+      val callExpr = dotExpr.selectorExpression as? KtCallExpression ?: continue
+      // Match the callee name EXACTLY. A substring check on the chain text would also flag
+      // custom collectors such as `collectAsStateList()` / `collectAsStateMap()`, which are
+      // unrelated to the lifecycle-aware collection advice.
+      if (callExpr.calleeExpression?.text != "collectAsState") continue
 
-      for (pattern in collectionPatterns) {
-        if (text.contains(".$pattern")) {
-          if (pattern == "collectAsState" && !text.contains("collectAsStateWithLifecycle")) {
-            val callExpr = dotExpr.selectorExpression as? KtCallExpression ?: continue
+      violations.add(
+        createViolation(
+          element = callExpr,
+          message = "Consider using collectAsStateWithLifecycle for lifecycle awareness",
+          tooltip = """
+            collectAsState() continues collecting even when the app is in the
+            background, which can waste resources.
 
-            violations.add(
-              createViolation(
-                element = callExpr,
-                message = "Consider using collectAsStateWithLifecycle for lifecycle awareness",
-                tooltip = """
-                  collectAsState() continues collecting even when the app is in the
-                  background, which can waste resources.
+            Consider using collectAsStateWithLifecycle() from:
+            androidx.lifecycle.compose
 
-                  Consider using collectAsStateWithLifecycle() from:
-                  androidx.lifecycle.compose
+            This automatically stops collection when the lifecycle is below
+            a certain state (default: STARTED).
 
-                  This automatically stops collection when the lifecycle is below
-                  a certain state (default: STARTED).
+            Example:
+            val state by flow.collectAsStateWithLifecycle()
 
-                  Example:
-                  val state by flow.collectAsStateWithLifecycle()
-
-                  Add dependency:
-                  implementation("androidx.lifecycle:lifecycle-runtime-compose:x.x.x")
-                """.trimIndent(),
-                quickFixes = listOf(UseLifecycleAwareCollectorFix(), SuppressComposeRuleFix(id)),
-              ),
-            )
-          }
-        }
-      }
+            Add dependency:
+            implementation("androidx.lifecycle:lifecycle-runtime-compose:x.x.x")
+          """.trimIndent(),
+          quickFixes = listOf(UseLifecycleAwareCollectorFix(), SuppressComposeRuleFix(id)),
+        ),
+      )
     }
   }
 }
