@@ -130,6 +130,12 @@ public class DerivedStateOfCandidateRule : ComposableFunctionRule() {
       if (isAlreadyOptimized(property)) continue
 
       val initializer = property.initializer ?: continue
+
+      // A lambda-valued property (e.g. `val onSave = { items.sortedBy { ... } }`) is a function,
+      // not a value computed at composition time. Any expensive operation inside it runs when the
+      // lambda is invoked, so it is not a remember/derivedStateOf candidate.
+      if (initializer is KtLambdaExpression) continue
+
       val propertyName = property.name ?: "value"
 
       if (isScrollStateThresholdPattern(initializer)) {
