@@ -39,7 +39,10 @@ public class LazyListMissingKeyRule : ComposableFunctionRule() {
 
   override val category: RuleCategory = RuleCategory.COMPOSABLE
 
-  override val severity: RuleSeverity = RuleSeverity.WARNING
+  // Advisory: keys are recommended by the Android docs but a keyless `items(list)` is
+  // valid and extremely common (static lists that never reorder). Reported as INFO so it
+  // surfaces as a gentle hint rather than a noisy warning on every list.
+  override val severity: RuleSeverity = RuleSeverity.INFO
 
   override val enabledByDefault: Boolean = true
 
@@ -141,18 +144,22 @@ public class LazyListMissingKeyRule : ComposableFunctionRule() {
   }
 
   private fun hasKeyParameter(callExpression: KtCallExpression): Boolean {
-    val valueArguments = callExpression.valueArguments
+    // Only inspect arguments inside the parentheses. `callExpression.valueArguments` also
+    // includes the trailing content lambda (a KtLambdaArgument); counting it as a positional
+    // `key` made `items(list) { ... }` look like it already had a key, so the rule never fired.
+    val parenArgs = callExpression.valueArgumentList?.arguments ?: emptyList()
 
-    for (arg in valueArguments) {
+    for (arg in parenArgs) {
       val argName = arg.getArgumentName()?.asName?.asString()
       if (argName == "key") {
         return true
       }
     }
 
-    if (valueArguments.size >= 2) {
-      val secondArg = valueArguments[1]
-      val secondArgName = secondArg.getArgumentName()?.asName?.asString()
+    // Positional key form: items(list, { it.id }) { ... } — the second in-paren argument,
+    // unnamed, is the key lambda. A named non-key second argument (e.g. contentType) is not.
+    if (parenArgs.size >= 2) {
+      val secondArgName = parenArgs[1].getArgumentName()?.asName?.asString()
       if (secondArgName == null || secondArgName == "key") {
         return true
       }

@@ -8,6 +8,9 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 - **ModifierOrder** - `offset` is no longer treated as a touch-target-reducing modifier. `Modifier.offset(...).clickable { }` translates the element without shrinking its tappable area, so it is no longer reported; only `padding` before an interaction modifier is flagged.
 - **LazyListContentType** - Nested lazy lists no longer contaminate each other's item counts. A `LazyColumn { items(...) { LazyRow { items(...) } } }` is no longer reported as heterogeneous because the inner `LazyRow`'s items are now attributed to the inner list, not the outer one.
 
+### Fixed (Detection)
+- **LazyListMissingKey** - The rule was silently non-functional: the trailing content lambda was mistaken for a positional `key` argument, so `items(list) { ... }` never reported. Detection now inspects only the in-parentheses arguments, so keyless `items`/`itemsIndexed` are correctly flagged while named and positional `key` forms stay clean. Severity lowered from Warning to **Info** so the now-working rule surfaces as a gentle hint rather than a noisy warning on every list.
+
 ---
 
 ## [1.2.4] - 2026-06-11

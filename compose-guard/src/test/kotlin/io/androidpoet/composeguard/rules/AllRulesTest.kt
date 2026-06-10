@@ -421,7 +421,7 @@ class AllRulesTest {
     assertEquals("LazyListMissingKey", rule.id)
     assertEquals("LazyList Missing Key Parameter", rule.name)
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
-    assertEquals(RuleSeverity.WARNING, rule.severity)
+    assertEquals(RuleSeverity.INFO, rule.severity)
     assertTrue(rule.description.isNotBlank())
     assertNotNull(rule.documentationUrl)
   }

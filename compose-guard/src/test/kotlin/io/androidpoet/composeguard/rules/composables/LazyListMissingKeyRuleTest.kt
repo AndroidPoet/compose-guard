@@ -43,7 +43,7 @@ class LazyListMissingKeyRuleTest {
 
   @Test
   fun metadata_severity() {
-    assertEquals(RuleSeverity.WARNING, rule.severity)
+    assertEquals(RuleSeverity.INFO, rule.severity)
   }
 
   @Test

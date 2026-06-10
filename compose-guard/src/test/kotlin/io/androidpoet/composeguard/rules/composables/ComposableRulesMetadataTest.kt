@@ -176,7 +176,7 @@ class ComposableRulesMetadataTest {
     assertEquals("LazyList Missing Key Parameter", rule.name)
     assertTrue(rule.description.isNotBlank())
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
-    assertEquals(RuleSeverity.WARNING, rule.severity)
+    assertEquals(RuleSeverity.INFO, rule.severity)
     assertTrue(rule.enabledByDefault)
     assertNotNull(rule.documentationUrl)
   }
