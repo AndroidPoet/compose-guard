@@ -51,35 +51,6 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
     "Double" to "mutableDoubleStateOf",
   )
 
-  private val collectionVariants = mapOf(
-    "IntList" to "mutableIntListOf",
-    "LongList" to "mutableLongListOf",
-    "FloatList" to "mutableFloatListOf",
-    "DoubleList" to "mutableDoubleListOf",
-    "IntSet" to "mutableIntSetOf",
-    "LongSet" to "mutableLongSetOf",
-    "FloatSet" to "mutableFloatSetOf",
-    "DoubleSet" to "mutableDoubleSetOf",
-    "IntIntMap" to "mutableIntIntMapOf",
-    "IntLongMap" to "mutableIntLongMapOf",
-    "IntFloatMap" to "mutableIntFloatMapOf",
-    "IntDoubleMap" to "mutableIntDoubleMapOf",
-    "LongIntMap" to "mutableLongIntMapOf",
-    "LongLongMap" to "mutableLongLongMapOf",
-    "LongFloatMap" to "mutableLongFloatMapOf",
-    "LongDoubleMap" to "mutableLongDoubleMapOf",
-    "FloatIntMap" to "mutableFloatIntMapOf",
-    "FloatLongMap" to "mutableFloatLongMapOf",
-    "FloatFloatMap" to "mutableFloatFloatMapOf",
-    "FloatDoubleMap" to "mutableFloatDoubleMapOf",
-    "IntObjectMap" to "mutableIntObjectMapOf",
-    "LongObjectMap" to "mutableLongObjectMapOf",
-    "FloatObjectMap" to "mutableFloatObjectMapOf",
-    "ObjectIntMap" to "mutableObjectIntMapOf",
-    "ObjectLongMap" to "mutableObjectLongMapOf",
-    "ObjectFloatMap" to "mutableObjectFloatMapOf",
-  )
-
   override fun doAnalyze(
     function: KtNamedFunction,
     context: AnalysisContext,
@@ -91,11 +62,6 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
 
     for (call in callExpressions) {
       val calleeName = call.calleeExpression?.text ?: continue
-
-      if (calleeName in setOf("mutableListOf", "mutableSetOf", "mutableMapOf")) {
-        checkCollectionFactory(call, calleeName, violations)
-        continue
-      }
 
       if (calleeName == "mutableStateOf") {
         val typeArgumentList = call.typeArgumentList
@@ -165,69 +131,6 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
       argText.matches(Regex("""-?\d+\.\d+""")) -> "Double"
       argText.matches(Regex("""-?\d+""")) -> "Int"
       else -> null
-    }
-  }
-
-  private fun checkCollectionFactory(
-    call: KtCallExpression,
-    calleeName: String,
-    violations: MutableList<ComposeRuleViolation>,
-  ) {
-    val typeArgumentList = call.typeArgumentList ?: return
-    val typeArgs = typeArgumentList.arguments.map { it.text }
-
-    val suggestion = when (calleeName) {
-      "mutableListOf" -> {
-        when (typeArgs.firstOrNull()) {
-          "Int" -> "mutableIntListOf"
-          "Long" -> "mutableLongListOf"
-          "Float" -> "mutableFloatListOf"
-          "Double" -> "mutableDoubleListOf"
-          else -> null
-        }
-      }
-      "mutableSetOf" -> {
-        when (typeArgs.firstOrNull()) {
-          "Int" -> "mutableIntSetOf"
-          "Long" -> "mutableLongSetOf"
-          "Float" -> "mutableFloatSetOf"
-          "Double" -> "mutableDoubleSetOf"
-          else -> null
-        }
-      }
-      "mutableMapOf" -> {
-        if (typeArgs.size == 2) {
-          val keyType = typeArgs[0]
-          val valueType = typeArgs[1]
-          collectionVariants["${keyType}${valueType}Map"]
-        } else {
-          null
-        }
-      }
-      else -> null
-    }
-
-    if (suggestion != null) {
-      val typeArgsStr = typeArgs.joinToString(", ")
-      violations.add(
-        createViolation(
-          element = call,
-          message = "Consider using '$suggestion' instead of '$calleeName<$typeArgsStr>'",
-          tooltip = """
-            For primitive types, using type-specific collection factories avoids
-            autoboxing overhead and improves memory efficiency.
-
-            Change:
-              $calleeName<$typeArgsStr>()
-
-            To:
-              $suggestion()
-
-            These primitive collections are from androidx.collection library.
-          """.trimIndent(),
-          quickFixes = listOf(SuppressComposeRuleFix(id)),
-        ),
-      )
     }
   }
 }

@@ -96,11 +96,6 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
     "derivedStateOf",
   )
 
-  private val animatedPropertyPatterns = setOf(
-    "offset", "scroll", "position", "alpha", "scale", "rotation", "angle",
-    "progress", "fraction", "animated", "transition", "x", "y", "dx", "dy",
-  )
-
   override fun doAnalyze(
     function: KtNamedFunction,
     context: AnalysisContext,
@@ -125,17 +120,19 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
     val properties = PsiTreeUtil.findChildrenOfType(body, KtProperty::class.java)
     for (property in properties) {
       val name = property.name ?: continue
-      val initializerText = property.initializer?.text ?: ""
+      // Animated state is most often introduced via delegation (`val x by animateFloatAsState(..)`),
+      // so consider the delegate expression as well as a plain initializer.
+      val initializerText = (property.initializer ?: property.delegateExpression)?.text ?: ""
 
+      // Only trust the initializer: a property is "frequently changing" when it is actually
+      // produced by an animation/scroll/derived-state builder. Matching on the property NAME with
+      // substrings like "x"/"y" flagged ordinary identifiers (text, index, expanded, maxWidth),
+      // which was the dominant false positive for this rule.
       val isAnimatedState = frequentlyChangingStatePatterns.any { pattern ->
         initializerText.contains(pattern, ignoreCase = true)
       }
 
-      val hasAnimatedName = animatedPropertyPatterns.any { pattern ->
-        name.contains(pattern, ignoreCase = true)
-      }
-
-      if (isAnimatedState || hasAnimatedName) {
+      if (isAnimatedState) {
         stateNames.add(name)
       }
     }
