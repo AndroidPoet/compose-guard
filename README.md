@@ -6,16 +6,16 @@
 
 <p align="center">
   <a href="https://plugins.jetbrains.com/plugin/29308-composeguard"><img alt="JetBrains Plugin" src="https://img.shields.io/jetbrains/plugin/v/29308-composeguard?label=JetBrains%20Marketplace"/></a>
+  <a href="https://plugins.jetbrains.com/plugin/29308-composeguard"><img alt="Downloads" src="https://img.shields.io/jetbrains/plugin/d/29308-composeguard?label=Downloads"/></a>
   <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
   <a href="https://github.com/androidpoet"><img alt="Profile" src="https://img.shields.io/badge/GitHub-androidpoet-blue"/></a>
-<a href="https://androidweekly.net/issues/issue-705">
-  <img alt="Android Weekly" src="https://androidweekly.net/issues/issue-705/badge"/>
-</a>
-
+  <a href="https://androidweekly.net/issues/issue-705"><img alt="Android Weekly" src="https://androidweekly.net/issues/issue-705/badge"/></a>
 </p>
 
 <p align="center">
-Real-time detection of Jetpack Compose best practices and rule violations directly in Android Studio.
+  <b>Catch Jetpack Compose mistakes as you type</b> — 36 best-practice rules from the
+  <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> guidelines, surfaced live in
+  Android Studio &amp; IntelliJ IDEA with inline highlights, gutter icons, and one-click fixes.
 </p>
 
 ---
@@ -26,209 +26,236 @@ Real-time detection of Jetpack Compose best practices and rule violations direct
   <img src="art/preview.png" alt="ComposeGuard Preview"/>
 </p>
 
-## Overview
+## Why ComposeGuard?
 
-**ComposeGuard** is an IntelliJ/Android Studio plugin that provides real-time detection of Compose best practices violations as you write code. It analyzes your composable functions and highlights issues based on the [Compose Rules](https://mrmans0n.github.io/compose-rules/) documentation.
+The [Compose Rules](https://mrmans0n.github.io/compose-rules/) catch the subtle mistakes that hurt
+Compose code — missing `Modifier` parameters, un-remembered state, unstable collections, reused
+modifiers, and dozens more. ComposeGuard brings those checks **into the editor**, so you fix them
+while the code is still fresh instead of discovering them in a build log or a code review.
 
-Instead of waiting for build-time lint checks or runtime issues, you get instant feedback right in your IDE with visual indicators, quick fixes, and detailed explanations.
+- ⚡ **Instant** — analysis runs as you type; no build, no Gradle task, no CI round-trip.
+- 🎯 **Accurate** — rules are PSI-based and tuned to avoid false positives on valid patterns
+  (overrides, scoped slots, mutually-exclusive branches, run-once effects, …).
+- 🛠 **Actionable** — most violations come with a quick fix (<kbd>Alt</kbd>+<kbd>Enter</kbd>) and a
+  detailed explanation of *why* it matters.
+- 🎚 **Configurable** — enable/disable any rule or whole category, or suppress per declaration.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Suppressing Rules](#suppressing-rules)
+- [Rule Reference](#rule-reference)
+- [Statistics Dashboard](#statistics-dashboard)
+- [Configuration](#configuration)
+- [Requirements &amp; Compatibility](#requirements--compatibility)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
 
 ## Features
 
-### 36 Compose Rules
-
-ComposeGuard implements comprehensive rules across 7 categories:
-
-| Category | Rules |
-|----------|-------|
-| **Naming** | Composable naming, modifier naming, CompositionLocal naming, preview naming, multipreview naming, composable annotation naming, event parameter naming |
-| **Modifiers** | Required modifier parameter, modifier default value, modifier naming, modifier at top-most layout, modifier reuse, modifier order, avoid composed |
-| **State** | Remember state, type-specific mutableStateOf, derivedStateOf candidate, frequent recomposition collection, defer state reads, state hoisting, mutable state as parameter |
-| **Parameters** | Parameter ordering, trailing lambda placement, mutable types as parameters, explicit dependencies, ViewModel forwarding |
-| **Composables** | Content emission, multiple content emitters, content slot reuse, effect keys, lambda parameters in effects, movable content, preview visibility, LazyList key/contentType checks |
-| **Stricter** | Material 2 usage detection, unstable collections |
-
-### IDE Integration
-
-- **Real-time Highlighting**: See violations as you type with colored underlines
-- **Gutter Icons**: Color-coded dots showing violation status per composable function
-  - 🔴 Red: Error severity violations
-  - 🟠 Orange: Warning severity violations
-  - ⚫ Gray: Weak warning violations
-  - 🟢 Green: Info level violations
-- **Inline Hints**: Small badges next to function names showing rule violations
-- **Hover Tooltips**: Detailed explanations when hovering over violations
-- **Quick Fixes**: One-click fixes for common issues (Alt+Enter)
+- **Real-time highlighting** — violations appear as colored underlines while you edit.
+- **Gutter icons** — a color-coded dot per `@Composable` summarizes its status at a glance:
+  - 🔴 Error &nbsp;&nbsp; 🟠 Warning &nbsp;&nbsp; ⚪ Weak warning &nbsp;&nbsp; 🔵 Info
+- **Inline hints** — compact badges next to function names show rule violations.
+- **Hover tooltips** — every violation explains the problem, the reasoning, and the fix.
+- **Quick fixes** — rename, add a `modifier` parameter, wrap in `remember`, switch to a type-specific
+  state, make a preview private, swap to an immutable collection, and more.
+- **36 rules across 6 categories** — see the full [Rule Reference](#rule-reference).
 
 ## Installation
 
-### From JetBrains Marketplace
-
 <a href="https://plugins.jetbrains.com/plugin/29308-composeguard"><img src="https://img.shields.io/badge/Install-JetBrains%20Marketplace-blue?style=for-the-badge&logo=jetbrains" alt="Install from Marketplace"/></a>
 
-[![Version](https://img.shields.io/jetbrains/plugin/v/29308-composeguard?label=Version)](https://plugins.jetbrains.com/plugin/29308-composeguard)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/29308-composeguard?label=Downloads)](https://plugins.jetbrains.com/plugin/29308-composeguard)
+1. Open **Android Studio** or **IntelliJ IDEA**.
+2. Go to **Settings** → **Plugins** → **Marketplace**.
+3. Search for **ComposeGuard**.
+4. Click **Install** and restart when prompted.
 
-1. Open Android Studio/IntelliJ IDEA
-2. Go to **Settings** → **Plugins** → **Marketplace**
-3. Search for "ComposeGuard"
-4. Click **Install**
+Or install directly from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/29308-composeguard).
 
-Or install directly from: [JetBrains Marketplace - ComposeGuard](https://plugins.jetbrains.com/plugin/29308-composeguard)
+## Quick Start
 
-## Usage
-
-Once installed, ComposeGuard automatically analyzes your Kotlin files containing `@Composable` functions.
-
-### Example Violations
+Once installed, ComposeGuard automatically analyzes any Kotlin file containing `@Composable`
+functions — no configuration required. Here are a few things it catches:
 
 ```kotlin
-// ❌ Naming violation: Should be PascalCase
+// 🟠 Naming: Unit-returning composables should be PascalCase
 @Composable
-fun userCard(user: User) { }  // Warning: Should be "UserCard"
+fun userCard(user: User) { }              // → rename to "UserCard"
 
-// ❌ Missing modifier parameter
+// 🟠 Modifier: public UI composables should expose a Modifier
 @Composable
-fun ProductCard(product: Product) { }  // Warning: Add modifier parameter
-
-// ❌ State not remembered
-@Composable
-fun Counter() {
-    val count = mutableStateOf(0)  // Error: Wrap in remember { }
+fun ProductCard(product: Product) {       // → add `modifier: Modifier = Modifier`
+    Column { Text(product.name) }
 }
 
-// ❌ Unstable collection parameter
+// 🔴 State: state must be remembered
 @Composable
-fun ItemList(items: List<Item>) { }  // Warning: Use ImmutableList
+fun Counter() {
+    val count = mutableStateOf(0)         // → wrap in remember { }
+}
+
+// 🟠 Stricter: prefer stable collections
+@Composable
+fun ItemList(items: List<Item>) { }       // → use ImmutableList<Item>
 ```
 
-### Quick Fixes Available
+Hover any highlight for the full explanation, or press <kbd>Alt</kbd>+<kbd>Enter</kbd> to apply a fix.
 
-- **Rename composable** to follow naming conventions
-- **Add modifier parameter** with default value
-- **Wrap in remember { }** for state
-- **Replace with type-specific state** (mutableIntStateOf, etc.)
-- **Make preview private**
-- **Use immutable collection**
-- **Suppress rule** for intentional violations
+## Suppressing Rules
 
-## Rule Categories
+To intentionally allow a violation, annotate the declaration with `@Suppress` using the **rule id**
+(the same id shown in the warning, e.g. `ModifierRequired`). The quick fix can insert this for you:
 
-### Naming Rules
+```kotlin
+@Suppress("ModifierRequired")
+@Composable
+fun SplashLogo() {
+    Image(painterResource(R.drawable.logo), contentDescription = null)
+}
 
-| Rule | Description |
-|------|-------------|
-| ComposableNaming | Unit-returning composables should use PascalCase, value-returning should use camelCase |
-| ModifierNaming | Modifier parameters should be named `modifier` or follow `xModifier` pattern |
-| CompositionLocalNaming | CompositionLocal properties should be prefixed with `Local` |
-| PreviewNaming | Preview functions should follow naming conventions |
-| EventParameterNaming | Event callbacks should follow `onX` naming pattern |
+// Multiple rules at once:
+@Suppress("ModifierRequired", "ComposableNaming")
+@Composable
+fun splash() { /* ... */ }
+```
 
-### Modifier Rules
+Suppression works at the function, property, or class level. To turn rules off project-wide instead,
+use [Configuration](#configuration).
 
-| Rule | Description |
-|------|-------------|
-| ModifierRequired | Public composables emitting UI should have a modifier parameter |
-| ModifierDefaultValue | Modifier parameters should have `= Modifier` default value |
-| ModifierTopMost | Modifier should be applied to the top-most layout |
-| ModifierReuse | Don't reuse the same modifier across multiple layouts |
-| ModifierOrder | Modifier chain order matters for behavior |
-| AvoidComposed | Prefer `Modifier.Node` over `composed { }` |
+## Rule Reference
 
-### State Rules
+ComposeGuard ships **36 rules** based on the [Compose Rules](https://mrmans0n.github.io/compose-rules/)
+guidelines. Severity legend: 🔴 Error · 🟠 Warning · ⚪ Weak warning · 🔵 Info.
 
-| Rule | Description |
-|------|-------------|
-| RememberState | State builders (mutableStateOf, etc.) should be wrapped in `remember { }` |
-| TypeSpecificState | Use `mutableIntStateOf`, `mutableFloatStateOf`, etc. for primitives |
-| DerivedStateOfCandidate | Computed values should use `remember(keys)` or `derivedStateOf` when appropriate |
-| FrequentRecomposition | Prefer lifecycle-aware collection for hot observable state sources |
-| DeferStateReads | Defer fast-changing state reads to narrower scopes when possible |
-| HoistState | State should be hoisted to appropriate level |
-| MutableStateParameter | Don't pass MutableState as parameter, use value + callback |
+### Naming
 
-### Stricter Rules (Enabled by Default)
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ComposableNaming` | Unit-returning composables use PascalCase; value-returning use camelCase | 🟠 |
+| `CompositionLocalNaming` | `CompositionLocal` properties are prefixed with `Local` | 🟠 |
+| `PreviewNaming` | `@Preview` functions reference `Preview` in their name | ⚪ |
+| `MultipreviewNaming` | Multipreview annotation classes reference `Preview` | ⚪ |
+| `ComposableAnnotationNaming` | `@ComposableTargetMarker` annotations end with `Composable` | ⚪ |
+| `EventParameterNaming` | Event lambdas use present tense (`onClick`, not `onClicked`) | ⚪ |
 
-| Rule | Description |
-|------|-------------|
-| Material2Usage | Detects Material 2 imports, suggests migration to Material 3 |
-| UnstableCollections | Flags `List`, `Set`, `Map` parameters, suggests `ImmutableList`, etc. |
+### Modifiers
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ModifierRequired` | Public, UI-emitting composables expose a `Modifier` parameter | 🟠 |
+| `ModifierDefaultValue` | `modifier` parameters default to `Modifier` | 🟠 |
+| `ModifierNaming` | The main modifier is named `modifier`; others follow `xModifier` | ⚪ |
+| `ModifierTopMost` | The modifier is applied to the root-most layout | 🟠 |
+| `ModifierReuse` | The same modifier isn't applied to multiple live nodes | 🟠 |
+| `ModifierOrder` | Modifier chain order is intentional (e.g. `padding` before `clickable`) | 🟠 |
+| `AvoidComposed` | Prefer `Modifier.Node` over the deprecated `composed { }` factory | 🟠 |
+
+### State
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `RememberState` | `mutableStateOf` and friends are wrapped in `remember { }` | 🔴 |
+| `TypeSpecificState` | Primitives use `mutableIntStateOf` / `mutableFloatStateOf` / … | 🟠 |
+| `DerivedStateOfCandidate` | Values computed from state use `derivedStateOf` | 🟠 |
+| `FrequentRecomposition` | Hot observable sources use lifecycle-aware collection | 🟠 |
+| `DeferStateReads` | Fast-changing state reads are deferred to lambda modifiers | 🟠 |
+| `HoistState` | State is hoisted to the appropriate level | 🔵 |
+| `MutableStateParameter` | Pass `value` + callback instead of a `MutableState` parameter | 🟠 |
+
+### Parameters
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ParameterOrdering` | Order is required → `modifier` → optional → trailing content | ⚪ |
+| `TrailingLambda` | The content slot is the trailing lambda; event handlers are not | ⚪ |
+| `MutableParameter` | Avoid inherently mutable types (`MutableList`, `ArrayList`, …) as parameters | 🟠 |
+| `ExplicitDependencies` | Make injected ViewModels explicit parameters | ⚪ |
+| `ViewModelForwarding` | Don't forward a ViewModel into another composable | 🟠 |
+
+### Composables &amp; Effects
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ContentEmission` | A composable emits content **or** returns a value, not both | 🟠 |
+| `MultipleContentEmitters` | A composable emits a single piece of content | 🟠 |
+| `ContentSlotReused` | A content slot isn't invoked more than once on the same pass | 🟠 |
+| `EffectKeys` | Changing captured values are passed as effect keys | 🟠 |
+| `LambdaParameterInEffect` | Lambda parameters used in effects are wrapped in `rememberUpdatedState` | 🟠 |
+| `MovableContent` | `movableContentOf` is remembered | 🔴 |
+| `PreviewVisibility` | `@Preview` composables are `private` | 🟠 |
+| `LazyListMissingKey` | Lazy list items provide a stable `key` | 🟠 |
+| `LazyListContentType` | Heterogeneous lazy lists set a `contentType` | 🔵 |
+
+### Stricter
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `UnstableCollections` | Prefer `ImmutableList` / `PersistentList` over `List`, `Set`, `Map` | 🟠 |
+| `Material2Usage` | Migrate `androidx.compose.material` (M2) imports to Material 3 | 🔵 |
+
+> Suppress any rule with `@Suppress("<RuleId>")`, or toggle it in **Settings → Tools → ComposeGuard**.
 
 ## Statistics Dashboard
 
-ComposeGuard includes a Statistics Dashboard to track rule violations across your project.
+ComposeGuard includes a tool window that tracks rule violations across your project.
 
 <p align="center">
   <img src="art/dashboard.png" alt="ComposeGuard Statistics Dashboard"/>
 </p>
 
-### Dashboard Features
+- **Real-time statistics** — violation counts update as you code.
+- **Category breakdown** — see violations grouped by rule category.
+- **Rule-level details** — drill into specific rules.
+- **Project overview** — track overall code-quality trends.
 
-- **Real-time Statistics**: View violation counts as you code
-- **Category Breakdown**: See violations grouped by rule category
-- **Rule-level Details**: Drill down into specific rule violations
-- **Project Overview**: Track overall code quality trends
-
-Access the dashboard from **View** → **Tool Windows** → **ComposeGuard Statistics**
+Open it from **View** → **Tool Windows** → **ComposeGuard Statistics**.
 
 ## Configuration
 
-ComposeGuard settings can be configured per-category. Access settings at:
-
-**Settings** → **Tools** → **ComposeGuard**
+Configure ComposeGuard at **Settings** → **Tools** → **ComposeGuard**.
 
 <p align="center">
   <img src="art/disablerules.png" alt="ComposeGuard Settings - Disable Rules"/>
 </p>
 
-### Disabling Rules for Existing Codebases
+- **Enable ComposeGuard** — master toggle for the whole plugin.
+- **Display options** — toggle gutter icons and inlay hints.
+- **Rule configuration** — enable/disable individual rules or entire categories.
 
-If you're adding ComposeGuard to an existing project with legacy code, you may want to disable certain rules to avoid overwhelming violations. Here's how:
+### Adopting ComposeGuard in an existing codebase
 
-1. Go to **Settings** → **Tools** → **ComposeGuard**
-2. You'll see all rule categories with checkboxes:
-   - **Enable ComposeGuard**: Master toggle to enable/disable the entire plugin
-   - **Display Options**: Toggle gutter icons and inlay hints
-   - **Rule Configuration**: Enable/disable individual rules or entire categories
+Adding the plugin to a large legacy project? Roll it out gradually instead of facing every warning at once:
 
-3. **Recommended approach for legacy codebases:**
-   - Start by disabling stricter rules (Material 2 Usage, Unstable Collections)
-   - Gradually enable rules as you refactor code
-   - Use the category checkboxes to quickly toggle entire rule groups
-   - Individual rules can be fine-tuned within each category
+1. Start with the **Stricter** category off (`Material2Usage`, `UnstableCollections`).
+2. Enable categories one at a time as you refactor — the category checkbox toggles the whole group.
+3. Use `@Suppress("<RuleId>")` for individual, intentional exceptions.
 
-4. **Per-file suppression**: You can also suppress specific rules in code using:
-   ```kotlin
-   @Suppress("ComposeGuard:RuleName")
-   @Composable
-   fun MyComposable() { }
-   ```
+## Requirements &amp; Compatibility
 
-Toggle individual rules or entire categories on/off based on your project's needs.
+- **IntelliJ IDEA 2024.2+** or **Android Studio Ladybug (2024.2)+**
+- The bundled **Kotlin** plugin (enabled by default)
 
-## Requirements
-
-- IntelliJ IDEA 2024.2+ or Android Studio Ladybug+
-- Kotlin plugin installed
-
-## Compatibility
-
-| ComposeGuard | IDE Version |
-|--------------|-------------|
-| 1.2.2 | 2024.2 - 2026.2 |
+| ComposeGuard | Supported IDE builds |
+|--------------|----------------------|
+| 1.2.x | 2024.2 – 2026.2 |
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues and pull requests.
+Contributions are welcome — issues and pull requests both.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/amazing-feature`.
+3. Make your change and add tests (`./gradlew :compose-guard:test`).
+4. Commit and push, then open a Pull Request.
 
 ## Credits
 
-This plugin is based on the excellent [Compose Rules](https://mrmans0n.github.io/compose-rules/) documentation by [Mrmans0n](https://github.com/mrmans0n).
+Built on the excellent [Compose Rules](https://mrmans0n.github.io/compose-rules/) guidelines by
+[Nacho Lopez (mrmans0n)](https://github.com/mrmans0n).
 
 ## License
 
