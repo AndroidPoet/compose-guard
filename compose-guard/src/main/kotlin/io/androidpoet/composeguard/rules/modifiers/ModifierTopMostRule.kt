@@ -62,6 +62,14 @@ public class ModifierTopMostRule : ComposableFunctionRule() {
     "key",
   )
 
+  // Emitters whose content slot exposes a scope/value the inner content must consume (padding,
+  // constraints). The modifier legitimately lives on the inner root, so these don't count as a
+  // skipped root.
+  private val scopedEmitters = setOf(
+    "Scaffold",
+    "BoxWithConstraints",
+  )
+
   override fun doAnalyze(
     function: KtNamedFunction,
     context: AnalysisContext,
@@ -144,12 +152,18 @@ public class ModifierTopMostRule : ComposableFunctionRule() {
         val parentCall = parent.parent as? KtCallExpression ?: continue
         val parentCallName = parentCall.calleeExpression?.text ?: continue
 
-        if (isContentEmitterName(parentCallName)) {
-          return true
+        if (parentCallName in transparentWrappers || parentCallName in scopedEmitters) {
+          continue
         }
 
-        if (parentCallName in transparentWrappers) {
+        // A content slot that declares a parameter (e.g. Scaffold's `{ padding -> }`) forces the
+        // inner content to nest in order to use that value, so the nested modifier is intentional.
+        if (parent.getLambdaExpression()?.valueParameters?.isNotEmpty() == true) {
           continue
+        }
+
+        if (isContentEmitterName(parentCallName)) {
+          return true
         }
       }
     }

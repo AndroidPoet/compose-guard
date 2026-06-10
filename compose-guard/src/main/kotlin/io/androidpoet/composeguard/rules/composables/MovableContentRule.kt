@@ -46,7 +46,10 @@ public class MovableContentRule : ComposableFunctionRule() {
       var parent = call.parent
       var insideRemember = false
       while (parent != null) {
-        if (parent is KtCallExpression && parent.calleeExpression?.text == "remember") {
+        // Accept the whole remember family (remember, rememberSaveable, custom rememberRetained …);
+        // requiring the literal name "remember" flagged valid code that used a remember wrapper.
+        val parentCallee = (parent as? KtCallExpression)?.calleeExpression?.text
+        if (parentCallee != null && parentCallee.startsWith("remember")) {
           insideRemember = true
           break
         }

@@ -54,7 +54,9 @@ public class AvoidComposedRule : AnyFunctionRule() {
 
     for (call in callsToCheck) {
       val calleeName = call.calleeExpression?.text ?: continue
-      if (calleeName == "composed") {
+      // The real API is `Modifier.composed { ... }` — always invoked with a factory lambda. A bare
+      // `composed()` member call from an unrelated builder is not the deprecated modifier factory.
+      if (calleeName == "composed" && call.lambdaArguments.isNotEmpty()) {
         violations.add(
           createViolation(
             element = call,
