@@ -15,8 +15,8 @@
  */
 package io.androidpoet.composeguard.inspection
 
-import org.xml.sax.InputSource
 import org.w3c.dom.Node
+import org.xml.sax.InputSource
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals

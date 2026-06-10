@@ -26,7 +26,6 @@ class ModifierReuseRuleTest {
 
   private val rule = ModifierReuseRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ModifierReuse", rule.id)
@@ -69,7 +68,6 @@ class ModifierReuseRuleTest {
     )
   }
 
-
   @Test
   fun pattern_modifierUsedOnce_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -94,7 +92,6 @@ class ModifierReuseRuleTest {
   fun pattern_differentModifierInstances_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
-
 
   @Test
   fun reason_stateConflictsAndSingleNodeDesign() {

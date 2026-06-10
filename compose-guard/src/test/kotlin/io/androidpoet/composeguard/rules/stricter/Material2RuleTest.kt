@@ -26,7 +26,6 @@ class Material2RuleTest {
 
   private val rule = Material2Rule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("Material2Usage", rule.id)
@@ -68,7 +67,6 @@ class Material2RuleTest {
     )
   }
 
-
   @Test
   fun pattern_material2Import_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
@@ -84,7 +82,6 @@ class Material2RuleTest {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-
   @Test
   fun pattern_material2Scaffold_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
@@ -94,7 +91,6 @@ class Material2RuleTest {
   fun pattern_material2TopAppBar_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
-
 
   @Test
   fun reason_modernDesignAndDynamicColor() {

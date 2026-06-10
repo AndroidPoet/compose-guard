@@ -20,7 +20,6 @@ import kotlin.test.assertEquals
 
 class ComposeRuleTest {
 
-
   @Test
   fun testRuleCategory_naming() {
     assertEquals("Naming Conventions", RuleCategory.NAMING.displayName)
@@ -63,7 +62,6 @@ class ComposeRuleTest {
     assertEquals(RuleCategory.COMPOSABLE, categories[4])
     assertEquals(RuleCategory.STRICTER, categories[5])
   }
-
 
   @Test
   fun testRuleSeverity_allValues() {

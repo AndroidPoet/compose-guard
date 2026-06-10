@@ -50,7 +50,13 @@ public class MutableStateParameterRule : ComposableFunctionRule() {
     for (param in function.valueParameters) {
       val typeText = param.typeReference?.text ?: continue
 
-      if (typeText.contains("MutableState<") || typeText == "MutableState") {
+      val normalized = typeText.trim().removeSuffix("?").trim()
+      // Skip function types like `() -> MutableState<T>` (a factory) and wrappers like
+      // `Holder<MutableState<T>>`; only a parameter whose own type IS a MutableState is a violation.
+      if (normalized.contains("->")) continue
+      val head = normalized.substringBefore("<").substringAfterLast(".").trim()
+
+      if (head == "MutableState") {
         violations.add(
           createViolation(
             element = param.typeReference ?: param,

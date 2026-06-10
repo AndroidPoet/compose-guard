@@ -32,6 +32,14 @@ public class EventParameterNamingRule : ComposableFunctionRule() {
   override val severity: RuleSeverity = RuleSeverity.WEAK_WARNING
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#naming-parameters-properly"
 
+  // 'on' + word ending in -ed that is NOT past tense: nouns and present-tense verbs. Renaming
+  // these (e.g. onSpeed -> onSpe) would be wrong, so they must not be flagged.
+  private val notPastTenseEdWords = setOf(
+    "speed", "feed", "need", "seed", "breed", "bleed", "heed", "weed", "deed", "creed", "freed",
+    "proceed", "exceed", "succeed", "embed", "shed", "shred", "spread", "thread", "dread",
+    "bed", "wed", "fed", "led", "red", "bred", "sled", "fled", "med", "ted",
+  )
+
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
     val violations = mutableListOf<ComposeRuleViolation>()
 
@@ -41,7 +49,7 @@ public class EventParameterNamingRule : ComposableFunctionRule() {
 
       if (!typeText.contains("->")) continue
 
-      if (name.startsWith("on") && name.endsWith("ed")) {
+      if (name.startsWith("on") && name.endsWith("ed") && isLikelyPastTense(name)) {
         val suggestedName = convertPastTenseToPresent(name)
         violations.add(
           createViolation(
@@ -58,6 +66,18 @@ public class EventParameterNamingRule : ComposableFunctionRule() {
     }
 
     return violations
+  }
+
+  private fun isLikelyPastTense(name: String): Boolean {
+    val word = name.removePrefix("on").lowercase()
+    if (word.length < 4) return false
+    if (word in notPastTenseEdWords) return false
+    // -eed words (proceed, exceed, speed, feed...) are present tense or nouns, never `verb+ed`.
+    if (word.endsWith("eed")) return false
+    // The stem (word minus "ed") must be long enough to be a real verb root; this also rejects
+    // tiny accidental matches like onFed/onWed.
+    val stem = word.dropLast(2)
+    return stem.length >= 3
   }
 
   private fun convertPastTenseToPresent(name: String): String {

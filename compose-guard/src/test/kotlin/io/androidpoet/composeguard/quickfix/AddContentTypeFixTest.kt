@@ -23,7 +23,6 @@ class AddContentTypeFixTest {
 
   private val fix = AddContentTypeFix()
 
-
   @Test
   fun testFamilyName() {
     assertEquals("Add contentType parameter", fix.familyName)
@@ -38,7 +37,6 @@ class AddContentTypeFixTest {
   fun testIsHighPriorityAction() {
     assertTrue(fix is com.intellij.codeInsight.intention.HighPriorityAction)
   }
-
 
   @Test
   fun testExpectedBehavior_itemWithTrailingLambda() {
@@ -101,10 +99,8 @@ class AddContentTypeFixTest {
     assertTrue(!expectedOutput.contains("key = {"))
   }
 
-
   @Test
   fun testBugFix_lambdaNotTreatedAsKey() {
-
     val buggyOutput =
       "item(key = { Text(\"Header\") }, contentType = \"ct1\") { Text(\"Header\") }"
     val fixedOutput = "item(contentType = \"contentType1\") { Text(\"Header\") }"
@@ -121,7 +117,6 @@ class AddContentTypeFixTest {
     assertTrue(expectedOutput.contains("contentType = \"contentType1\""))
     assertTrue(expectedOutput.endsWith("{ Text(\"Header\") }"))
   }
-
 
   @Test
   fun testContentTypeNaming_usesNumberedScheme() {

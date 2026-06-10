@@ -26,7 +26,6 @@ class ComposableNamingRuleTest {
 
   private val rule = ComposableNamingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ComposableNaming", rule.id)
@@ -69,7 +68,6 @@ class ComposableNamingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_unitReturningPascalCase_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
@@ -80,7 +78,6 @@ class ComposableNamingRuleTest {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-
   @Test
   fun pattern_valueReturningCamelCase_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
@@ -90,7 +87,6 @@ class ComposableNamingRuleTest {
   fun pattern_valueReturningPascalCase_shouldViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun pattern_operatorFunction_shouldBeSkipped() {
@@ -106,7 +102,6 @@ class ComposableNamingRuleTest {
   fun pattern_standardComposeFunctions_shouldBeAllowed() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun reason_readabilityAndConsistency() {

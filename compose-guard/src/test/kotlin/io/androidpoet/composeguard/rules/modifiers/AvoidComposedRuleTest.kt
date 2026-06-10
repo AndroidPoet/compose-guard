@@ -26,7 +26,6 @@ class AvoidComposedRuleTest {
 
   private val rule = AvoidComposedRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("AvoidComposed", rule.id)
@@ -68,7 +67,6 @@ class AvoidComposedRuleTest {
     )
   }
 
-
   @Test
   fun pattern_usingComposed_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -93,7 +91,6 @@ class AvoidComposedRuleTest {
   fun pattern_nonModifierExtension_shouldNotBeChecked() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
-
 
   @Test
   fun reason_performanceAndDeprecation() {

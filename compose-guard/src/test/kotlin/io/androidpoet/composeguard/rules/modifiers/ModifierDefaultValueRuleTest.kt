@@ -26,7 +26,6 @@ class ModifierDefaultValueRuleTest {
 
   private val rule = ModifierDefaultValueRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ModifierDefaultValue", rule.id)
@@ -67,7 +66,6 @@ class ModifierDefaultValueRuleTest {
     )
   }
 
-
   @Test
   fun pattern_modifierWithoutDefault_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -83,12 +81,10 @@ class ModifierDefaultValueRuleTest {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-
   @Test
   fun quickFix_shouldAddDefaultValue() {
     assertTrue(rule.description.contains("Modifier") || rule.description.contains("default"))
   }
-
 
   @Test
   fun reason_cleanerCallSites() {

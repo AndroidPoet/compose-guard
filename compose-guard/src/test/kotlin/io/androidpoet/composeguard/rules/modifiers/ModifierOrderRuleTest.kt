@@ -26,7 +26,6 @@ class ModifierOrderRuleTest {
 
   private val rule = ModifierOrderRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ModifierOrder", rule.id)
@@ -69,7 +68,6 @@ class ModifierOrderRuleTest {
     )
   }
 
-
   @Test
   fun pattern_paddingBeforeClickable_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -95,7 +93,6 @@ class ModifierOrderRuleTest {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-
   @Test
   fun pattern_noModifierChain_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -105,7 +102,6 @@ class ModifierOrderRuleTest {
   fun pattern_singleModifierCall_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
-
 
   @Test
   fun reason_touchTargetsAndAccessibility() {

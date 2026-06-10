@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
 
 class ModifierRulesMetadataTest {
 
-
   @Test
   fun testModifierRequiredRule_metadata() {
     val rule = ModifierRequiredRule()
@@ -44,7 +43,6 @@ class ModifierRulesMetadataTest {
 
     assertTrue(rule.description.contains("Modifier"))
   }
-
 
   @Test
   fun testModifierDefaultValueRule_metadata() {
@@ -66,7 +64,6 @@ class ModifierRulesMetadataTest {
     assertTrue(rule.description.contains("default") || rule.description.contains("Modifier"))
   }
 
-
   @Test
   fun testModifierNamingRule_metadata() {
     val rule = ModifierNamingRule()
@@ -87,7 +84,6 @@ class ModifierRulesMetadataTest {
     assertTrue(rule.description.contains("modifier") || rule.description.contains("Modifier"))
   }
 
-
   @Test
   fun testModifierTopMostRule_metadata() {
     val rule = ModifierTopMostRule()
@@ -101,7 +97,6 @@ class ModifierRulesMetadataTest {
     assertNotNull(rule.documentationUrl)
   }
 
-
   @Test
   fun testModifierReuseRule_metadata() {
     val rule = ModifierReuseRule()
@@ -113,7 +108,6 @@ class ModifierRulesMetadataTest {
     assertEquals(RuleSeverity.WARNING, rule.severity)
     assertTrue(rule.enabledByDefault)
   }
-
 
   @Test
   fun testModifierOrderRule_metadata() {
@@ -127,7 +121,6 @@ class ModifierRulesMetadataTest {
     assertTrue(rule.enabledByDefault)
     assertNotNull(rule.documentationUrl)
   }
-
 
   @Test
   fun testAvoidComposedRule_metadata() {
@@ -148,7 +141,6 @@ class ModifierRulesMetadataTest {
 
     assertTrue(rule.description.contains("composed") || rule.description.contains("Composed"))
   }
-
 
   @Test
   fun testAllModifierRules_haveDocumentationUrls() {

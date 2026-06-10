@@ -273,7 +273,6 @@ class ComposeRuleRegistryTest {
     }
   }
 
-
   @Test
   fun testPreviewVisibilityRule_isRegistered() {
     val rule = ComposeRuleRegistry.getRuleById("PreviewVisibility")

@@ -25,7 +25,6 @@ class LazyListContentTypeRuleTest {
 
   private val rule = LazyListContentTypeRule()
 
-
   @Test
   fun testRuleId() {
     assertEquals("LazyListContentType", rule.id)
@@ -65,7 +64,6 @@ class LazyListContentTypeRuleTest {
     assertTrue(url.contains("content-type"))
   }
 
-
   @Test
   fun testRule_detectsItemFunction() {
     val name = rule.name
@@ -82,19 +80,16 @@ class LazyListContentTypeRuleTest {
     assertTrue(rule.description.contains("heterogeneous") || rule.name.contains("LazyList"))
   }
 
-
   @Test
   fun testRule_onlyFlagsHeterogeneousLists() {
     val description = rule.description
     assertTrue(description.contains("heterogeneous") || description.contains("contentType"))
   }
 
-
   @Test
   fun testRule_providesContentTypeFix() {
     assertTrue(rule.description.contains("contentType"))
   }
-
 
   @Test
   fun testRule_documentationUrlIsValid() {

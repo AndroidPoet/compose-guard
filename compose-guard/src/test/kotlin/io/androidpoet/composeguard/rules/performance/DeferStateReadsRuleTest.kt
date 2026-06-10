@@ -26,7 +26,6 @@ class DeferStateReadsRuleTest {
 
   private val rule = DeferStateReadsRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("DeferStateReads", rule.id)
@@ -68,7 +67,6 @@ class DeferStateReadsRuleTest {
     )
   }
 
-
   @Test
   fun pattern_offsetWithAnimatedValue_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -78,7 +76,6 @@ class DeferStateReadsRuleTest {
   fun pattern_offsetWithLambda_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun pattern_alphaWithAnimatedValue_shouldViolate() {
@@ -90,18 +87,15 @@ class DeferStateReadsRuleTest {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-
   @Test
   fun pattern_scaleWithAnimatedValue_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-
   @Test
   fun pattern_staticValues_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun reason_animationPerformance() {

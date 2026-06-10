@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
 
 class StricterRulesMetadataTest {
 
-
   @Test
   fun testMaterial2Rule_metadata() {
     val rule = Material2Rule()
@@ -44,7 +43,6 @@ class StricterRulesMetadataTest {
 
     assertTrue(rule.description.contains("Material") || rule.description.contains("material"))
   }
-
 
   @Test
   fun testUnstableCollectionsRule_metadata() {
@@ -70,7 +68,6 @@ class StricterRulesMetadataTest {
     )
   }
 
-
   @Test
   fun testStricterRules_enabledByDefault() {
     val material2Rule = Material2Rule()
@@ -86,7 +83,6 @@ class StricterRulesMetadataTest {
     )
   }
 
-
   @Test
   fun testAllStricterRules_haveDocumentationUrls() {
     val rules = listOf(
@@ -101,7 +97,6 @@ class StricterRulesMetadataTest {
       )
     }
   }
-
 
   @Test
   fun testAllStricterRules_inStricterCategory() {

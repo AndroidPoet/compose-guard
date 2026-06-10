@@ -26,7 +26,6 @@ class ModifierNamingRuleTest {
 
   private val rule = ModifierNamingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ModifierNaming", rule.id)
@@ -68,7 +67,6 @@ class ModifierNamingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_mainModifierNamedCorrectly_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -93,7 +91,6 @@ class ModifierNamingRuleTest {
   fun pattern_subModifierWrongPattern_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
-
 
   @Test
   fun reason_consistencyAndClarity() {

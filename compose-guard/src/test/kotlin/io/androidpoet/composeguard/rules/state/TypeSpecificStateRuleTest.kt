@@ -26,7 +26,6 @@ class TypeSpecificStateRuleTest {
 
   private val rule = TypeSpecificStateRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("TypeSpecificState", rule.id)
@@ -67,7 +66,6 @@ class TypeSpecificStateRuleTest {
     )
   }
 
-
   @Test
   fun pattern_mutableStateOfInt_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -97,7 +95,6 @@ class TypeSpecificStateRuleTest {
   fun pattern_mutableStateOfString_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun reason_avoidAutoboxing() {

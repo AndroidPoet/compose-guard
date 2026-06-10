@@ -26,7 +26,6 @@ class MultipreviewNamingRuleTest {
 
   private val rule = MultipreviewNamingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("MultipreviewNaming", rule.id)
@@ -68,7 +67,6 @@ class MultipreviewNamingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_withPreviewsPrefix_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
@@ -88,7 +86,6 @@ class MultipreviewNamingRuleTest {
   fun pattern_noPreviewAnnotations_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun reason_distinctionAndClarity() {

@@ -26,7 +26,6 @@ class ContentSlotReusedRuleTest {
 
   private val rule = ContentSlotReusedRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ContentSlotReused", rule.id)
@@ -68,7 +67,6 @@ class ContentSlotReusedRuleTest {
     )
   }
 
-
   @Test
   fun pattern_contentSlotInvokedMultipleTimes_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -88,7 +86,6 @@ class ContentSlotReusedRuleTest {
   fun pattern_contentSlotWithMovableContent_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun reason_statePreservation() {

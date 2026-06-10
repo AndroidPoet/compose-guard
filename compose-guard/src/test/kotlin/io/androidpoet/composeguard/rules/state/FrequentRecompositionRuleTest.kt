@@ -26,7 +26,6 @@ class FrequentRecompositionRuleTest {
 
   private val rule = FrequentRecompositionRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("FrequentRecomposition", rule.id)
@@ -67,7 +66,6 @@ class FrequentRecompositionRuleTest {
     )
   }
 
-
   @Test
   fun pattern_collectAsStateWithoutLifecycle_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -82,7 +80,6 @@ class FrequentRecompositionRuleTest {
   fun pattern_observeAsState_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun reason_lifecycleAwareness() {

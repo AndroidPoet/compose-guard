@@ -26,7 +26,6 @@ class MutableParameterRuleTest {
 
   private val rule = MutableParameterRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("MutableParameter", rule.id)
@@ -67,7 +66,6 @@ class MutableParameterRuleTest {
     )
   }
 
-
   @Test
   fun pattern_mutableListBad() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
@@ -83,7 +81,6 @@ class MutableParameterRuleTest {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
-
   @Test
   fun alternative_kotlinCollections() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
@@ -93,7 +90,6 @@ class MutableParameterRuleTest {
   fun alternative_kotlinxImmutableCollections() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
-
 
   @Test
   fun reason_referentialEquality() {

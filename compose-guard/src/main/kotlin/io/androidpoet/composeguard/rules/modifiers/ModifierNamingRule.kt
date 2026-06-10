@@ -22,6 +22,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class ModifierNamingRule : ComposableFunctionRule() {
@@ -46,6 +47,12 @@ public class ModifierNamingRule : ComposableFunctionRule() {
     function: KtNamedFunction,
     context: AnalysisContext,
   ): List<ComposeRuleViolation> {
+    // An override inherits its parameter names; renaming them to satisfy the convention would
+    // break the override, so the suggested rename is not actionable.
+    if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD)) {
+      return emptyList()
+    }
+
     val violations = mutableListOf<ComposeRuleViolation>()
 
     val modifierParams = function.valueParameters.filter { param ->

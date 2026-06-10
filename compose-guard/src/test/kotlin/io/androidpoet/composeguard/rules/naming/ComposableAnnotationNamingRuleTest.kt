@@ -26,7 +26,6 @@ class ComposableAnnotationNamingRuleTest {
 
   private val rule = ComposableAnnotationNamingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ComposableAnnotationNaming", rule.id)
@@ -68,7 +67,6 @@ class ComposableAnnotationNamingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_withComposableSuffix_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
@@ -88,7 +86,6 @@ class ComposableAnnotationNamingRuleTest {
   fun pattern_previewAnnotation_specialCase() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun reason_clarityAndIntent() {

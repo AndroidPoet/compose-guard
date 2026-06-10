@@ -26,7 +26,6 @@ class LambdaParameterInEffectRuleTest {
 
   private val rule = LambdaParameterInEffectRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("LambdaParameterInEffect", rule.id)
@@ -68,7 +67,6 @@ class LambdaParameterInEffectRuleTest {
     )
   }
 
-
   @Test
   fun pattern_lambdaInLaunchedEffectWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -84,18 +82,15 @@ class LambdaParameterInEffectRuleTest {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-
   @Test
   fun pattern_lambdaInDisposableEffectWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
 
-
   @Test
   fun pattern_nonLambdaParameter_shouldNotBeChecked() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun reason_avoidStaleClosures() {

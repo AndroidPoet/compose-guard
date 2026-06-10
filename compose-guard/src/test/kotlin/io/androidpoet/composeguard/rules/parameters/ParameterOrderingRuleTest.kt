@@ -26,7 +26,6 @@ class ParameterOrderingRuleTest {
 
   private val rule = ParameterOrderingRule()
 
-
   @Test
   fun rule1_metadata() {
     assertEquals("ParameterOrdering", rule.id)
@@ -47,7 +46,6 @@ class ParameterOrderingRuleTest {
     )
   }
 
-
   @Test
   fun rule2_modifierShouldBeFirstOptional() {
     assertTrue(
@@ -58,18 +56,15 @@ class ParameterOrderingRuleTest {
     )
   }
 
-
   @Test
   fun rule3_contentLambdaShouldBeTrailing() {
     assertTrue(rule.description.isNotBlank())
   }
 
-
   @Test
   fun rule4_stateCallbackPairingDocumented() {
     assertTrue(rule.description.isNotBlank())
   }
-
 
   @Test
   fun fullParameterOrderPattern() {
@@ -96,20 +91,17 @@ class ParameterOrderingRuleTest {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
-
   @Test
   fun quickReferenceTable() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
     assertEquals(RuleSeverity.WEAK_WARNING, rule.severity)
   }
 
-
   @Test
   fun summaryOrder() {
     assertEquals("ParameterOrdering", rule.id)
     assertTrue(rule.enabledByDefault)
   }
-
 
   @Test
   fun eventHandlersVsContentLambdas() {

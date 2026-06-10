@@ -26,7 +26,6 @@ class EventParameterNamingRuleTest {
 
   private val rule = EventParameterNamingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("EventParameterNaming", rule.id)
@@ -69,12 +68,10 @@ class EventParameterNamingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_presentTenseEventName_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun pattern_onClicked_shouldViolate() {
@@ -96,7 +93,6 @@ class EventParameterNamingRuleTest {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
 
-
   @Test
   fun pattern_nonCallbackParameter_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
@@ -106,7 +102,6 @@ class EventParameterNamingRuleTest {
   fun pattern_callbackWithoutOnPrefix_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun reason_consistencyAndIntent() {

@@ -24,6 +24,8 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isSuppressed
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class EffectKeysRule : ComposableFunctionRule() {
@@ -54,31 +56,58 @@ public class EffectKeysRule : ComposableFunctionRule() {
 
       val args = call.valueArguments
       val firstArg = args.firstOrNull()?.text
-      if (firstArg in constantKeys) {
-        violations.add(
-          createViolation(
-            element = call,
-            message = "'$calleeName($firstArg)' - using constant key means effect never restarts",
-            tooltip = """
-              Using a constant key like Unit, true, or false means the effect runs once
-              and never restarts during recomposition.
+      if (firstArg !in constantKeys) continue
 
-              This may be intentional if the effect should only run once, but often
-              indicates a bug where the effect should restart when some state changes.
+      // A constant key (Unit/true/false) is the idiomatic "run once" pattern and is only a problem
+      // when the effect captures parameters that can change between recompositions — those should
+      // be keys. If nothing changing is captured, leave it alone instead of nagging on every
+      // run-once effect.
+      val captured = capturedChangingParameters(call, function)
+      if (captured.isEmpty()) continue
 
-              Consider if the effect should restart based on some parameter:
-              $calleeName(someId) { ... }
+      violations.add(
+        createViolation(
+          element = call,
+          message = "'$calleeName($firstArg)' won't restart when ${captured.joinToString(", ")} change(s)",
+          tooltip = """
+            This effect uses the constant key '$firstArg', so it never restarts during
+            recomposition — but it captures parameter(s) that can change: ${captured.joinToString(", ")}.
 
-              If running once is intentional, you can suppress this warning.
-            """.trimIndent(),
-            quickFixes = listOf(
-              SuppressComposeRuleFix(id),
-            ),
+            Pass the changing values as keys so the effect restarts when they change:
+            $calleeName(${captured.joinToString(", ")}) { ... }
+
+            If a captured value is stable and should NOT restart the effect, wrap it with
+            rememberUpdatedState instead, or suppress this warning if running once is intentional.
+          """.trimIndent(),
+          quickFixes = listOf(
+            SuppressComposeRuleFix(id),
           ),
-        )
-      }
+        ),
+      )
     }
 
     return violations
+  }
+
+  private fun capturedChangingParameters(call: KtCallExpression, function: KtNamedFunction): List<String> {
+    val paramNames = function.valueParameters.mapNotNull { it.name }.toSet()
+    if (paramNames.isEmpty()) return emptyList()
+
+    val keyTexts = call.valueArguments
+      .mapNotNull { it.getArgumentExpression() }
+      .filter { it !is KtLambdaExpression }
+      .map { it.text }
+      .toSet()
+
+    val lambda = call.lambdaArguments.firstOrNull()?.getLambdaExpression()
+      ?: call.valueArguments
+        .mapNotNull { it.getArgumentExpression() as? KtLambdaExpression }
+        .lastOrNull()
+    val body = lambda?.bodyExpression ?: return emptyList()
+
+    return PsiTreeUtil.findChildrenOfType(body, KtNameReferenceExpression::class.java)
+      .map { it.getReferencedName() }
+      .filter { it in paramNames && it !in keyTexts }
+      .distinct()
   }
 }

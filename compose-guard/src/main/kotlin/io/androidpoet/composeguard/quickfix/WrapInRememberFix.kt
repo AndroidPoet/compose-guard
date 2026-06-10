@@ -142,5 +142,4 @@ public class WrapInRememberFix : LocalQuickFix, HighPriorityAction {
       file.importList?.add(importDirective)
     }
   }
-
 }

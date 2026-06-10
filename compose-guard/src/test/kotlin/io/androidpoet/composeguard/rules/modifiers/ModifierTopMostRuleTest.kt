@@ -26,7 +26,6 @@ class ModifierTopMostRuleTest {
 
   private val rule = ModifierTopMostRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ModifierTopMost", rule.id)
@@ -68,7 +67,6 @@ class ModifierTopMostRuleTest {
     )
   }
 
-
   @Test
   fun pattern_modifierAtRoot_shouldNotViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -103,7 +101,6 @@ class ModifierTopMostRuleTest {
   fun test_isContentEmitterName_returnsFalseForCompositionLocalProvider() {
     assertTrue(!rule.isContentEmitterName("CompositionLocalProvider"))
   }
-
 
   @Test
   fun reason_parentControlAndReusability() {

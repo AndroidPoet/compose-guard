@@ -26,7 +26,6 @@ class CompositionLocalNamingRuleTest {
 
   private val rule = CompositionLocalNamingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("CompositionLocalNaming", rule.id)
@@ -67,7 +66,6 @@ class CompositionLocalNamingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_withLocalPrefix_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
@@ -92,7 +90,6 @@ class CompositionLocalNamingRuleTest {
   fun pattern_nonCompositionLocal_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun reason_discoverabilityAndClarity() {

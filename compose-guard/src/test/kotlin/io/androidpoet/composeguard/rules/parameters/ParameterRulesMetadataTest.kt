@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
 
 class ParameterRulesMetadataTest {
 
-
   @Test
   fun testParameterOrderingRule_metadata() {
     val rule = ParameterOrderingRule()
@@ -51,7 +50,6 @@ class ParameterRulesMetadataTest {
     )
   }
 
-
   @Test
   fun testTrailingLambdaRule_metadata() {
     val rule = TrailingLambdaRule()
@@ -77,7 +75,6 @@ class ParameterRulesMetadataTest {
     )
   }
 
-
   @Test
   fun testMutableParameterRule_metadata() {
     val rule = MutableParameterRule()
@@ -97,7 +94,6 @@ class ParameterRulesMetadataTest {
 
     assertTrue(rule.description.contains("mutable") || rule.description.contains("Mutable"))
   }
-
 
   @Test
   fun testExplicitDependenciesRule_metadata() {
@@ -122,7 +118,6 @@ class ParameterRulesMetadataTest {
         rule.description.contains("parameter"),
     )
   }
-
 
   @Test
   fun testAllParameterRules_haveDocumentationUrls() {

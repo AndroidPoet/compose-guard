@@ -26,7 +26,6 @@ class EffectKeysRuleTest {
 
   private val rule = EffectKeysRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("EffectKeys", rule.id)
@@ -68,7 +67,6 @@ class EffectKeysRuleTest {
     )
   }
 
-
   @Test
   fun pattern_launchedEffectWithUnit_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -84,7 +82,6 @@ class EffectKeysRuleTest {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-
   @Test
   fun pattern_disposableEffectWithUnit_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -94,7 +91,6 @@ class EffectKeysRuleTest {
   fun pattern_disposableEffectWithDynamicKey_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun reason_effectRestartBehavior() {

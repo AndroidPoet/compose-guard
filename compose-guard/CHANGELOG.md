@@ -2,6 +2,25 @@
 
 All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
+## [1.2.3] - 2026-06-11
+
+### Fixed (False Positives)
+- **Content emission detection** - `ModifierRequired`, `ContentEmission` and `MultipleContentEmitters` no longer treat value factories such as `Color(...)`, `TextStyle(...)` or `PaddingValues(...)` as emitted UI. Only calls whose result is discarded (statement position) are counted as content emission.
+- **Modifier overrides** - `ModifierDefaultValue` and `ModifierNaming` now skip `override`/`abstract` composables, whose inherited parameters cannot legally be renamed or given default values (the previous quick fixes produced non-compiling code).
+- **Mutable type matching** - `MutableParameter` and `MutableStateParameter` now match the parameter's own outer type instead of a substring, so function types (`() -> MutableList<T>`), wrappers (`Holder<MutableState<T>>`) and observable holders (`MutableStateFlow`/`MutableSharedFlow`) are no longer flagged.
+- **ViewModelForwarding** - Only flags ViewModels forwarded into another composable, not those passed to ordinary helpers, builders or effects.
+- **EffectKeys** - `LaunchedEffect(Unit)` run-once effects are allowed; a constant key is only flagged when the effect captures parameters that should be keys.
+- **EventParameterNaming** - Present-tense verbs and nouns ending in `-ed` (`onSpeed`, `onProceed`, `onFeed`, `onNeed`) are no longer reported as past tense.
+- **Material 2** - The shared `androidx.compose.material.ripple` package and `androidx.compose.material.icons` star-imports are no longer reported as Material 2 usage.
+- **TrailingLambda** - Multi-slot composables (e.g. Scaffold-style) no longer require a particular content slot to be trailing.
+- **ComposableAnnotationNaming** - Targets `@ComposableTargetMarker` applier annotations instead of any `@Composable`-annotated class.
+- **MultipreviewNaming** - Applies to multipreview annotation classes; ordinary composables that stack multiple `@Preview` annotations are no longer flagged.
+
+### Tests
+- Added `*FalsePositiveTest` behavioral suites (parsing real Kotlin via the IntelliJ test fixture) that assert each of the above is no longer flagged while genuine violations still are.
+
+---
+
 ## [1.2.1] - 2026-05-15
 
 ### Fixed

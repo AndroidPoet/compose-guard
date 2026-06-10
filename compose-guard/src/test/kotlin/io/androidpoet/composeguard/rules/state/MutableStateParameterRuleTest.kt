@@ -26,7 +26,6 @@ class MutableStateParameterRuleTest {
 
   private val rule = MutableStateParameterRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("MutableStateParameter", rule.id)
@@ -67,7 +66,6 @@ class MutableStateParameterRuleTest {
     )
   }
 
-
   @Test
   fun pattern_mutableStateParameter_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -87,7 +85,6 @@ class MutableStateParameterRuleTest {
   fun pattern_readOnlyState_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun reason_clearOwnershipAndTestability() {

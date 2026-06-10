@@ -57,7 +57,6 @@ import kotlin.test.assertTrue
 
 class AllRulesTest {
 
-
   @Test
   fun testComposableNamingRule_metadata() {
     val rule = ComposableNamingRule()
@@ -125,7 +124,6 @@ class AllRulesTest {
     assertEquals(RuleSeverity.WEAK_WARNING, rule.severity)
     assertTrue(rule.description.isNotBlank())
   }
-
 
   @Test
   fun testModifierRequiredRule_metadata() {
@@ -203,7 +201,6 @@ class AllRulesTest {
     assertEquals(RuleSeverity.WARNING, rule.severity)
     assertTrue(rule.description.isNotBlank())
   }
-
 
   @Test
   fun testRememberStateRule_metadata() {
@@ -284,7 +281,6 @@ class AllRulesTest {
     assertNotNull(rule.documentationUrl)
   }
 
-
   @Test
   fun testParameterOrderingRule_metadata() {
     val rule = ParameterOrderingRule()
@@ -339,7 +335,6 @@ class AllRulesTest {
     assertEquals(RuleSeverity.WARNING, rule.severity)
     assertTrue(rule.description.isNotBlank())
   }
-
 
   @Test
   fun testContentEmissionRule_metadata() {
@@ -431,7 +426,6 @@ class AllRulesTest {
     assertNotNull(rule.documentationUrl)
   }
 
-
   @Test
   fun testMaterial2Rule_metadata() {
     val rule = Material2Rule()
@@ -453,7 +447,6 @@ class AllRulesTest {
     assertEquals(RuleSeverity.WARNING, rule.severity)
     assertTrue(rule.description.isNotBlank())
   }
-
 
   @Test
   fun testAllNamingRules_count() {
@@ -495,7 +488,6 @@ class AllRulesTest {
   fun testTotalRuleCount() {
     assertEquals(36, ComposeRuleRegistry.getRuleCount())
   }
-
 
   @Test
   fun testAllRuleIds_areUnique() {
@@ -553,7 +545,6 @@ class AllRulesTest {
     assertEquals(expectedSorted, actualIds)
   }
 
-
   @Test
   fun testAllRules_haveDocumentationUrl() {
     val rules = ComposeRuleRegistry.getAllRules()
@@ -579,7 +570,6 @@ class AllRulesTest {
       )
     }
   }
-
 
   @Test
   fun testRuleSeverities_distribution() {

@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.psi.KtClass
 public class ComposableAnnotationNamingRule : AnnotationClassRule() {
   override val id: String = "ComposableAnnotationNaming"
   override val name: String = "Composable Annotation Naming"
-  override val description: String = "Custom composable annotations should end with 'Composable' suffix."
+  override val description: String = "Custom composable target-marker annotations should end with 'Composable' suffix."
   override val category: RuleCategory = RuleCategory.NAMING
   override val severity: RuleSeverity = RuleSeverity.WEAK_WARNING
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#naming-composable-annotations-properly"
@@ -76,9 +76,12 @@ public class ComposableAnnotationNamingRule : AnnotationClassRule() {
   }
 
   private fun isComposableAnnotation(ktClass: KtClass): Boolean {
+    // The canonical rule targets applier markers — annotations meta-annotated with
+    // @ComposableTargetMarker (e.g. @GoogleMapComposable) — NOT every annotation that happens to
+    // carry @Composable. Matching @Composable flagged ordinary annotations like a @Composable-
+    // bearing multipreview, which is a false positive.
     return ktClass.annotationEntries.any { annotation ->
-      val shortName = annotation.shortName?.asString()
-      shortName == "Composable"
+      annotation.shortName?.asString() == "ComposableTargetMarker"
     }
   }
 }

@@ -26,7 +26,6 @@ class TrailingLambdaRuleTest {
 
   private val rule = TrailingLambdaRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("TrailingLambda", rule.id)
@@ -68,24 +67,20 @@ class TrailingLambdaRuleTest {
     )
   }
 
-
   @Test
   fun pattern_contentLambdaTrailing() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
-
 
   @Test
   fun pattern_eventHandlersNotTrailing() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
-
   @Test
   fun pattern_multipleContentSlots() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
-
 
   @Test
   fun pattern_namedLambdas() {
@@ -106,7 +101,6 @@ class TrailingLambdaRuleTest {
   fun test_isEventLambdaName_returnsFalseForContent() {
     assertTrue(!rule.isEventLambdaName("content"))
   }
-
 
   @Test
   fun benefit_cleanCallSite() {

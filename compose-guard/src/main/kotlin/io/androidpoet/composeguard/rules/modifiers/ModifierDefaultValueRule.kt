@@ -23,6 +23,7 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.getModifierParameter
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class ModifierDefaultValueRule : ComposableFunctionRule() {
@@ -47,6 +48,14 @@ public class ModifierDefaultValueRule : ComposableFunctionRule() {
     function: KtNamedFunction,
     context: AnalysisContext,
   ): List<ComposeRuleViolation> {
+    // Overrides and abstract/open declarations cannot legally add a default value to an
+    // inherited parameter, so flagging them produces a quick fix that won't compile.
+    if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD) ||
+      function.hasModifier(KtTokens.ABSTRACT_KEYWORD)
+    ) {
+      return emptyList()
+    }
+
     val modifierParam = function.getModifierParameter() ?: return emptyList()
 
     val defaultValue = modifierParam.defaultValue

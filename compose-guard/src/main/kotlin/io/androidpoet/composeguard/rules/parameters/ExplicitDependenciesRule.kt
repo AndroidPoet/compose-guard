@@ -55,6 +55,45 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
     "bottomSheet",
   )
 
+  // Standard framework CompositionLocals. Reading these is idiomatic and not something to hoist
+  // into a parameter — the canonical rule is about declaring your own CompositionLocals, not
+  // reading the platform ones. Flagging these is the most-reported false positive for this rule.
+  private val frameworkCompositionLocals = setOf(
+    "LocalContext",
+    "LocalConfiguration",
+    "LocalDensity",
+    "LocalLayoutDirection",
+    "LocalLifecycleOwner",
+    "LocalView",
+    "LocalViewConfiguration",
+    "LocalFocusManager",
+    "LocalHapticFeedback",
+    "LocalTextInputService",
+    "LocalSoftwareKeyboardController",
+    "LocalClipboardManager",
+    "LocalClipboard",
+    "LocalUriHandler",
+    "LocalContentColor",
+    "LocalContentAlpha",
+    "LocalTextStyle",
+    "LocalTextSelectionColors",
+    "LocalIndication",
+    "LocalInspectionMode",
+    "LocalAccessibilityManager",
+    "LocalAutofill",
+    "LocalAutofillTree",
+    "LocalFontFamilyResolver",
+    "LocalFontLoader",
+    "LocalWindowInfo",
+    "LocalGraphicsContext",
+    "LocalAbsoluteTonalElevation",
+    "LocalMinimumInteractiveComponentEnforcement",
+    "LocalMinimumInteractiveComponentSize",
+    "LocalOverscrollConfiguration",
+    "LocalRippleConfiguration",
+    "LocalScrollbarStyle",
+  )
+
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
     if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD)) {
       return emptyList()
@@ -117,7 +156,7 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
         )
       }
 
-      if (calleeName.startsWith("Local") && calleeName != "LocalContext") {
+      if (calleeName.startsWith("Local") && calleeName !in frameworkCompositionLocals) {
         val dotExpr = call.parent
         if (dotExpr?.text?.endsWith(".current") == true) {
           val paramType = inferParameterType(calleeName)

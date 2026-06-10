@@ -22,6 +22,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.isContentEmittingStatement
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -123,7 +124,7 @@ public class MultipleContentRule : ComposableFunctionRule() {
 
       if (callName in contentEmitters) {
         count++
-      } else if (callName.firstOrNull()?.isUpperCase() == true) {
+      } else if (callName.firstOrNull()?.isUpperCase() == true && call.isContentEmittingStatement()) {
         count++
       }
     }

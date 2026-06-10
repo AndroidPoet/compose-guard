@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
 
 class StateRulesMetadataTest {
 
-
   @Test
   fun testRememberStateRule_metadata() {
     val rule = RememberStateRule()
@@ -44,7 +43,6 @@ class StateRulesMetadataTest {
 
     assertTrue(rule.description.contains("remember"))
   }
-
 
   @Test
   fun testTypeSpecificStateRule_metadata() {
@@ -66,7 +64,6 @@ class StateRulesMetadataTest {
     assertTrue(rule.description.contains("State") || rule.description.contains("state"))
   }
 
-
   @Test
   fun testMutableStateParameterRule_metadata() {
     val rule = MutableStateParameterRule()
@@ -87,7 +84,6 @@ class StateRulesMetadataTest {
     assertTrue(rule.description.contains("MutableState") || rule.description.contains("mutable"))
   }
 
-
   @Test
   fun testHoistStateRule_metadata() {
     val rule = HoistStateRule()
@@ -107,7 +103,6 @@ class StateRulesMetadataTest {
 
     assertTrue(rule.description.contains("hoist") || rule.description.contains("Hoist"))
   }
-
 
   @Test
   fun testAllStateRules_haveDocumentationUrls() {

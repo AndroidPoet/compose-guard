@@ -22,7 +22,6 @@ import kotlin.test.assertTrue
 
 class ComposeRuleExtensionsTest {
 
-
   @Test
   fun testIsMutableType_mutableList() {
     assertTrue("MutableList<String>".isMutableType())
@@ -66,8 +65,23 @@ class ComposeRuleExtensionsTest {
   }
 
   @Test
-  fun testIsMutableType_startsWithMutable() {
-    assertTrue("MutableCustomType".isMutableType())
+  fun testIsMutableType_arbitraryMutablePrefixedUserTypeIsNotFlagged() {
+    // A user type that merely starts with "Mutable" is not an inherently-mutable collection and
+    // must not be flagged (this was a false positive from the old startsWith heuristic).
+    assertFalse("MutableCustomType".isMutableType())
+  }
+
+  @Test
+  fun testIsMutableType_observableHoldersAreNotFlagged() {
+    // Observable holders are not the inherently-mutable collections this rule targets.
+    assertFalse("MutableStateFlow<Int>".isMutableType())
+    assertFalse("MutableSharedFlow<Int>".isMutableType())
+  }
+
+  @Test
+  fun testIsMutableType_functionTypesAndWrappersAreNotFlagged() {
+    assertFalse("() -> MutableList<Int>".isMutableType())
+    assertFalse("Wrapper<HashMap<String, Int>>".isMutableType())
   }
 
   @Test
@@ -85,7 +99,6 @@ class ComposeRuleExtensionsTest {
     assertFalse("ImmutableSet<Int>".isMutableType())
     assertFalse("ImmutableMap<String, Int>".isMutableType())
   }
-
 
   @Test
   fun testIsStandardCollection_list() {
@@ -126,7 +139,6 @@ class ComposeRuleExtensionsTest {
     assertFalse("Int".isStandardCollection())
   }
 
-
   @Test
   fun testToPascalCase_lowercaseFirst() {
     assertEquals("Hello", "hello".toPascalCase())
@@ -149,7 +161,6 @@ class ComposeRuleExtensionsTest {
     assertEquals("A", "a".toPascalCase())
     assertEquals("A", "A".toPascalCase())
   }
-
 
   @Test
   fun testToCamelCase_uppercaseFirst() {

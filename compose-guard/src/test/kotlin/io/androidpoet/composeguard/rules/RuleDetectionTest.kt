@@ -22,7 +22,6 @@ import kotlin.test.assertTrue
 
 class RuleDetectionTest {
 
-
   @Test
   fun testAllRulesRegistered() {
     val rules = ComposeRuleRegistry.getAllRules()
@@ -36,7 +35,6 @@ class RuleDetectionTest {
     val uniqueIds = ids.toSet()
     assertEquals(ids.size, uniqueIds.size, "Found duplicate rule IDs: ${ids.groupBy { it }.filter { it.value.size > 1 }.keys}")
   }
-
 
   @Test
   fun testNamingRules_allPresent() {
@@ -57,7 +55,6 @@ class RuleDetectionTest {
     }
   }
 
-
   @Test
   fun testModifierRules_allPresent() {
     val expectedRules = listOf(
@@ -77,7 +74,6 @@ class RuleDetectionTest {
       assertEquals(RuleCategory.MODIFIER, rule.category, "Wrong category for rule $id")
     }
   }
-
 
   @Test
   fun testStateRules_allPresent() {
@@ -100,7 +96,6 @@ class RuleDetectionTest {
     }
   }
 
-
   @Test
   fun testParameterRules_allPresent() {
     val expectedRules = listOf(
@@ -118,7 +113,6 @@ class RuleDetectionTest {
       assertEquals(RuleCategory.PARAMETER, rule.category, "Wrong category for rule $id")
     }
   }
-
 
   @Test
   fun testComposableRules_allPresent() {
@@ -141,7 +135,6 @@ class RuleDetectionTest {
     }
   }
 
-
   @Test
   fun testStricterRules_allPresent() {
     val expectedRules = listOf(
@@ -156,7 +149,6 @@ class RuleDetectionTest {
       assertEquals(RuleCategory.STRICTER, rule.category, "Wrong category for rule $id")
     }
   }
-
 
   @Test
   fun testAllRules_haveNonEmptyDescription() {
@@ -183,7 +175,6 @@ class RuleDetectionTest {
     }
   }
 
-
   @Test
   fun testCategoryDistribution() {
     val rulesByCategory = ComposeRuleRegistry.getRulesByCategories()
@@ -209,7 +200,6 @@ class RuleDetectionTest {
     val total = rulesByCategory.values.sumOf { it.size }
     assertEquals(36, total, "Total rules should be 36")
   }
-
 
   @Test
   fun testRuleIds_followNamingConvention() {

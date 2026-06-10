@@ -26,7 +26,6 @@ class LazyListMissingKeyRuleTest {
 
   private val rule = LazyListMissingKeyRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("LazyListMissingKey", rule.id)
@@ -68,7 +67,6 @@ class LazyListMissingKeyRuleTest {
     )
   }
 
-
   @Test
   fun pattern_itemsWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -78,7 +76,6 @@ class LazyListMissingKeyRuleTest {
   fun pattern_itemsIndexedWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun pattern_itemsWithKey_shouldNotViolate() {
@@ -90,7 +87,6 @@ class LazyListMissingKeyRuleTest {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-
   @Test
   fun pattern_lazyRowItemsWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -100,7 +96,6 @@ class LazyListMissingKeyRuleTest {
   fun pattern_lazyVerticalGridItemsWithoutKey_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun reason_efficientRecompositionAndStatePreservation() {

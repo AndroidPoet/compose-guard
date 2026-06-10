@@ -26,7 +26,6 @@ class HoistStateRuleTest {
 
   private val rule = HoistStateRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("HoistState", rule.id)
@@ -67,7 +66,6 @@ class HoistStateRuleTest {
     )
   }
 
-
   @Test
   fun pattern_stateSharedBetweenChildren_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -77,7 +75,6 @@ class HoistStateRuleTest {
   fun pattern_statePassedToChild_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun pattern_screenLevelComposable_shouldBeSkipped() {
@@ -103,7 +100,6 @@ class HoistStateRuleTest {
   fun pattern_alreadyHoisted_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun reason_testabilityAndReusability() {

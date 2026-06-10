@@ -53,9 +53,12 @@ public class TrailingLambdaRule : ComposableFunctionRule() {
     }
 
     val contentLambdas = params.filter { it.isComposableLambda() }
-    if (contentLambdas.isNotEmpty()) {
-      val mainContent = contentLambdas.find { it.name == "content" || it.name == null }
-      if (mainContent != null && mainContent != lastParam) {
+    // Only enforce trailing position when there is a single content slot. With multiple slots
+    // (e.g. Scaffold's topBar/bottomBar/content) exactly one can be trailing and which one is the
+    // API author's choice, so a non-last slot named 'content' is not a violation.
+    if (contentLambdas.size == 1) {
+      val mainContent = contentLambdas.first()
+      if (mainContent.name == "content" && mainContent != lastParam) {
         violations.add(
           createViolation(
             element = mainContent.nameIdentifier ?: mainContent,

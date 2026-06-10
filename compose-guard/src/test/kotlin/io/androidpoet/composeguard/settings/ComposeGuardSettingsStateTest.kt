@@ -22,7 +22,6 @@ import kotlin.test.assertTrue
 
 class ComposeGuardSettingsStateTest {
 
-
   @Test
   fun testDefaultSettings() {
     val settings = ComposeGuardSettingsState()
@@ -38,7 +37,6 @@ class ComposeGuardSettingsStateTest {
     val settings = ComposeGuardSettingsState()
     assertEquals(settings, settings.getState())
   }
-
 
   @Test
   fun testIsRuleEnabled_defaultsToTrue() {
@@ -90,7 +88,6 @@ class ComposeGuardSettingsStateTest {
     assertFalse(settings.isRuleEnabled("PreviewVisibility", defaultEnabled = true))
   }
 
-
   @Test
   fun testSetRuleEnabled_storesState() {
     val settings = ComposeGuardSettingsState()
@@ -101,7 +98,6 @@ class ComposeGuardSettingsStateTest {
     settings.setRuleEnabled("TestRule", true)
     assertTrue(settings.isRuleEnabled("TestRule"))
   }
-
 
   @Test
   fun testEnableRules_enablesMultipleRules() {
@@ -129,7 +125,6 @@ class ComposeGuardSettingsStateTest {
     assertFalse(settings.isRuleEnabled("Rule3"))
   }
 
-
   @Test
   fun testResetRuleToDefault_removesPerRuleSetting() {
     val settings = ComposeGuardSettingsState()
@@ -152,7 +147,6 @@ class ComposeGuardSettingsStateTest {
 
     assertTrue(settings.isRuleEnabled("PreviewVisibility", defaultEnabled = true))
   }
-
 
   @Test
   fun testResetAllRulesToDefault_clearsAllPerRuleSettings() {
@@ -189,7 +183,6 @@ class ComposeGuardSettingsStateTest {
     assertTrue(settings.isRuleEnabled("LazyListMissingKey", defaultEnabled = true))
   }
 
-
   @Test
   fun testToggleSettingsCanBeModified() {
     val settings = ComposeGuardSettingsState()
@@ -219,7 +212,6 @@ class ComposeGuardSettingsStateTest {
     settings.suppressBuiltInInspections = true
     assertTrue(settings.suppressBuiltInInspections)
   }
-
 
   @Test
   fun testPreviewVisibilityRule_enableDisable() {
@@ -273,7 +265,6 @@ class ComposeGuardSettingsStateTest {
     assertTrue(settings.isRuleEnabled("LazyListMissingKey", defaultEnabled = true))
   }
 
-
   @Test
   fun testRuleEnabledStates_persistsCorrectly() {
     val settings = ComposeGuardSettingsState()
@@ -287,7 +278,6 @@ class ComposeGuardSettingsStateTest {
     assertEquals(false, settings.ruleEnabledStates["Rule2"])
     assertEquals(true, settings.ruleEnabledStates["Rule3"])
   }
-
 
   @Test
   fun testDisablingOneRule_doesNotDisableOtherRules() {

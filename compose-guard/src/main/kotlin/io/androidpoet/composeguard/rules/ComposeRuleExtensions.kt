@@ -19,14 +19,20 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtContainerNodeForControlStructureBody
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtLambdaArgument
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtParenthesizedExpression
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtQualifiedExpression
 import org.jetbrains.kotlin.psi.KtUserType
+import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.psiUtil.parents
 
 private const val COMPOSABLE_ANNOTATION = "Composable"
@@ -147,7 +153,7 @@ internal fun KtNamedFunction.emitsComposableContent(): Boolean {
       continue
     }
 
-    if (callName.firstOrNull()?.isUpperCase() == true) {
+    if (callName.firstOrNull()?.isUpperCase() == true && call.isContentEmittingStatement()) {
       return true
     }
 
@@ -163,6 +169,41 @@ internal fun KtNamedFunction.emitsComposableContent(): Boolean {
   return false
 }
 
+/**
+ * A Composable that emits UI is invoked as a *statement* and its (Unit) result is discarded.
+ * Factory/constructor calls that merely start with an uppercase letter — e.g. `Color(0xFF..)`,
+ * `TextStyle(...)`, `PaddingValues(...)` — are consumed as values (assigned to a local, passed as
+ * an argument, returned) and do NOT emit content. This distinguishes real emission from those
+ * false positives without needing full type resolution.
+ */
+internal fun KtCallExpression.isContentEmittingStatement(): Boolean {
+  // Climb out of qualified / parenthesized wrappers while this call is on the value path.
+  var expr: KtExpression = this
+  while (true) {
+    when (val parent = expr.parent) {
+      is KtParenthesizedExpression -> expr = parent
+      is KtQualifiedExpression -> {
+        // `receiver.Selector()` — only the selector represents this call's result; if we are the
+        // receiver the result is consumed by the selector, so it cannot be an emission.
+        if (parent.selectorExpression == expr) expr = parent else return false
+      }
+      else -> break
+    }
+  }
+
+  return when (val container = expr.parent) {
+    // Statement inside a block or lambda body.
+    is KtBlockExpression -> true
+    // Body of a braces-less control structure: `if (x) Text(...)`, `while (x) Item()`.
+    is KtContainerNodeForControlStructureBody -> true
+    // `when (x) { a -> Text(...) }`.
+    is KtWhenEntry -> true
+    // Expression body of a Unit-returning composable: `@Composable fun Foo() = Column { ... }`.
+    is KtNamedFunction -> container.bodyExpression == expr && container.returnsUnit()
+    else -> false
+  }
+}
+
 internal fun KtNamedFunction.getNameOrDefault(): String {
   return name ?: "<anonymous>"
 }
@@ -176,15 +217,29 @@ internal fun PsiElement.getParentFunction(): KtNamedFunction? {
   return PsiTreeUtil.getParentOfType(this, KtNamedFunction::class.java)
 }
 
+private val inherentlyMutableHeadTypes = setOf(
+  "MutableList",
+  "MutableSet",
+  "MutableMap",
+  "MutableCollection",
+  "MutableIterable",
+  "MutableState",
+  "ArrayList",
+  "HashMap",
+  "HashSet",
+  "LinkedHashMap",
+  "LinkedHashSet",
+)
+
 internal fun String.isMutableType(): Boolean {
-  return startsWith("Mutable") ||
-    contains("MutableList") ||
-    contains("MutableSet") ||
-    contains("MutableMap") ||
-    contains("MutableState") ||
-    contains("ArrayList") ||
-    contains("HashMap") ||
-    contains("HashSet")
+  val normalized = trim().removeSuffix("?").trim()
+  // A function type such as `() -> MutableList<T>` passes a factory, not a mutable instance.
+  if (normalized.contains("->")) return false
+  // Only the outermost type matters: `Wrapper<HashMap<..>>` is a stable wrapper, and observable
+  // holders like `MutableStateFlow`/`MutableSharedFlow` are not the inherently-mutable collections
+  // this rule targets. Anchoring on the head type avoids both false positives.
+  val head = normalized.substringBefore("<").substringAfterLast(".").trim()
+  return head in inherentlyMutableHeadTypes
 }
 
 internal fun String.isStandardCollection(): Boolean {

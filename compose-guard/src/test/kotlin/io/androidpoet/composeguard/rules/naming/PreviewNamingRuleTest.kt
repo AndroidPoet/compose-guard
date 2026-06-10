@@ -26,7 +26,6 @@ class PreviewNamingRuleTest {
 
   private val rule = PreviewNamingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("PreviewNaming", rule.id)
@@ -67,7 +66,6 @@ class PreviewNamingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_withPreviewSuffix_shouldNotViolate() {
     assertEquals(RuleCategory.NAMING, rule.category)
@@ -92,7 +90,6 @@ class PreviewNamingRuleTest {
   fun pattern_nonPreviewFunction_shouldNotBeChecked() {
     assertEquals(RuleCategory.NAMING, rule.category)
   }
-
 
   @Test
   fun reason_searchabilityAndClarity() {

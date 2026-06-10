@@ -26,7 +26,6 @@ class DerivedStateOfCandidateRuleTest {
 
   private val rule = DerivedStateOfCandidateRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("DerivedStateOfCandidate", rule.id)
@@ -68,7 +67,6 @@ class DerivedStateOfCandidateRuleTest {
     )
   }
 
-
   @Test
   fun pattern_scrollStateThreshold_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -78,7 +76,6 @@ class DerivedStateOfCandidateRuleTest {
   fun pattern_scrollStateWithDerivedStateOf_shouldNotViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun pattern_filterWithoutRemember_shouldViolate() {
@@ -114,7 +111,6 @@ class DerivedStateOfCandidateRuleTest {
   fun test_isEventCallbackName_returnsFalseForContent() {
     assertTrue(!rule.isEventCallbackName("content"))
   }
-
 
   @Test
   fun reason_scrollPerformance() {

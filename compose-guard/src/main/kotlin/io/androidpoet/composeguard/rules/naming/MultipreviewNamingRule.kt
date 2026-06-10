@@ -18,32 +18,35 @@ package io.androidpoet.composeguard.rules.naming
 import io.androidpoet.composeguard.quickfix.RenameComposableFix
 import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
 import io.androidpoet.composeguard.rules.AnalysisContext
-import io.androidpoet.composeguard.rules.ComposableFunctionRule
+import io.androidpoet.composeguard.rules.AnnotationClassRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
-import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtClass
 
-public class MultipreviewNamingRule : ComposableFunctionRule() {
+public class MultipreviewNamingRule : AnnotationClassRule() {
   override val id: String = "MultipreviewNaming"
   override val name: String = "Multipreview Naming"
-  override val description: String = "Multipreview annotations should start with 'Previews' prefix."
+  override val description: String = "Multipreview annotations should be named with a 'Preview' reference."
   override val category: RuleCategory = RuleCategory.NAMING
   override val severity: RuleSeverity = RuleSeverity.WEAK_WARNING
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#naming-multipreview-annotations-properly"
 
-  override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
-    val previewCount = function.annotationEntries.count { it.shortName?.asString() == "Preview" }
-    if (previewCount <= 1) return emptyList()
+  override fun doAnalyze(ktClass: KtClass, context: AnalysisContext): List<ComposeRuleViolation> {
+    // A multipreview is an ANNOTATION CLASS meta-annotated with @Preview. A composable function
+    // that merely stacks several @Preview annotations is a normal preview (named per the Preview
+    // rule), so flagging functions here was a false positive that contradicted PreviewNaming.
+    val previewCount = ktClass.annotationEntries.count { it.shortName?.asString() == "Preview" }
+    if (previewCount < 1) return emptyList()
 
-    val name = function.name ?: return emptyList()
-    if (!name.startsWith("Previews")) {
-      val suggestedName = "Previews$name"
+    val name = ktClass.name ?: return emptyList()
+    if (!name.contains("Preview", ignoreCase = true)) {
+      val suggestedName = "Preview$name"
       return listOf(
         createViolation(
-          element = function.nameIdentifier ?: function,
-          message = "Multipreview function '$name' should start with 'Previews'",
-          tooltip = "Functions with multiple @Preview annotations should follow naming pattern 'PreviewsXxx'.",
+          element = ktClass.nameIdentifier ?: ktClass,
+          message = "Multipreview annotation '$name' should reference 'Preview' in its name",
+          tooltip = "Annotations grouping multiple @Preview should be named like 'PreviewScreenSizes' or 'FontScalePreviews'.",
           quickFixes = listOf(
             RenameComposableFix(suggestedName),
             SuppressComposeRuleFix(id),

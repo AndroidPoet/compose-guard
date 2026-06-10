@@ -24,7 +24,7 @@ kotlin {
 }
 
 group = "io.androidpoet"
-version = "1.2.2"
+version = "1.2.3"
 
 repositories {
   mavenCentral()
@@ -74,6 +74,20 @@ intellijPlatform {
             Based on <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> documentation.
         """.trimIndent()
     changeNotes = """
+            <b>1.2.3</b>
+            <ul>
+                <li><b>Major False-Positive Reduction</b>: Audited every rule against the official Compose Rules to stop flagging valid code.</li>
+                <li><b>Content emission accuracy</b>: ModifierRequired, ContentEmission and MultipleContentEmitters no longer treat value factories like <code>Color(...)</code>, <code>TextStyle(...)</code> or <code>PaddingValues(...)</code> as emitted UI — only calls whose result is discarded count as emission.</li>
+                <li><b>Modifier overrides</b>: ModifierDefaultValue and ModifierNaming skip <code>override</code>/<code>abstract</code> composables, whose parameters cannot legally be renamed or given defaults.</li>
+                <li><b>Type matching</b>: MutableParameter and MutableStateParameter now match the parameter's own type, so function types (<code>() -> MutableList</code>), wrappers (<code>Holder&lt;MutableState&gt;</code>) and observable holders (<code>MutableStateFlow</code>) are no longer flagged.</li>
+                <li><b>ViewModelForwarding</b>: only flags ViewModels forwarded into another composable, not those handed to ordinary helpers or effects.</li>
+                <li><b>EffectKeys</b>: <code>LaunchedEffect(Unit)</code> run-once effects are allowed; a constant key is only flagged when the effect captures parameters that should be keys.</li>
+                <li><b>EventParameterNaming</b>: stops flagging present-tense/noun callbacks ending in -ed (<code>onSpeed</code>, <code>onProceed</code>, <code>onFeed</code>).</li>
+                <li><b>Material 2</b>: the shared <code>material.ripple</code> package and <code>material.icons</code> star-imports are no longer reported.</li>
+                <li><b>TrailingLambda</b>: multi-slot composables (Scaffold-style) no longer require a specific slot to be trailing.</li>
+                <li><b>Annotation naming</b>: ComposableAnnotationNaming targets <code>@ComposableTargetMarker</code> annotations, and MultipreviewNaming applies to multipreview annotation classes instead of ordinary stacked-<code>@Preview</code> functions.</li>
+                <li><b>Tests</b>: added behavioral regression tests covering each fixed false positive.</li>
+            </ul>
             <b>1.2.2</b>
             <ul>
                 <li><b>Inspection Registration Fix</b>: Corrected ComposeGuard inspection registration mismatch by aligning the inspection shortName with plugin.xml metadata</li>

@@ -26,7 +26,6 @@ class ModifierRequiredRuleTest {
 
   private val rule = ModifierRequiredRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ModifierRequired", rule.id)
@@ -67,7 +66,6 @@ class ModifierRequiredRuleTest {
     )
   }
 
-
   @Test
   fun pattern_publicComposableWithoutModifier_shouldViolate() {
     assertEquals(RuleCategory.MODIFIER, rule.category)
@@ -98,12 +96,10 @@ class ModifierRequiredRuleTest {
     assertEquals(RuleCategory.MODIFIER, rule.category)
   }
 
-
   @Test
   fun quickFix_shouldAddModifierParameter() {
     assertTrue(rule.description.contains("Modifier") || rule.description.contains("modifier"))
   }
-
 
   @Test
   fun reason_compositionOverInheritance() {

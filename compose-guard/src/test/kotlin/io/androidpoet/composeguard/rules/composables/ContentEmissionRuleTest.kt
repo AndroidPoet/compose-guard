@@ -26,7 +26,6 @@ class ContentEmissionRuleTest {
 
   private val rule = ContentEmissionRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ContentEmission", rule.id)
@@ -67,7 +66,6 @@ class ContentEmissionRuleTest {
     )
   }
 
-
   @Test
   fun pattern_emitAndReturn_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -82,7 +80,6 @@ class ContentEmissionRuleTest {
   fun pattern_onlyReturnValue_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun reason_singleResponsibility() {

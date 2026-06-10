@@ -26,7 +26,6 @@ class RememberStateRuleTest {
 
   private val rule = RememberStateRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("RememberState", rule.id)
@@ -67,7 +66,6 @@ class RememberStateRuleTest {
     )
   }
 
-
   @Test
   fun pattern_mutableStateOfWithoutRemember_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
@@ -102,7 +100,6 @@ class RememberStateRuleTest {
   fun pattern_mutableStateListOfWithoutRemember_shouldViolate() {
     assertEquals(RuleCategory.STATE, rule.category)
   }
-
 
   @Test
   fun reason_statePersistence() {

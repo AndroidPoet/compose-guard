@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
 
 class NamingRulesMetadataTest {
 
-
   @Test
   fun testComposableNamingRule_metadata() {
     val rule = ComposableNamingRule()
@@ -46,7 +45,6 @@ class NamingRulesMetadataTest {
     assertTrue(rule.documentationUrl!!.contains("naming"))
   }
 
-
   @Test
   fun testCompositionLocalNamingRule_metadata() {
     val rule = CompositionLocalNamingRule()
@@ -66,7 +64,6 @@ class NamingRulesMetadataTest {
 
     assertTrue(rule.description.contains("Local"))
   }
-
 
   @Test
   fun testPreviewNamingRule_metadata() {
@@ -88,7 +85,6 @@ class NamingRulesMetadataTest {
     assertTrue(rule.description.contains("Preview"))
   }
 
-
   @Test
   fun testMultipreviewNamingRule_metadata() {
     val rule = MultipreviewNamingRule()
@@ -102,7 +98,6 @@ class NamingRulesMetadataTest {
     assertNotNull(rule.documentationUrl)
   }
 
-
   @Test
   fun testComposableAnnotationNamingRule_metadata() {
     val rule = ComposableAnnotationNamingRule()
@@ -115,7 +110,6 @@ class NamingRulesMetadataTest {
     assertTrue(rule.enabledByDefault)
     assertNotNull(rule.documentationUrl)
   }
-
 
   @Test
   fun testEventParameterNamingRule_metadata() {

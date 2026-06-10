@@ -36,9 +36,11 @@ public class Material2Rule : ComposeRule {
   override val enabledByDefault: Boolean = true
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#dont-use-material-2"
 
-  private val material2Packages = setOf(
-    "androidx.compose.material.",
-    "androidx.compose.material.icons.",
+  // Packages that live under androidx.compose.material.* but are shared with Material 3 (and are
+  // NOT Material 2 components/theming), so importing them is not a Material 2 violation.
+  private val sharedMaterialPackages = setOf(
+    "androidx.compose.material.icons",
+    "androidx.compose.material.ripple",
   )
 
   private val material3Package = "androidx.compose.material3"
@@ -60,9 +62,11 @@ public class Material2Rule : ComposeRule {
 
       if (importPath.startsWith(material3Package)) continue
 
-      if (importPath.startsWith("androidx.compose.material.") &&
-        !importPath.startsWith("androidx.compose.material.icons.")
-      ) {
+      val isShared = sharedMaterialPackages.any {
+        importPath == it || importPath.startsWith("$it.")
+      }
+
+      if (importPath.startsWith("androidx.compose.material.") && !isShared) {
         violations.add(
           createViolation(
             element = import,

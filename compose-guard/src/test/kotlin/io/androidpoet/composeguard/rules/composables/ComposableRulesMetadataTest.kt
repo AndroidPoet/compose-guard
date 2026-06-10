@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
 
 class ComposableRulesMetadataTest {
 
-
   @Test
   fun testContentEmissionRule_metadata() {
     val rule = ContentEmissionRule()
@@ -48,7 +47,6 @@ class ComposableRulesMetadataTest {
         rule.description.contains("emit"),
     )
   }
-
 
   @Test
   fun testMultipleContentRule_metadata() {
@@ -74,7 +72,6 @@ class ComposableRulesMetadataTest {
     )
   }
 
-
   @Test
   fun testEffectKeysRule_metadata() {
     val rule = EffectKeysRule()
@@ -98,7 +95,6 @@ class ComposableRulesMetadataTest {
         rule.description.contains("key"),
     )
   }
-
 
   @Test
   fun testMovableContentRule_metadata() {
@@ -124,7 +120,6 @@ class ComposableRulesMetadataTest {
     )
   }
 
-
   @Test
   fun testPreviewVisibilityRule_metadata() {
     val rule = PreviewVisibilityRule()
@@ -148,7 +143,6 @@ class ComposableRulesMetadataTest {
         rule.description.contains("private"),
     )
   }
-
 
   @Test
   fun testLazyListContentTypeRule_metadata() {
@@ -174,7 +168,6 @@ class ComposableRulesMetadataTest {
     )
   }
 
-
   @Test
   fun testLazyListMissingKeyRule_metadata() {
     val rule = LazyListMissingKeyRule()
@@ -198,7 +191,6 @@ class ComposableRulesMetadataTest {
         rule.description.contains("LazyColumn"),
     )
   }
-
 
   @Test
   fun testAllComposableRules_haveDocumentationUrls() {

@@ -26,7 +26,6 @@ class ViewModelForwardingRuleTest {
 
   private val rule = ViewModelForwardingRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ViewModelForwarding", rule.id)
@@ -67,30 +66,25 @@ class ViewModelForwardingRuleTest {
     )
   }
 
-
   @Test
   fun pattern_forwardingBad() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
-
 
   @Test
   fun pattern_dataOnly() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
-
   @Test
   fun pattern_callbacks() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
-
   @Test
   fun pattern_stateHolder() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
-
 
   @Test
   fun benefits() {

@@ -26,7 +26,6 @@ class ExplicitDependenciesRuleTest {
 
   private val rule = ExplicitDependenciesRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("ExplicitDependencies", rule.id)
@@ -68,18 +67,15 @@ class ExplicitDependenciesRuleTest {
     )
   }
 
-
   @Test
   fun pattern_viewModelInBody() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
 
-
   @Test
   fun pattern_compositionLocalCurrent() {
     assertEquals(RuleCategory.PARAMETER, rule.category)
   }
-
 
   @Test
   fun benefit_testability() {
@@ -90,7 +86,6 @@ class ExplicitDependenciesRuleTest {
   fun benefit_previewSupport() {
     assertTrue(rule.enabledByDefault)
   }
-
 
   @Test
   fun pattern_screenVsComponent() {

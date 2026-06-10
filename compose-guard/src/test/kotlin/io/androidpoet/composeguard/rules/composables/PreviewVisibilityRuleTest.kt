@@ -26,7 +26,6 @@ class PreviewVisibilityRuleTest {
 
   private val rule = PreviewVisibilityRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("PreviewVisibility", rule.id)
@@ -67,7 +66,6 @@ class PreviewVisibilityRuleTest {
     )
   }
 
-
   @Test
   fun pattern_publicPreview_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -87,7 +85,6 @@ class PreviewVisibilityRuleTest {
   fun pattern_nonPreviewPublic_shouldNotBeChecked() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun reason_preventAccidentalUsage() {

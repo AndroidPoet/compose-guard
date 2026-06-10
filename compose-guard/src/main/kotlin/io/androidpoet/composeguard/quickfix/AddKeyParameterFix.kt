@@ -113,7 +113,6 @@ public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
         argName != null && !isLambda -> {
           otherArgs.add("$argName = $argValue")
         }
-
       }
     }
 

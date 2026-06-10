@@ -26,7 +26,6 @@ class MovableContentRuleTest {
 
   private val rule = MovableContentRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("MovableContent", rule.id)
@@ -67,7 +66,6 @@ class MovableContentRuleTest {
     )
   }
 
-
   @Test
   fun pattern_movableContentOfWithoutRemember_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -82,7 +80,6 @@ class MovableContentRuleTest {
   fun pattern_movableContentWithReceiverOfWithoutRemember_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun reason_statePreservationAndAnimation() {

@@ -51,6 +51,12 @@ public class ViewModelForwardingRule : ComposableFunctionRule() {
       val paramName = param.name ?: continue
 
       for (call in calls) {
+        // Forwarding only applies when the ViewModel is handed to ANOTHER composable. Composable
+        // callees are PascalCase; passing the VM to an ordinary helper, builder or effect
+        // (e.g. LaunchedEffect, remember, a lowercase function) is not forwarding.
+        val calleeName = call.calleeExpression?.text ?: continue
+        if (calleeName.firstOrNull()?.isUpperCase() != true) continue
+
         val args = call.valueArguments
         for (arg in args) {
           val argText = arg.getArgumentExpression()?.text ?: continue

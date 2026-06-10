@@ -26,7 +26,6 @@ class MultipleContentRuleTest {
 
   private val rule = MultipleContentRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("MultipleContentEmitters", rule.id)
@@ -68,7 +67,6 @@ class MultipleContentRuleTest {
     )
   }
 
-
   @Test
   fun pattern_multipleTopLevelEmitters_shouldViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -84,7 +82,6 @@ class MultipleContentRuleTest {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
 
-
   @Test
   fun pattern_columnScopeExtension_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
@@ -99,7 +96,6 @@ class MultipleContentRuleTest {
   fun pattern_lazyListScopeExtension_shouldNotViolate() {
     assertEquals(RuleCategory.COMPOSABLE, rule.category)
   }
-
 
   @Test
   fun reason_encapsulationAndReusability() {

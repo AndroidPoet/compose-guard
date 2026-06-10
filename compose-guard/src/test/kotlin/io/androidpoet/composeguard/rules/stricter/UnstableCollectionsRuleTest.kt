@@ -26,7 +26,6 @@ class UnstableCollectionsRuleTest {
 
   private val rule = UnstableCollectionsRule()
 
-
   @Test
   fun metadata_id() {
     assertEquals("UnstableCollections", rule.id)
@@ -68,7 +67,6 @@ class UnstableCollectionsRuleTest {
     )
   }
 
-
   @Test
   fun pattern_listParameter_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
@@ -78,7 +76,6 @@ class UnstableCollectionsRuleTest {
   fun pattern_immutableListParameter_shouldNotViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
-
 
   @Test
   fun pattern_setParameter_shouldViolate() {
@@ -90,7 +87,6 @@ class UnstableCollectionsRuleTest {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
 
-
   @Test
   fun pattern_mapParameter_shouldViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
@@ -100,7 +96,6 @@ class UnstableCollectionsRuleTest {
   fun pattern_immutableMapParameter_shouldNotViolate() {
     assertEquals(RuleCategory.STRICTER, rule.category)
   }
-
 
   @Test
   fun reason_composeStabilityAndPerformance() {
