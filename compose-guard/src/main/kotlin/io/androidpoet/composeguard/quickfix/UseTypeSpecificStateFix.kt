@@ -38,14 +38,17 @@ public class UseTypeSpecificStateFix(
     val args = callExpr.valueArgumentList?.arguments?.firstOrNull()?.text ?: return
     val factory = KtPsiFactory(project)
 
+    // Capture the file before replacing — after replace, callExpr is detached and
+    // callExpr.containingKtFile throws "KtElement not inside KtFile".
+    val file = callExpr.containingKtFile
+
     val newCall = factory.createExpression("$targetFunction($args)")
     callExpr.replace(newCall)
 
-    addImportIfNeeded(project, callExpr)
+    addImportIfNeeded(project, file)
   }
 
-  private fun addImportIfNeeded(project: Project, element: org.jetbrains.kotlin.psi.KtElement) {
-    val file = element.containingKtFile
+  private fun addImportIfNeeded(project: Project, file: org.jetbrains.kotlin.psi.KtFile) {
     val imports = file.importDirectives
 
     val fqNameStr = "androidx.compose.runtime.$targetFunction"

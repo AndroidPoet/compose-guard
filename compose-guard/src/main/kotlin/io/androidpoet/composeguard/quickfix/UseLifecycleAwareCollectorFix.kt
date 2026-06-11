@@ -50,17 +50,20 @@ public class UseLifecycleAwareCollectorFix : LocalQuickFix, HighPriorityAction {
       "$receiver.collectAsStateWithLifecycle()"
     }
 
+    // Capture the file before replacing — afterwards callExpr is detached (it lived inside
+    // dotExpr) and callExpr.containingKtFile throws "KtElement not inside KtFile".
+    val file = callExpr.containingKtFile
+
     val newExpr = factory.createExpression(newCallText)
     dotExpr.replace(newExpr)
 
-    addImportIfNeeded(project, callExpr)
+    addImportIfNeeded(project, file)
   }
 
   private fun addImportIfNeeded(
     project: Project,
-    element: org.jetbrains.kotlin.psi.KtElement,
+    file: org.jetbrains.kotlin.psi.KtFile,
   ) {
-    val file = element.containingKtFile
     val imports = file.importDirectives
 
     val fqNameStr = "androidx.lifecycle.compose.collectAsStateWithLifecycle"

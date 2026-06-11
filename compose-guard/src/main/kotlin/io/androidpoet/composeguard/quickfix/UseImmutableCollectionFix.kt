@@ -42,13 +42,16 @@ public class UseImmutableCollectionFix(
     val newText = currentText.replaceFirst(currentType, suggestedType)
     val newTypeRef = factory.createType(newText)
 
+    // Capture the file before replacing — afterwards typeRef is detached and
+    // typeRef.containingKtFile throws "KtElement not inside KtFile".
+    val file = typeRef.containingKtFile
+
     typeRef.replace(newTypeRef.typeElement!!)
 
-    addImportIfNeeded(project, typeRef)
+    addImportIfNeeded(project, file)
   }
 
-  private fun addImportIfNeeded(project: Project, element: org.jetbrains.kotlin.psi.KtElement) {
-    val file = element.containingKtFile
+  private fun addImportIfNeeded(project: Project, file: org.jetbrains.kotlin.psi.KtFile) {
     val imports = file.importDirectives
 
     val fqNameStr = when (suggestedType) {
