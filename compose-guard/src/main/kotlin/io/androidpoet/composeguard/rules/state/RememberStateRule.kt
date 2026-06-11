@@ -25,6 +25,7 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
@@ -70,6 +71,13 @@ public class RememberStateRule : ComposableFunctionRule() {
       val expression = property.initializer
         ?: property.delegateExpression
         ?: continue
+
+      // A function-valued property (e.g. `val factory = { mutableStateOf(0) }`) is not state. The
+      // builder inside runs when the lambda is invoked, not at composition, so wrapping it in
+      // remember is nonsensical and would be a false positive.
+      if (expression is KtLambdaExpression) {
+        continue
+      }
 
       // Skip if the expression itself is already a remember call
       // This prevents false positives when remember { mutableStateOf(...) } is used

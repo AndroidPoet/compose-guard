@@ -42,6 +42,19 @@ class RememberStateBehaviorTest : BasePlatformTestCase() {
     assertEquals(1, analyze("@Composable fun S() { val x = derivedStateOf { 1 } }"))
   }
 
+  fun test_factoryLambdaProducingState_shouldNotViolate() {
+    // The state builder runs when the lambda is invoked, not at composition, so wrapping it in
+    // remember is nonsensical. A function-valued property must not be flagged.
+    assertEquals(0, analyze("@Composable fun S() { val factory = { mutableStateOf(0) } }"))
+  }
+
+  fun test_typedFactoryLambdaProducingState_shouldNotViolate() {
+    assertEquals(
+      0,
+      analyze("@Composable fun S() { val make: () -> Any = { derivedStateOf { 1 } } }"),
+    )
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText("Sample.kt", "annotation class Composable\n$code") as KtFile
     val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "S" }
