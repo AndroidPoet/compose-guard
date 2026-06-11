@@ -27,12 +27,12 @@ class ComposeRuleRegistryTest {
   fun testGetAllRules_returns36Rules() {
     val rules = ComposeRuleRegistry.getAllRules()
 
-    assertEquals(36, rules.size)
+    assertEquals(37, rules.size)
   }
 
   @Test
   fun testGetRuleCount_returns36() {
-    assertEquals(36, ComposeRuleRegistry.getRuleCount())
+    assertEquals(37, ComposeRuleRegistry.getRuleCount())
   }
 
   @Test
@@ -174,7 +174,7 @@ class ComposeRuleRegistryTest {
   fun testGetRulesByCategory_composableCategory() {
     val composableRules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.COMPOSABLE)
 
-    assertEquals(8, composableRules.size)
+    assertEquals(9, composableRules.size)
     assertTrue(composableRules.all { it.category == RuleCategory.COMPOSABLE })
   }
 
@@ -224,7 +224,7 @@ class ComposeRuleRegistryTest {
     assertEquals(7, rulesByCategories[RuleCategory.MODIFIER]?.size)
     assertEquals(8, rulesByCategories[RuleCategory.STATE]?.size)
     assertEquals(5, rulesByCategories[RuleCategory.PARAMETER]?.size)
-    assertEquals(8, rulesByCategories[RuleCategory.COMPOSABLE]?.size)
+    assertEquals(9, rulesByCategories[RuleCategory.COMPOSABLE]?.size)
     assertEquals(2, rulesByCategories[RuleCategory.STRICTER]?.size)
   }
 
@@ -312,6 +312,7 @@ class ComposeRuleRegistryTest {
       "EffectKeys",
       "MovableContent",
       "PreviewVisibility",
+      "ComponentDefaultsVisibility",
       "LazyListContentType",
       "LazyListMissingKey",
     )

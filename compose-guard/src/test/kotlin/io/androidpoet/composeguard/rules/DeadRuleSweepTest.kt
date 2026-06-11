@@ -134,6 +134,9 @@ class DeadRuleSweepTest : BasePlatformTestCase() {
         ResultsList(filter = query)
       }
     }
+
+    @Composable fun DefaultsComponent() { }
+    private object DefaultsComponentDefaults { val color = 0 }
   """.trimIndent()
 
   fun test_sweep() {

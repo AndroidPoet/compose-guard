@@ -25,7 +25,7 @@ class RuleDetectionTest {
   @Test
   fun testAllRulesRegistered() {
     val rules = ComposeRuleRegistry.getAllRules()
-    assertEquals(36, rules.size, "Expected 36 rules to be registered")
+    assertEquals(37, rules.size, "Expected 37 rules to be registered")
   }
 
   @Test
@@ -123,6 +123,7 @@ class RuleDetectionTest {
       "EffectKeys" to "Effect Keys Correctness",
       "MovableContent" to "Movable Content Should Be Remembered",
       "PreviewVisibility" to "Preview Should Be Private",
+      "ComponentDefaultsVisibility" to "ComponentDefaults Visibility",
       "LazyListContentType" to "LazyList Missing ContentType",
       "LazyListMissingKey" to "LazyList Missing Key Parameter",
     )
@@ -184,7 +185,7 @@ class RuleDetectionTest {
       RuleCategory.MODIFIER to 7,
       RuleCategory.STATE to 8,
       RuleCategory.PARAMETER to 5,
-      RuleCategory.COMPOSABLE to 8,
+      RuleCategory.COMPOSABLE to 9,
       RuleCategory.STRICTER to 2,
     )
 
@@ -198,7 +199,7 @@ class RuleDetectionTest {
     }
 
     val total = rulesByCategory.values.sumOf { it.size }
-    assertEquals(36, total, "Total rules should be 36")
+    assertEquals(37, total, "Total rules should be 37")
   }
 
   @Test

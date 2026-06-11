@@ -475,7 +475,7 @@ class AllRulesTest {
   @Test
   fun testAllComposableRules_count() {
     val rules = ComposeRuleRegistry.getRulesByCategory(RuleCategory.COMPOSABLE)
-    assertEquals(8, rules.size)
+    assertEquals(9, rules.size)
   }
 
   @Test
@@ -486,7 +486,7 @@ class AllRulesTest {
 
   @Test
   fun testTotalRuleCount() {
-    assertEquals(36, ComposeRuleRegistry.getRuleCount())
+    assertEquals(37, ComposeRuleRegistry.getRuleCount())
   }
 
   @Test
@@ -533,6 +533,7 @@ class AllRulesTest {
       "EffectKeys",
       "MovableContent",
       "PreviewVisibility",
+      "ComponentDefaultsVisibility",
       "LazyListContentType",
       "LazyListMissingKey",
       "Material2Usage",
@@ -584,7 +585,7 @@ class AllRulesTest {
     assertTrue(totalWarnings > errorCount, "Expected more warnings than errors")
     assertTrue(totalWarnings > infoCount, "Expected more warnings than info")
 
-    assertEquals(36, errorCount + warningCount + weakWarningCount + infoCount)
+    assertEquals(37, errorCount + warningCount + weakWarningCount + infoCount)
   }
 
   @Test

@@ -15,6 +15,7 @@
  */
 package io.androidpoet.composeguard.rules
 
+import io.androidpoet.composeguard.rules.composables.ComponentDefaultsVisibilityRule
 import io.androidpoet.composeguard.rules.composables.ContentEmissionRule
 import io.androidpoet.composeguard.rules.composables.ContentSlotReusedRule
 import io.androidpoet.composeguard.rules.composables.EffectKeysRule
@@ -92,6 +93,7 @@ public object ComposeRuleRegistry {
     register(LambdaParameterInEffectRule())
     register(MovableContentRule())
     register(PreviewVisibilityRule())
+    register(ComponentDefaultsVisibilityRule())
     register(LazyListContentTypeRule())
     register(LazyListMissingKeyRule())
 

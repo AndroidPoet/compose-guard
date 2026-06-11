@@ -4,6 +4,9 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **New rule: ComponentDefaults Visibility** - Implements the upstream Compose Rules check ["ComponentDefaults object should match the composable visibility"](https://mrmans0n.github.io/compose-rules/rules/#componentdefaults-object-should-match-the-composable-visibility), the one catalog rule compose-guard did not yet cover. A `<Component>Defaults` object is flagged when its visibility differs from the composable it accompanies (e.g. a public `MyComponent` with a `private object MyComponentDefaults`), because a more-restricted defaults object stops callers from reading and building on those defaults. Matching visibility (both public, both internal, …) and composables with no defaults object are left alone. Registered in the COMPOSABLE category with a behavioral test suite.
+
 ### Fixed (False Positives)
 - **ModifierOrder** - `offset` is no longer treated as a touch-target-reducing modifier. `Modifier.offset(...).clickable { }` translates the element without shrinking its tappable area, so it is no longer reported; only `padding` before an interaction modifier is flagged.
 - **LazyListContentType** - Nested lazy lists no longer contaminate each other's item counts. A `LazyColumn { items(...) { LazyRow { items(...) } } }` is no longer reported as heterogeneous because the inner `LazyRow`'s items are now attributed to the inner list, not the outer one.
