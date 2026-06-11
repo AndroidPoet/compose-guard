@@ -65,16 +65,10 @@ public class ViewModelForwardingRule : ComposableFunctionRule() {
         for (arg in args) {
           val argText = arg.getArgumentExpression()?.text ?: continue
           if (argText == paramName) {
-            val argName = arg.getArgumentName()?.asName?.asString()
-            // Named: keep the conservative VM-named-parameter heuristic. Positional: the VM is
-            // handed straight to the composable callee — that is the most common forwarding form
-            // and was previously missed entirely. Effects take it as a key, not a forward.
-            val isForwarding = if (argName != null) {
-              isViewModelParamName(argName)
-            } else {
-              calleeName !in effectComposables
-            }
-            if (isForwarding) {
+            // The VM is handed verbatim to a composable callee — that is forwarding regardless of
+            // whether the argument is positional or named, and regardless of what the child calls
+            // its parameter. Effects take the VM as a restart key, not as a forward, so exempt them.
+            if (calleeName !in effectComposables) {
               violations.add(
                 createViolation(
                   element = arg,
@@ -124,12 +118,5 @@ public class ViewModelForwardingRule : ComposableFunctionRule() {
       typeName.contains("ViewModel<") ||
       typeName == "ViewModel" ||
       typeName.endsWith("VM")
-  }
-
-  private fun isViewModelParamName(name: String): Boolean {
-    return name == "viewModel" ||
-      name == "vm" ||
-      name.endsWith("ViewModel") ||
-      name.endsWith("VM")
   }
 }

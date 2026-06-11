@@ -49,6 +49,18 @@ class ViewModelForwardingBehaviorTest : BasePlatformTestCase() {
     )
   }
 
+  fun test_viewModelForwardedUnderDifferentParamName_shouldViolate() {
+    // The ViewModel is still forwarded even when the child names its parameter something else.
+    assertEquals(
+      1,
+      analyze(
+        "class MyViewModel\n" +
+          "@Composable fun Child(state: MyViewModel) {}\n" +
+          "@Composable fun Parent(viewModel: MyViewModel) { Child(state = viewModel) }",
+      ),
+    )
+  }
+
   fun test_viewModelAsLaunchedEffectKey_shouldNotViolate() {
     // Passing the ViewModel as an effect restart key is not forwarding it to another composable.
     assertEquals(
