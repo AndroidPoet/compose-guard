@@ -23,6 +23,8 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isContentEmittingStatement
+import io.androidpoet.composeguard.rules.nonEmittingEffectComposables
+import io.androidpoet.composeguard.rules.transparentComposableWrappers
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -44,24 +46,6 @@ public class MultipleContentRule : ComposableFunctionRule() {
     "Divider", "Spacer", "Canvas",
     "AlertDialog", "Dialog",
     "NavigationRail", "NavigationBar", "TopAppBar", "BottomAppBar",
-  )
-
-  private val transparentWrappers = setOf(
-    "CompositionLocalProvider",
-    "key",
-  )
-
-  // Effects and behavior-registering composables emit no UI, so they must not be counted toward the
-  // content-emitter total even though their callees are PascalCase and sit in statement position.
-  private val sideEffects = setOf(
-    "LaunchedEffect",
-    "DisposableEffect",
-    "SideEffect",
-    "BackHandler",
-    "PredictiveBackHandler",
-    "LifecycleStartEffect",
-    "LifecycleResumeEffect",
-    "LifecycleEventEffect",
   )
 
   private val allowedReceiverTypes = setOf(
@@ -131,7 +115,7 @@ public class MultipleContentRule : ComposableFunctionRule() {
     for (call in directCalls) {
       val callName = call.calleeExpression?.text ?: continue
 
-      if (callName in transparentWrappers || callName in sideEffects) {
+      if (callName in transparentComposableWrappers || callName in nonEmittingEffectComposables) {
         continue
       }
 

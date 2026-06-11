@@ -40,24 +40,31 @@ import org.jetbrains.kotlin.psi.psiUtil.parents
 private const val COMPOSABLE_ANNOTATION = "Composable"
 private const val PREVIEW_ANNOTATION = "Preview"
 
-private val transparentComposableWrappers = setOf(
+internal val transparentComposableWrappers = setOf(
   "CompositionLocalProvider",
   "key",
 )
 
-private val sideEffectComposables = setOf(
+/**
+ * PascalCase composables that register behavior or run effects but emit no UI. Shared so every rule
+ * that distinguishes real content emission from these (e.g. ContentEmission, MultipleContentEmitters,
+ * ModifierRequired) stays in sync — add a new non-emitting composable here once.
+ */
+internal val nonEmittingEffectComposables = setOf(
   "LaunchedEffect",
   "DisposableEffect",
   "SideEffect",
-  "remember",
-  "rememberSaveable",
-  "derivedStateOf",
-  // Effect/handler composables that register behavior but emit no UI.
   "BackHandler",
   "PredictiveBackHandler",
   "LifecycleStartEffect",
   "LifecycleResumeEffect",
   "LifecycleEventEffect",
+)
+
+private val sideEffectComposables = nonEmittingEffectComposables + setOf(
+  "remember",
+  "rememberSaveable",
+  "derivedStateOf",
 )
 
 internal fun KtNamedFunction.isComposable(): Boolean {
