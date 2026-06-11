@@ -93,6 +93,47 @@ class MultipleContentFalsePositiveTest : BasePlatformTestCase() {
     assertEmpty(rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)))
   }
 
+  fun test_multipleEmittersInsideTransparentProvider_shouldViolate() {
+    val function = configure(
+      """
+        annotation class Composable
+
+        @Composable
+        fun Themed() {
+          CompositionLocalProvider {
+            Text("a")
+            Text("b")
+          }
+        }
+      """.trimIndent(),
+    )
+
+    // CompositionLocalProvider introduces no layout node, so two emitters directly inside it are
+    // still two top-level emissions — the rule must see through the transparent wrapper.
+    assertEquals(1, rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)).size)
+  }
+
+  fun test_singleContainerInsideTransparentProvider_shouldNotViolate() {
+    val function = configure(
+      """
+        annotation class Composable
+
+        @Composable
+        fun Themed() {
+          CompositionLocalProvider {
+            Column {
+              Text("a")
+              Text("b")
+            }
+          }
+        }
+      """.trimIndent(),
+    )
+
+    // The provider wraps a single Column, which groups its children: one top-level emission.
+    assertEmpty(rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)))
+  }
+
   fun test_scopeExtensionWithMultipleEmitters_shouldNotViolate() {
     val function = configure(
       """

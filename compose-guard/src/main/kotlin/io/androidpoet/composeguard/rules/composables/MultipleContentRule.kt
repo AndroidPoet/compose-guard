@@ -115,7 +115,15 @@ public class MultipleContentRule : ComposableFunctionRule() {
     for (call in directCalls) {
       val callName = call.calleeExpression?.text ?: continue
 
-      if (callName in transparentComposableWrappers || callName in nonEmittingEffectComposables) {
+      if (callName in nonEmittingEffectComposables) {
+        continue
+      }
+
+      if (callName in transparentComposableWrappers) {
+        // Transparent wrappers (CompositionLocalProvider, key) introduce no layout node, so content
+        // directly inside them is still top-level emission — see through them rather than ignoring.
+        val wrapperBody = call.lambdaArguments.lastOrNull()?.getLambdaExpression()?.bodyExpression
+        if (wrapperBody != null) count += countTopLevelEmissions(wrapperBody)
         continue
       }
 
