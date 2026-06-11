@@ -27,6 +27,7 @@ import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isComposable
+import io.androidpoet.composeguard.rules.isSuppressed
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import java.awt.Color
@@ -79,7 +80,13 @@ public class ComposeGuardLineMarkerProvider : LineMarkerProvider {
     for (rule in enabledRules) {
       try {
         val violations = rule.analyzeFunction(function, context)
-        allViolations.addAll(violations)
+        for (violation in violations) {
+          // Respect suppression the same way the annotator and statistics scan do; otherwise a
+          // suppressed rule still colours the gutter and inflates the violation count even though
+          // its inline highlight is gone.
+          if (isSuppressed(violation.element, rule.id)) continue
+          allViolations.add(violation)
+        }
       } catch (e: Exception) {
       }
     }
