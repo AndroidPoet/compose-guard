@@ -130,10 +130,15 @@ internal fun KtParameter.isComposableLambda(): Boolean {
 }
 
 internal fun KtProperty.isCompositionLocal(): Boolean {
+  // Inspect the actual factory call rather than substring-matching the initializer text, so a
+  // string literal or callable reference that merely mentions the name (e.g.
+  // `val msg = "use compositionLocalOf"`, `val f = ::compositionLocalOf`) is not misclassified.
   val initializer = initializer ?: return false
-  val callText = initializer.text
-  return callText.contains("compositionLocalOf") ||
-    callText.contains("staticCompositionLocalOf")
+  val call = initializer as? KtCallExpression
+    ?: (initializer as? KtDotQualifiedExpression)?.selectorExpression as? KtCallExpression
+    ?: return false
+  val callee = call.calleeExpression?.text ?: return false
+  return callee == "compositionLocalOf" || callee == "staticCompositionLocalOf"
 }
 
 internal fun KtNamedFunction.findCallExpressions(): List<KtCallExpression> {

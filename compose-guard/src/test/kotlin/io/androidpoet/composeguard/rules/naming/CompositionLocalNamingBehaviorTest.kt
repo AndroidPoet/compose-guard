@@ -43,6 +43,17 @@ class CompositionLocalNamingBehaviorTest : BasePlatformTestCase() {
     assertEquals(0, analyze("val ContentColor = 0"))
   }
 
+  fun test_stringLiteralMentioningFactory_shouldNotBeChecked() {
+    // The initializer text contains "compositionLocalOf" but it's just a string — not a
+    // CompositionLocal. Regression guard against the old substring-based detection.
+    assertEquals(0, analyze("val ContentColor = \"see compositionLocalOf docs\""))
+  }
+
+  fun test_callableReferenceToFactory_shouldNotBeChecked() {
+    // `::compositionLocalOf` is a function reference, not a CompositionLocal value.
+    assertEquals(0, analyze("val ContentColor = ::staticCompositionLocalOf"))
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText(
       "Sample.kt",
