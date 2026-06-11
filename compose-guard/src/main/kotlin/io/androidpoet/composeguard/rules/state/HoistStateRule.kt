@@ -26,6 +26,7 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isPreview
 import io.androidpoet.composeguard.rules.isPrivate
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
@@ -114,6 +115,10 @@ public class HoistStateRule : ComposableFunctionRule() {
   override fun shouldAnalyze(function: KtNamedFunction): Boolean {
     if (function.isPreview()) return false
     if (function.isPrivate()) return false
+    // Hoisting state into a new parameter is a signature change an override cannot make (its
+    // signature is fixed by the supertype), so the fix is not actionable. Matches the override
+    // exemption in ComposableNaming/ModifierNaming/ModifierRequired/ParameterOrdering/TrailingLambda.
+    if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD)) return false
     return true
   }
 

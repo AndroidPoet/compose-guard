@@ -18,6 +18,7 @@ package io.androidpoet.composeguard.rules.state
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.androidpoet.composeguard.rules.AnalysisContext
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -83,6 +84,30 @@ class HoistStateFalsePositiveTest : BasePlatformTestCase() {
         """,
       ).isNotEmpty(),
     )
+  }
+
+  /**
+   * State passed to children inside an OVERRIDE must not be flagged: HoistState's fix hoists local
+   * state into a new parameter, a signature change the override cannot make.
+   */
+  fun test_overrideComposable_shouldNotViolate() {
+    val file = myFixture.configureByText(
+      "Sample.kt",
+      "annotation class Composable\n" +
+        "interface Panel { @Composable fun Render() }\n" +
+        "class P : Panel {\n" +
+        "  @Composable override fun Render() {\n" +
+        "    val query = remember { mutableStateOf(\"\") }\n" +
+        "    Column {\n" +
+        "      SearchField(text = query)\n" +
+        "      ResultsList(filter = query)\n" +
+        "    }\n" +
+        "  }\n" +
+        "}",
+    ) as KtFile
+    val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java)
+      .first { it.hasModifier(KtTokens.OVERRIDE_KEYWORD) }
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
   private fun analyze(body: String): List<*> {
