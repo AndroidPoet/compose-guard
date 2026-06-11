@@ -23,6 +23,7 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.containsTopLevelArrow
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 
@@ -48,6 +49,11 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
     function: KtNamedFunction,
     context: AnalysisContext,
   ): List<ComposeRuleViolation> {
+    // An override inherits its parameter order from the supertype and cannot reorder it, so the
+    // reorder fix is not actionable. ModifierNaming/ModifierRequired/ComposableNaming skip overrides
+    // for the same reason.
+    if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD)) return emptyList()
+
     val params = function.valueParameters
     if (params.size <= 1) return emptyList()
 

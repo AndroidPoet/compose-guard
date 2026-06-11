@@ -18,6 +18,7 @@ package io.androidpoet.composeguard.rules.parameters
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.androidpoet.composeguard.rules.AnalysisContext
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -45,6 +46,20 @@ class ParameterOrderingBehaviorTest : BasePlatformTestCase() {
       0,
       analyze("@Composable fun S(pages: List<@Composable () -> Unit>, selectedIndex: Int) {}"),
     )
+  }
+
+  fun test_overrideWithContentLambdaNotTrailing_shouldNotViolate() {
+    // The override inherits its parameter order from the supertype and cannot reorder it, so the
+    // reorder fix is not actionable. Matches ModifierNaming/ModifierRequired/ComposableNaming.
+    val file = myFixture.configureByText(
+      "Sample.kt",
+      "annotation class Composable\n" +
+        "interface P { @Composable fun S(content: @Composable () -> Unit, count: Int) }\n" +
+        "class C : P { @Composable override fun S(content: @Composable () -> Unit, count: Int) {} }",
+    ) as KtFile
+    val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java)
+      .first { it.hasModifier(KtTokens.OVERRIDE_KEYWORD) }
+    assertEquals(0, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
   }
 
   private fun analyze(code: String): Int {

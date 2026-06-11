@@ -23,6 +23,7 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isComposableLambda
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class TrailingLambdaRule : ComposableFunctionRule() {
@@ -34,6 +35,10 @@ public class TrailingLambdaRule : ComposableFunctionRule() {
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#slots-for-main-content-should-be-the-trailing-lambda"
 
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
+    // An override inherits its parameter order from the supertype and cannot move the content slot
+    // to the trailing position, so the reorder fix is not actionable.
+    if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD)) return emptyList()
+
     val params = function.valueParameters
     if (params.isEmpty()) return emptyList()
     val violations = mutableListOf<ComposeRuleViolation>()

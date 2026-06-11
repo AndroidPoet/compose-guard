@@ -18,6 +18,7 @@ package io.androidpoet.composeguard.rules.parameters
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.androidpoet.composeguard.rules.AnalysisContext
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -68,6 +69,20 @@ class TrailingLambdaFalsePositiveTest : BasePlatformTestCase() {
       """.trimIndent(),
     )
     assertEquals(1, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
+  }
+
+  fun test_overrideWithContentSlotNotTrailing_shouldNotViolate() {
+    // The override inherits its parameter order from the supertype and cannot move the content slot
+    // to the trailing position, so the reorder fix is not actionable.
+    val file = myFixture.configureByText(
+      "Sample.kt",
+      "annotation class Composable\n" +
+        "interface P { @Composable fun S(content: @Composable () -> Unit, count: Int) }\n" +
+        "class C : P { @Composable override fun S(content: @Composable () -> Unit, count: Int) {} }",
+    ) as KtFile
+    val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java)
+      .first { it.hasModifier(KtTokens.OVERRIDE_KEYWORD) }
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
   private fun configure(code: String): KtNamedFunction {
