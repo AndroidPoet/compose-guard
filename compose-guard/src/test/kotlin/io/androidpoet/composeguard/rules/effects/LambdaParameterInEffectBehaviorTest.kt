@@ -108,6 +108,41 @@ class LambdaParameterInEffectBehaviorTest : BasePlatformTestCase() {
     assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
+  fun test_mapOfLambdasIsNotALambdaParameter_shouldNotViolate() {
+    // 'handlers' is a Map<String, () -> Unit>, not a lambda — its arrow is inside the type argument.
+    // It must not be treated as an unkeyed lambda parameter just because the text contains "->".
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Screen(handlers: Map<String, () -> Unit>) {
+          LaunchedEffect(Unit) {
+            handlers["x"]
+          }
+        }
+      """.trimIndent(),
+    )
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
+  }
+
+  fun test_typeNameContainingFunction_shouldNotViolate() {
+    // 'registry' is a FunctionRegistry — an ordinary class whose name merely contains "Function".
+    // The loose "Function" substring wrongly treated it as a function-type parameter.
+    val fn = configure(
+      """
+        annotation class Composable
+        class FunctionRegistry
+        @Composable
+        fun Screen(registry: FunctionRegistry) {
+          LaunchedEffect(Unit) {
+            println(registry)
+          }
+        }
+      """.trimIndent(),
+    )
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
+  }
+
   private fun configure(code: String): KtNamedFunction {
     val file = myFixture.configureByText("Sample.kt", code) as KtFile
     return PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "Screen" }

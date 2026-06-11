@@ -24,6 +24,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.containsTopLevelArrow
 import io.androidpoet.composeguard.rules.isSuppressed
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
@@ -52,8 +53,8 @@ public class LambdaParameterInEffectRule : ComposableFunctionRule() {
     val violations = mutableListOf<ComposeRuleViolation>()
 
     val lambdaParams = function.valueParameters.filter { param ->
-      val typeText = param.typeReference?.text ?: return@filter false
-      typeText.contains("->") || typeText.contains("Function")
+      val typeText = param.typeReference?.text?.trim()?.removeSuffix("?")?.trim() ?: return@filter false
+      isFunctionTypeText(typeText)
     }.mapNotNull { it.name }
 
     if (lambdaParams.isEmpty()) return emptyList()
@@ -119,6 +120,16 @@ public class LambdaParameterInEffectRule : ComposableFunctionRule() {
     }
 
     return violations
+  }
+
+  // A parameter is a function-type lambda only when its OWN type is a function type: either written
+  // with a top-level arrow (`() -> Unit`, `@Composable () -> Unit`, `T.() -> Unit`) or as the Kotlin
+  // `Function`/`FunctionN` interface. Substring checks on "->" or "Function" wrongly matched
+  // `Map<String, () -> Unit>` (arrow inside a generic) and ordinary types like `FunctionRegistry`.
+  private fun isFunctionTypeText(typeText: String): Boolean {
+    if (typeText.containsTopLevelArrow()) return true
+    val head = typeText.substringBefore("<").substringAfterLast(".").trim()
+    return head == "Function" || head.matches(Regex("Function\\d+"))
   }
 
   private fun isWrappedInRememberUpdatedState(
