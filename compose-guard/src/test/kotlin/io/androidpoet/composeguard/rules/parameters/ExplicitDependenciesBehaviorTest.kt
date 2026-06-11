@@ -39,6 +39,18 @@ class ExplicitDependenciesBehaviorTest : BasePlatformTestCase() {
     assertEquals(0, analyze("@Composable fun S() { val vm = viewModel(factory) }"))
   }
 
+  fun test_customCompositionLocalReadInBody_shouldViolate() {
+    // The canonical implicit-dependency pattern: reading a custom CompositionLocal's `.current`
+    // inside the body instead of taking it as a parameter. This is the rule's headline
+    // CompositionLocal case and must fire.
+    assertEquals(1, analyze("@Composable fun S() { val theme = LocalAppTheme.current }"))
+  }
+
+  fun test_frameworkCompositionLocalRead_shouldNotViolate() {
+    // Reading platform CompositionLocals (LocalContext, etc.) is idiomatic and must not be flagged.
+    assertEquals(0, analyze("@Composable fun S() { val ctx = LocalContext.current }"))
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText(
       "Sample.kt",

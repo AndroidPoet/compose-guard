@@ -25,6 +25,7 @@ import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class ExplicitDependenciesRule : ComposableFunctionRule() {
@@ -156,40 +157,47 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
         )
       }
 
-      if (calleeName.startsWith("Local") && calleeName !in frameworkCompositionLocals) {
-        val dotExpr = call.parent
-        if (dotExpr?.text?.endsWith(".current") == true) {
-          val paramType = inferParameterType(calleeName)
-          violations.add(
-            createViolation(
-              element = call,
-              message = "Consider making '$calleeName' an explicit parameter",
-              tooltip = """
-                Accessing CompositionLocals in the body makes testing harder.
+    }
 
-                Consider making it a parameter:
+    // A CompositionLocal read is `LocalFoo.current` — a property access, NOT a call. Scanning only
+    // call expressions never matched it, so this half of the rule was dead. Detect it via the
+    // dot-qualified `<Local…>.current` shape and skip the platform CompositionLocals.
+    val dotExpressions = PsiTreeUtil.findChildrenOfType(body, KtDotQualifiedExpression::class.java)
+    for (dotExpr in dotExpressions) {
+      if (dotExpr.selectorExpression?.text != "current") continue
+      val localName = dotExpr.receiverExpression.text
+      if (!localName.startsWith("Local")) continue
+      if (localName in frameworkCompositionLocals) continue
 
-                ❌ Current:
-                @Composable
-                fun MyComposable() {
-                    val value = $calleeName.current
-                }
+      val paramType = inferParameterType(localName)
+      violations.add(
+        createViolation(
+          element = dotExpr,
+          message = "Consider making '$localName' an explicit parameter",
+          tooltip = """
+            Accessing CompositionLocals in the body makes testing harder.
 
-                ✅ Better:
-                @Composable
-                fun MyComposable(
-                    value: $paramType = $calleeName.current
-                ) {
-                }
-              """.trimIndent(),
-              quickFixes = listOf(
-                AddExplicitParameterFix(calleeName, paramType),
-                SuppressComposeRuleFix(id),
-              ),
-            ),
-          )
-        }
-      }
+            Consider making it a parameter:
+
+            ❌ Current:
+            @Composable
+            fun MyComposable() {
+                val value = $localName.current
+            }
+
+            ✅ Better:
+            @Composable
+            fun MyComposable(
+                value: $paramType = $localName.current
+            ) {
+            }
+          """.trimIndent(),
+          quickFixes = listOf(
+            AddExplicitParameterFix(localName, paramType),
+            SuppressComposeRuleFix(id),
+          ),
+        ),
+      )
     }
 
     return violations
