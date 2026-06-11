@@ -102,6 +102,51 @@ class CleanCodeFalsePositiveSweepTest : BasePlatformTestCase() {
       content()
     }
 
+    // derivedStateOf for a scroll threshold — already optimized.
+    @Composable
+    fun ScrollAware(listState: LazyListState, modifier: Modifier = Modifier) {
+      val showButton by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+      Box(modifier = modifier) { if (showButton) Text("top") }
+    }
+
+    // Modifier reused across mutually-exclusive when branches — single composition pass uses one.
+    @Composable
+    fun StatusIcon(state: Int, modifier: Modifier = Modifier) {
+      when (state) {
+        0 -> Icon(check, contentDescription = null, modifier = modifier)
+        else -> Icon(close, contentDescription = null, modifier = modifier)
+      }
+    }
+
+    // Content slot invoked once per exclusive branch. Idiomatic slot order: modifier then trailing
+    // content (a required content lambda after the optional modifier is the documented exception).
+    @Composable
+    fun Conditional(show: Boolean, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+      Box(modifier = modifier) {
+        if (show) { content() } else { Text("empty") }
+      }
+    }
+
+    // ViewModel passed in, only state extracted — not forwarded to another composable.
+    @Composable
+    fun Profile(viewModel: ProfileViewModel, modifier: Modifier = Modifier) {
+      val name by viewModel.name.collectAsStateWithLifecycle()
+      Text(text = name, modifier = modifier)
+    }
+
+    // Effect keyed on a changing parameter, alongside a single emitter.
+    @Composable
+    fun Loader(id: Int, modifier: Modifier = Modifier) {
+      LaunchedEffect(id) { }
+      Box(modifier = modifier) { Text("x") }
+    }
+
+    // CompositionLocal correctly prefixed.
+    val LocalSpacing = staticCompositionLocalOf { 0 }
+
+    // Multipreview annotation correctly named.
+    @Preview @Preview annotation class DevicePreviews
+
     annotation class Composable
     annotation class Preview
   """.trimIndent()
