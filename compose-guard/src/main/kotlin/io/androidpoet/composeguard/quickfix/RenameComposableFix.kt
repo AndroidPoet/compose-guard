@@ -19,6 +19,7 @@ import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
@@ -38,6 +39,16 @@ public class RenameComposableFix(
     } ?: return
 
     val nameIdentifier = function.nameIdentifier ?: return
+
+    // Find call sites BEFORE renaming the declaration — once the declaration is renamed the old
+    // name no longer resolves to it and the search returns nothing. Resolution-based search only
+    // matches genuine references to THIS composable, so unrelated same-named symbols (e.g. the
+    // LazyListScope.item { } DSL when renaming a composable called `item`) are left untouched.
+    val references = ReferencesSearch.search(function).findAll()
+
+    for (reference in references) {
+      reference.handleElementRename(suggestedName)
+    }
 
     val factory = KtPsiFactory(project)
     val newIdentifier = factory.createIdentifier(suggestedName)

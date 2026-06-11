@@ -19,6 +19,7 @@ import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
@@ -37,6 +38,14 @@ public class AddLocalPrefixFix(
 
     val nameIdentifier = property.nameIdentifier ?: return
     val newName = "Local$currentName"
+
+    // Rename references too, not just the declaration — otherwise every read of the
+    // CompositionLocal would dangle. Search before renaming the declaration; resolution-based
+    // search only touches genuine references to this property.
+    val references = ReferencesSearch.search(property).findAll()
+    for (reference in references) {
+      reference.handleElementRename(newName)
+    }
 
     val factory = KtPsiFactory(project)
     val newIdentifier = factory.createIdentifier(newName)
