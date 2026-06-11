@@ -16,6 +16,7 @@
 package io.androidpoet.composeguard.rules.composables
 
 import com.intellij.psi.util.PsiTreeUtil
+import io.androidpoet.composeguard.quickfix.MatchDefaultsVisibilityFix
 import io.androidpoet.composeguard.quickfix.SuppressComposeRuleFix
 import io.androidpoet.composeguard.rules.AnalysisContext
 import io.androidpoet.composeguard.rules.ComposableFunctionRule
@@ -69,6 +70,7 @@ public class ComponentDefaultsVisibilityRule : ComposableFunctionRule() {
           Change '$defaultsName' to be ${functionVisibility.value} to match '$name'.
         """.trimIndent(),
         quickFixes = listOf(
+          MatchDefaultsVisibilityFix(functionVisibility.value),
           SuppressComposeRuleFix(id),
         ),
       ),
