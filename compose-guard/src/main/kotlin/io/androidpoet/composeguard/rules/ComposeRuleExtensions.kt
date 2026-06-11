@@ -139,7 +139,9 @@ internal fun KtNamedFunction.getLastParameter(): KtParameter? {
 
 internal fun KtParameter.isComposableLambda(): Boolean {
   val typeText = typeReference?.text ?: return false
-  return typeText.contains("@Composable") && typeText.contains("->")
+  // The arrow must be at the top level: `List<@Composable () -> Unit>` is a collection OF composable
+  // lambdas, not itself a content slot, so its nested arrow must not make the whole parameter count.
+  return typeText.contains("@Composable") && typeText.containsTopLevelArrow()
 }
 
 internal fun KtProperty.isCompositionLocal(): Boolean {

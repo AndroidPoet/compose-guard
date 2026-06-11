@@ -40,6 +40,22 @@ class TrailingLambdaFalsePositiveTest : BasePlatformTestCase() {
     assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
+  fun test_listOfComposablesWithTrailingEventHandler_shouldNotViolate() {
+    // 'pages' is a List<@Composable () -> Unit>, NOT a content slot — its arrow is inside the
+    // generic. With no real trailing content slot, an onX event handler in last position is fine.
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Pager(
+          pages: List<@Composable () -> Unit>,
+          onPageSelected: (Int) -> Unit,
+        ) {}
+      """.trimIndent(),
+    )
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
+  }
+
   fun test_singleContentSlotNotLast_shouldViolate() {
     val fn = configure(
       """
