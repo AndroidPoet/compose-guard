@@ -41,6 +41,11 @@ public class UseRememberUpdatedStateFix(
   override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
     val element = descriptor.psiElement as? KtNameReferenceExpression ?: return
 
+    // Capture the file up front: the flagged reference is one of the references rewritten by
+    // replaceAllReferencesInEffects below, after which element.containingKtFile would throw
+    // "KtElement not inside KtFile".
+    val file = element.containingKtFile
+
     val function = PsiTreeUtil.getParentOfType(element, KtNamedFunction::class.java) ?: return
     val functionBody = function.bodyBlockExpression ?: return
 
@@ -81,7 +86,7 @@ public class UseRememberUpdatedStateFix(
 
     replaceAllReferencesInEffects(functionBody, lambdaName, updatedStateName, factory)
 
-    addImportsIfNeeded(project, element)
+    addImportsIfNeeded(project, file)
   }
 
   private fun hasExistingRememberUpdatedState(body: KtBlockExpression, lambdaName: String): Boolean {
@@ -132,8 +137,7 @@ public class UseRememberUpdatedStateFix(
     }
   }
 
-  private fun addImportsIfNeeded(project: Project, element: org.jetbrains.kotlin.psi.KtElement) {
-    val file = element.containingKtFile
+  private fun addImportsIfNeeded(project: Project, file: org.jetbrains.kotlin.psi.KtFile) {
     val imports = file.importDirectives
 
     val hasRememberUpdatedStateImport = imports.any {
