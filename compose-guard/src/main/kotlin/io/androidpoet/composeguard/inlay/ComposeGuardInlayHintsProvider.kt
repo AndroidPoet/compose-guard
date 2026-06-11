@@ -35,6 +35,7 @@ import io.androidpoet.composeguard.rules.ComposeRuleRegistry
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isComposable
+import io.androidpoet.composeguard.rules.isSuppressed
 import io.androidpoet.composeguard.settings.ComposeGuardSettingsState
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -94,7 +95,7 @@ public class ComposeGuardInlayHintsProvider :
 
         val ktFile = element.containingFile as? KtFile ?: return true
         val context = AnalysisContext(ktFile, isOnTheFly = true)
-        val violations = collectViolations(element, context)
+        val violations = collectUnsuppressedViolations(element, context)
 
         if (violations.isEmpty()) {
           return true
@@ -111,24 +112,6 @@ public class ComposeGuardInlayHintsProvider :
         }
 
         return true
-      }
-
-      private fun collectViolations(
-        function: KtNamedFunction,
-        context: AnalysisContext,
-      ): List<ComposeRuleViolation> {
-        val enabledRules = ComposeRuleRegistry.getEnabledRules()
-        val allViolations = mutableListOf<ComposeRuleViolation>()
-
-        for (rule in enabledRules) {
-          try {
-            val violations = rule.analyzeFunction(function, context)
-            allViolations.addAll(violations)
-          } catch (e: Exception) {
-          }
-        }
-
-        return allViolations
       }
 
       private fun createViolationHint(
@@ -216,4 +199,31 @@ public class ComposeGuardInlayHintsProvider :
       Color(95, 184, 101),
     )
   }
+}
+
+/**
+ * Runs every enabled rule against [function] and returns the violations that are NOT suppressed.
+ * Extracted from the inlay collector so the suppression behaviour can be unit-tested; the inlay,
+ * line marker, annotator, inspection and statistics scan all filter suppressed violations the same
+ * way so a suppressed rule never lingers on one surface after its inline highlight is gone.
+ */
+internal fun collectUnsuppressedViolations(
+  function: KtNamedFunction,
+  context: AnalysisContext,
+): List<ComposeRuleViolation> {
+  val enabledRules = ComposeRuleRegistry.getEnabledRules()
+  val allViolations = mutableListOf<ComposeRuleViolation>()
+
+  for (rule in enabledRules) {
+    try {
+      val violations = rule.analyzeFunction(function, context)
+      for (violation in violations) {
+        if (isSuppressed(violation.element, rule.id)) continue
+        allViolations.add(violation)
+      }
+    } catch (e: Exception) {
+    }
+  }
+
+  return allViolations
 }
