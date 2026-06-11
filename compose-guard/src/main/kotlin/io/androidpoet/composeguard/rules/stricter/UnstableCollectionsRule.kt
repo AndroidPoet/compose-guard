@@ -23,6 +23,7 @@ import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
 import io.androidpoet.composeguard.rules.isStandardCollection
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class UnstableCollectionsRule : ComposableFunctionRule() {
@@ -35,6 +36,11 @@ public class UnstableCollectionsRule : ComposableFunctionRule() {
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#avoid-using-unstable-collections"
 
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
+    // The fix rewrites the parameter type (List -> ImmutableList), a signature change an override
+    // cannot make (its parameter types are fixed by the supertype). Matches the override exemption
+    // across the other signature-changing-fix rules.
+    if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD)) return emptyList()
+
     val violations = mutableListOf<ComposeRuleViolation>()
 
     for (param in function.valueParameters) {

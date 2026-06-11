@@ -18,6 +18,7 @@ package io.androidpoet.composeguard.rules.stricter
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.androidpoet.composeguard.rules.AnalysisContext
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -40,6 +41,20 @@ class UnstableCollectionsBehaviorTest : BasePlatformTestCase() {
 
   fun test_nonCollectionParameter_shouldNotViolate() {
     assertEquals(0, analyze("@Composable fun S(count: Int) {}"))
+  }
+
+  fun test_overrideWithListParameter_shouldNotViolate() {
+    // The fix rewrites the parameter type (List -> ImmutableList), a signature change an override
+    // cannot make. Matches the override exemption across the signature-changing-fix rules.
+    val file = myFixture.configureByText(
+      "Sample.kt",
+      "annotation class Composable\n" +
+        "interface P { @Composable fun S(items: List<Int>) }\n" +
+        "class C : P { @Composable override fun S(items: List<Int>) {} }",
+    ) as KtFile
+    val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java)
+      .first { it.hasModifier(KtTokens.OVERRIDE_KEYWORD) }
+    assertEquals(0, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
   }
 
   private fun analyze(code: String): Int {
