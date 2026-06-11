@@ -18,6 +18,7 @@ package io.androidpoet.composeguard.rules.modifiers
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.androidpoet.composeguard.rules.AnalysisContext
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
@@ -91,6 +92,29 @@ class ModifierRequiredFalsePositiveTest : BasePlatformTestCase() {
     )
 
     assertEmpty(rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)))
+  }
+
+  fun test_overrideComposable_shouldNotViolate() {
+    // An override inherits its signature from the supertype; adding a `modifier` parameter would
+    // break the override, so the suggested fix is not actionable. ModifierNaming already skips
+    // overrides for the same reason.
+    val file = myFixture.configureByText(
+      "Sample.kt",
+      """
+        annotation class Composable
+        interface ScreenContent {
+          @Composable fun Content()
+        }
+        class Home : ScreenContent {
+          @Composable override fun Content() {
+            Column { Text("hi") }
+          }
+        }
+      """.trimIndent(),
+    ) as KtFile
+    val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java)
+      .first { it.hasModifier(KtTokens.OVERRIDE_KEYWORD) }
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
   private fun configure(code: String): KtNamedFunction {

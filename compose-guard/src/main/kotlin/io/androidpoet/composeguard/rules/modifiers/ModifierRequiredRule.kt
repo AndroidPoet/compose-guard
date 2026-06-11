@@ -27,6 +27,7 @@ import io.androidpoet.composeguard.rules.hasModifierParameter
 import io.androidpoet.composeguard.rules.isPreview
 import io.androidpoet.composeguard.rules.isPublic
 import io.androidpoet.composeguard.rules.returnsUnit
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class ModifierRequiredRule : ComposableFunctionRule() {
@@ -49,6 +50,11 @@ public class ModifierRequiredRule : ComposableFunctionRule() {
 
   override fun shouldAnalyze(function: KtNamedFunction): Boolean {
     if (function.isPreview()) return false
+
+    // An override inherits its signature from the supertype; adding a Modifier parameter would
+    // break the override, so the suggested fix is not actionable. ModifierNaming skips overrides
+    // for the same reason.
+    if (function.hasModifier(KtTokens.OVERRIDE_KEYWORD)) return false
 
     if (!function.isPublic()) return false
 
