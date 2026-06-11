@@ -41,6 +41,23 @@ class DeferStateReadsFalsePositiveTest : BasePlatformTestCase() {
     assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
+  fun test_animatedStateNameIsSubstringOfUnrelatedArg_shouldNotViolate() {
+    // 'x' is genuinely animated, but it is NOT read in .size(). The arg is 'maxWidth', an unrelated
+    // static param that merely CONTAINS the letter x. A substring match (args.contains("x")) flagged
+    // it; only a real identifier read should count.
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Bar(maxWidth: Float) {
+          val x by animateFloatAsState(targetValue = 0f)
+          Box(modifier = Modifier.size(maxWidth))
+        }
+      """.trimIndent(),
+    )
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
+  }
+
   fun test_realAnimatedStateReadDuringComposition_shouldViolate() {
     val fn = configure(
       """

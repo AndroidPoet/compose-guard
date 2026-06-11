@@ -157,7 +157,7 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
         val args = match.groupValues.getOrNull(1) ?: continue
 
         val usesFrequentState = frequentlyChangingState.any { stateName ->
-          args.contains(stateName)
+          containsIdentifier(args, stateName)
         }
 
         val usesDpOrSp = args.contains(".dp") || args.contains(".sp")
@@ -184,8 +184,16 @@ public class DeferStateReadsRule : ComposableFunctionRule() {
 
   private fun hasStateReference(args: String, frequentlyChangingState: Set<String>): Boolean {
     return frequentlyChangingState.any { stateName ->
-      args.contains(stateName)
+      containsIdentifier(args, stateName)
     }
+  }
+
+  // Match the state name as a whole identifier, not a raw substring: an animated state named "x"
+  // must not be considered "read" just because an unrelated arg like `maxWidth` contains the letter.
+  private fun containsIdentifier(text: String, identifier: String): Boolean {
+    if (identifier.isEmpty()) return false
+    return Regex("(?<![A-Za-z0-9_])" + Regex.escape(identifier) + "(?![A-Za-z0-9_])")
+      .containsMatchIn(text)
   }
 
   private fun findModifierCall(dotExpr: KtDotQualifiedExpression, modifierName: String): KtCallExpression? {
