@@ -39,6 +39,12 @@ class ContentEmissionBehaviorTest : BasePlatformTestCase() {
     assertEquals(0, analyze("@Composable fun S() { Text(\"x\") }"))
   }
 
+  fun test_emitsContentReturningFullyQualifiedUnit_shouldNotViolate() {
+    // `: kotlin.Unit` is still Unit — an emitter, not an emit-and-return. Regression guard for
+    // returnsUnit() only recognizing the bare "Unit" spelling.
+    assertEquals(0, analyze("@Composable fun S(): kotlin.Unit { Text(\"x\") }"))
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText(
       "Sample.kt",

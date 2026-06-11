@@ -96,8 +96,10 @@ internal fun KtNamedFunction.isPrivate(): Boolean {
 }
 
 internal fun KtNamedFunction.returnsUnit(): Boolean {
-  val returnType = typeReference?.text
-  return returnType == null || returnType == "Unit"
+  val returnType = typeReference?.text ?: return true
+  // Accept the fully-qualified spelling too; `@Composable fun Foo(): kotlin.Unit { … }` is just as
+  // much a content emitter as the bare `Unit` form and must not be treated as value-returning.
+  return returnType == "Unit" || returnType == "kotlin.Unit"
 }
 
 internal fun KtNamedFunction.getModifierParameter(): KtParameter? {
