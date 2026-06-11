@@ -83,6 +83,7 @@ public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
   ): String {
     var itemsArg: String? = null
     var contentTypeArg: String? = null
+    var namedItemContentLambda: String? = null
     val otherArgs = mutableListOf<String>()
 
     for (arg in callExpr.valueArguments) {
@@ -98,7 +99,11 @@ public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
           contentTypeArg = "contentType = $argValue"
         }
 
-        argName == "itemContent" -> continue
+        // The content can be passed as a named `itemContent` argument instead of a trailing
+        // lambda. Capture it so it becomes the trailing lambda rather than being dropped.
+        argName == "itemContent" -> {
+          if (isLambda) namedItemContentLambda = argValue
+        }
 
         argName == "items" && !isLambda -> {
           if (itemsArg == null) {
@@ -130,7 +135,9 @@ public class AddKeyParameterFix : LocalQuickFix, HighPriorityAction {
 
     finalArgs.addAll(otherArgs)
 
-    val trailingLambda = callExpr.lambdaArguments.firstOrNull()?.text ?: "{}"
+    val trailingLambda = callExpr.lambdaArguments.firstOrNull()?.text
+      ?: namedItemContentLambda
+      ?: "{}"
 
     return "$calleeName(${finalArgs.joinToString(", ")}) $trailingLambda"
   }

@@ -18,6 +18,9 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 - Added a **clean-code false-positive sweep** that runs every default-enabled rule over idiomatic, rule-following Compose and asserts nothing fires — a regression guard against new false positives.
 - Added **behavioral quick-fix tests** that actually apply `AddModifierParameter`, `HoistState`, and `ReorderParameters` fixes to real PSI and assert the result is syntactically valid and correctly ordered (previously these fixes had only string-comparison stubs).
 
+### Fixed (Quick Fixes)
+- **Add key parameter** - When a lazy list passed its content as a named `itemContent = { ... }` argument (rather than a trailing lambda), the "Add key parameter" quick fix dropped the content, producing `items(...) { }` with an empty body. The content is now preserved as the trailing lambda.
+
 ### Fixed (Detection)
 - **LazyListMissingKey** - The rule was silently non-functional: the trailing content lambda was mistaken for a positional `key` argument, so `items(list) { ... }` never reported. Detection now inspects only the in-parentheses arguments, so keyless `items`/`itemsIndexed` are correctly flagged while named and positional `key` forms stay clean. Severity lowered from Warning to **Info** so the now-working rule surfaces as a gentle hint rather than a noisy warning on every list.
 
