@@ -306,13 +306,35 @@ private val inherentlyMutableHeadTypes = setOf(
 
 internal fun String.isMutableType(): Boolean {
   val normalized = trim().removeSuffix("?").trim()
-  // A function type such as `() -> MutableList<T>` passes a factory, not a mutable instance.
-  if (normalized.contains("->")) return false
+  // A *top-level* function type such as `() -> MutableList<T>` or `MutableList<T>.() -> Unit` passes
+  // or receives a value but is not itself a mutable instance. An arrow nested inside type arguments
+  // (e.g. `MutableMap<String, () -> Unit>`) does not make the parameter a function, so only a
+  // bracket-depth-0 arrow exempts it.
+  if (normalized.containsTopLevelArrow()) return false
   // Only the outermost type matters: `Wrapper<HashMap<..>>` is a stable wrapper, and observable
   // holders like `MutableStateFlow`/`MutableSharedFlow` are not the inherently-mutable collections
   // this rule targets. Anchoring on the head type avoids both false positives.
   val head = normalized.substringBefore("<").substringAfterLast(".").trim()
   return head in inherentlyMutableHeadTypes
+}
+
+/** True if the string contains a `->` that sits outside any `<...>` type-argument brackets. */
+private fun String.containsTopLevelArrow(): Boolean {
+  var depth = 0
+  var i = 0
+  while (i < length) {
+    if (this[i] == '-' && i + 1 < length && this[i + 1] == '>') {
+      if (depth == 0) return true
+      i += 2
+      continue
+    }
+    when (this[i]) {
+      '<' -> depth++
+      '>' -> if (depth > 0) depth--
+    }
+    i++
+  }
+  return false
 }
 
 internal fun String.isStandardCollection(): Boolean {

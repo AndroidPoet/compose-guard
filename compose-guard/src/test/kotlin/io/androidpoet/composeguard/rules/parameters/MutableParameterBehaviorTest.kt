@@ -39,6 +39,17 @@ class MutableParameterBehaviorTest : BasePlatformTestCase() {
     assertEquals(0, analyze("@Composable fun S(factory: () -> MutableList<Int>) {}"))
   }
 
+  fun test_mutableMapWithLambdaValueType_shouldViolate() {
+    // The parameter is a MutableMap; the `->` lives inside its type arguments and must not exempt
+    // it from the rule.
+    assertEquals(1, analyze("@Composable fun S(handlers: MutableMap<String, () -> Unit>) {}"))
+  }
+
+  fun test_lambdaWithMutableReceiver_shouldNotViolate() {
+    // `MutableList<T>.() -> Unit` is a function type (extension lambda), not a mutable instance.
+    assertEquals(0, analyze("@Composable fun S(block: MutableList<Int>.() -> Unit) {}"))
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText("Sample.kt", "annotation class Composable\n$code") as KtFile
     val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "S" }
