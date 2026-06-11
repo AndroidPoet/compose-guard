@@ -46,11 +46,25 @@ public class WrapInDerivedStateOfFix : LocalQuickFix, HighPriorityAction {
     val factory = KtPsiFactory(project)
     val exprText = expression.text
 
-    val wrappedExpr = factory.createExpression("remember { derivedStateOf { $exprText } }")
-    expression.replace(wrappedExpr)
+    // derivedStateOf returns State<T>. If this expression is a property initializer, switch the
+    // property to `by` delegation so reads keep the unwrapped type (the form the rule recommends);
+    // `val x = remember { derivedStateOf { ... } }` would otherwise make `x` a State<T>.
+    val property = expression.parent as? KtProperty
+    if (property != null && property.initializer === expression && property.name != null) {
+      val keyword = if (property.isVar) "var" else "val"
+      val typeText = property.typeReference?.text?.let { ": $it" } ?: ""
+      val newProperty = factory.createProperty(
+        "$keyword ${property.name}$typeText by remember { derivedStateOf { $exprText } }",
+      )
+      property.replace(newProperty)
+    } else {
+      val wrappedExpr = factory.createExpression("remember { derivedStateOf { $exprText } }")
+      expression.replace(wrappedExpr)
+    }
 
     addImportIfNeeded(project, file, "androidx.compose.runtime.remember")
     addImportIfNeeded(project, file, "androidx.compose.runtime.derivedStateOf")
+    addImportIfNeeded(project, file, "androidx.compose.runtime.getValue")
   }
 
   private fun addImportIfNeeded(
