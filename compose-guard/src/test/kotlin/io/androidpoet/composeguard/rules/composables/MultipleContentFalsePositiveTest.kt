@@ -59,6 +59,23 @@ class MultipleContentFalsePositiveTest : BasePlatformTestCase() {
     assertEquals(1, rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)).size)
   }
 
+  fun test_effectAlongsideSingleEmitter_shouldNotViolate() {
+    val function = configure(
+      """
+        annotation class Composable
+
+        @Composable
+        fun OneShot() {
+          LaunchedEffect(Unit) { }
+          Box { Text("x") }
+        }
+      """.trimIndent(),
+    )
+
+    // LaunchedEffect emits no UI, so only Box counts: a single emitter.
+    assertEmpty(rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)))
+  }
+
   fun test_scopeExtensionWithMultipleEmitters_shouldNotViolate() {
     val function = configure(
       """

@@ -51,6 +51,14 @@ public class MultipleContentRule : ComposableFunctionRule() {
     "key",
   )
 
+  // Effects emit no UI, so they must not be counted toward the content-emitter total even though
+  // their callees are PascalCase and sit in statement position.
+  private val sideEffects = setOf(
+    "LaunchedEffect",
+    "DisposableEffect",
+    "SideEffect",
+  )
+
   private val allowedReceiverTypes = setOf(
     "ColumnScope", "RowScope", "BoxScope", "LazyListScope", "LazyItemScope",
     "LazyGridScope", "LazyGridItemScope", "FlowRowScope", "FlowColumnScope",
@@ -118,7 +126,7 @@ public class MultipleContentRule : ComposableFunctionRule() {
     for (call in directCalls) {
       val callName = call.calleeExpression?.text ?: continue
 
-      if (callName in transparentWrappers) {
+      if (callName in transparentWrappers || callName in sideEffects) {
         continue
       }
 
