@@ -37,6 +37,29 @@ class ViewModelForwardingBehaviorTest : BasePlatformTestCase() {
     )
   }
 
+  fun test_viewModelForwardedPositionally_shouldViolate() {
+    // The most common forwarding form passes the ViewModel positionally, not as a named argument.
+    assertEquals(
+      1,
+      analyze(
+        "class MyViewModel\n" +
+          "@Composable fun Child(viewModel: MyViewModel) {}\n" +
+          "@Composable fun Parent(viewModel: MyViewModel) { Child(viewModel) }",
+      ),
+    )
+  }
+
+  fun test_viewModelAsLaunchedEffectKey_shouldNotViolate() {
+    // Passing the ViewModel as an effect restart key is not forwarding it to another composable.
+    assertEquals(
+      0,
+      analyze(
+        "class MyViewModel\n" +
+          "@Composable fun Parent(viewModel: MyViewModel) { LaunchedEffect(viewModel) { } }",
+      ),
+    )
+  }
+
   fun test_viewModelPassedToLowercaseHelper_shouldNotViolate() {
     assertEquals(
       0,

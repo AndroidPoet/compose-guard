@@ -33,6 +33,10 @@ public class ViewModelForwardingRule : ComposableFunctionRule() {
   override val severity: RuleSeverity = RuleSeverity.WARNING
   override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#viewmodels-should-not-be-forwarded"
 
+  // Effects take the ViewModel as a restart key, not as a forwarded argument, so passing it
+  // positionally to these is legitimate and must not be flagged as forwarding.
+  private val effectComposables = setOf("LaunchedEffect", "DisposableEffect")
+
   override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List<ComposeRuleViolation> {
     val violations = mutableListOf<ComposeRuleViolation>()
 
@@ -62,7 +66,15 @@ public class ViewModelForwardingRule : ComposableFunctionRule() {
           val argText = arg.getArgumentExpression()?.text ?: continue
           if (argText == paramName) {
             val argName = arg.getArgumentName()?.asName?.asString()
-            if (argName != null && isViewModelParamName(argName)) {
+            // Named: keep the conservative VM-named-parameter heuristic. Positional: the VM is
+            // handed straight to the composable callee — that is the most common forwarding form
+            // and was previously missed entirely. Effects take it as a key, not a forward.
+            val isForwarding = if (argName != null) {
+              isViewModelParamName(argName)
+            } else {
+              calleeName !in effectComposables
+            }
+            if (isForwarding) {
               violations.add(
                 createViolation(
                   element = arg,
