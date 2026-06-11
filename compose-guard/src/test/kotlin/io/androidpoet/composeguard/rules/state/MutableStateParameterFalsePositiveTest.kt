@@ -61,6 +61,20 @@ class MutableStateParameterFalsePositiveTest : BasePlatformTestCase() {
     assertEquals(1, rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)).size)
   }
 
+  fun test_mutableStateOfFunctionType_shouldViolate() {
+    // The parameter's own type IS a MutableState — it just happens to hold a lambda. The arrow lives
+    // inside the type argument, so the "skip function types" guard must not let it through.
+    val function = configure(
+      """
+        annotation class Composable
+
+        @Composable
+        fun Screen(handler: MutableState<() -> Unit>) {}
+      """.trimIndent(),
+    )
+    assertEquals(1, rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)).size)
+  }
+
   private fun configure(code: String): KtNamedFunction {
     val file = myFixture.configureByText("Sample.kt", code) as KtFile
     return PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "Screen" }

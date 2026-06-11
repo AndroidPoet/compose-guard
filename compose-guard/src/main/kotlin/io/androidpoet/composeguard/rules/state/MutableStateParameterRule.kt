@@ -21,6 +21,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.containsTopLevelArrow
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 public class MutableStateParameterRule : ComposableFunctionRule() {
@@ -53,7 +54,9 @@ public class MutableStateParameterRule : ComposableFunctionRule() {
       val normalized = typeText.trim().removeSuffix("?").trim()
       // Skip function types like `() -> MutableState<T>` (a factory) and wrappers like
       // `Holder<MutableState<T>>`; only a parameter whose own type IS a MutableState is a violation.
-      if (normalized.contains("->")) continue
+      // The arrow must be at the top level: a `MutableState<() -> Unit>` is still a MutableState
+      // parameter (its arrow only lives inside the type argument), so it must NOT be skipped.
+      if (normalized.containsTopLevelArrow()) continue
       val head = normalized.substringBefore("<").substringAfterLast(".").trim()
 
       if (head == "MutableState") {
