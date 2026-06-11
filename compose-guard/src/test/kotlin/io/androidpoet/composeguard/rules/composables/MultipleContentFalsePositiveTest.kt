@@ -76,6 +76,23 @@ class MultipleContentFalsePositiveTest : BasePlatformTestCase() {
     assertEmpty(rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)))
   }
 
+  fun test_backHandlerAlongsideSingleEmitter_shouldNotViolate() {
+    val function = configure(
+      """
+        annotation class Composable
+
+        @Composable
+        fun Screen() {
+          BackHandler { }
+          Column { Text("x") }
+        }
+      """.trimIndent(),
+    )
+
+    // BackHandler registers a callback and emits no UI, so only Column counts: a single emitter.
+    assertEmpty(rule.analyzeFunction(function, AnalysisContext(function.containingKtFile)))
+  }
+
   fun test_scopeExtensionWithMultipleEmitters_shouldNotViolate() {
     val function = configure(
       """

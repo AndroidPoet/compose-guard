@@ -51,12 +51,17 @@ public class MultipleContentRule : ComposableFunctionRule() {
     "key",
   )
 
-  // Effects emit no UI, so they must not be counted toward the content-emitter total even though
-  // their callees are PascalCase and sit in statement position.
+  // Effects and behavior-registering composables emit no UI, so they must not be counted toward the
+  // content-emitter total even though their callees are PascalCase and sit in statement position.
   private val sideEffects = setOf(
     "LaunchedEffect",
     "DisposableEffect",
     "SideEffect",
+    "BackHandler",
+    "PredictiveBackHandler",
+    "LifecycleStartEffect",
+    "LifecycleResumeEffect",
+    "LifecycleEventEffect",
   )
 
   private val allowedReceiverTypes = setOf(

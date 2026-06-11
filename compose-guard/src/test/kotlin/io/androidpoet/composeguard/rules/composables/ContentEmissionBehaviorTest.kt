@@ -45,6 +45,12 @@ class ContentEmissionBehaviorTest : BasePlatformTestCase() {
     assertEquals(0, analyze("@Composable fun S(): kotlin.Unit { Text(\"x\") }"))
   }
 
+  fun test_backHandlerThenReturnsValue_shouldNotViolate() {
+    // BackHandler emits no UI, so a composable that registers it and returns a value is not an
+    // emit-and-return. Guards the shared non-emitting-composable set.
+    assertEquals(0, analyze("@Composable fun S(): Int { BackHandler { }; return 5 }"))
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText(
       "Sample.kt",

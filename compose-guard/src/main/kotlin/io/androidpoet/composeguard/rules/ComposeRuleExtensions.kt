@@ -52,6 +52,12 @@ private val sideEffectComposables = setOf(
   "remember",
   "rememberSaveable",
   "derivedStateOf",
+  // Effect/handler composables that register behavior but emit no UI.
+  "BackHandler",
+  "PredictiveBackHandler",
+  "LifecycleStartEffect",
+  "LifecycleResumeEffect",
+  "LifecycleEventEffect",
 )
 
 internal fun KtNamedFunction.isComposable(): Boolean {
