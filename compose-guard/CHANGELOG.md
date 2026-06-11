@@ -21,6 +21,7 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 - Added an **effect fix behavior suite** that applies `UseRememberUpdatedState` to a real `LaunchedEffect` and asserts no crash plus the correct import — the test that surfaced the rememberUpdatedState detached-reference crash above.
 - Added a **move-modifier-to-root behavior test** that applies the fix to a child modifier and asserts it lands on the root layout and is removed from the child — the test that surfaced the modifier-duplication bug above.
 - Added a **rename-parameter behavior test** that asserts both the declaration and its body usages are renamed and the old name is gone — the test that surfaced the dangling-reference bug above.
+- Added regression coverage locking in the previously-untested fixes that were verified correct: an **add-explicit-parameter behavior test** (hoists an implicit ViewModel to a defaulted parameter and rewrites the local-variable usages), plus a **misc quick-fix suite** covering `MakePreviewPrivate` (adds `private`, replaces `internal`), `UseMaterial3` (rewrites a `material` import to `material3`), and `AddLambdaAsEffectKey` (replaces a `Unit` effect key with the captured lambda).
 
 ### Fixed (Quick Fixes)
 - **Add key parameter** - When a lazy list passed its content as a named `itemContent = { ... }` argument (rather than a trailing lambda), the "Add key parameter" quick fix dropped the content, producing `items(...) { }` with an empty body. The content is now preserved as the trailing lambda.
