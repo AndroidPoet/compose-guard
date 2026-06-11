@@ -118,37 +118,38 @@ public class ModifierOrderRule : ComposableFunctionRule() {
     chainExpr: KtDotQualifiedExpression,
     violations: MutableList<ComposeRuleViolation>,
   ) {
+    // Report each bound-reducing modifier at most once. Iterating from the interaction modifiers
+    // instead would flag the same padding once per following interaction (e.g.
+    // `padding.clickable.toggleable`), producing duplicate warnings on one element.
     for ((index, call) in calls.withIndex()) {
-      if (call.name in interactionModifiers) {
-        for (i in 0 until index) {
-          if (calls[i].name in boundReducingModifiers) {
-            violations.add(
-              createViolation(
-                element = calls[i].element,
-                message = "'${calls[i].name}' before '${call.name}' reduces touch target area",
-                tooltip = """
-                  Modifier order matters! When '${calls[i].name}' comes before '${call.name}':
-                  - The touch target is reduced by the padding amount
-                  - Users may have difficulty tapping the element
+      if (call.name !in boundReducingModifiers) continue
 
-                  Recommended order:
-                  1. clickable/selectable (interaction handlers)
-                  2. padding (visual spacing)
+      val laterInteraction = calls.drop(index + 1).firstOrNull { it.name in interactionModifiers }
+        ?: continue
 
-                  Example fix:
-                  ❌ modifier.padding(16.dp).clickable { }
-                  ✅ modifier.clickable { }.padding(16.dp)
-                """.trimIndent(),
-                quickFixes = listOf(
-                  ReorderModifiersFix(calls[i].name, call.name),
-                  SuppressComposeRuleFix(id),
-                ),
-              ),
-            )
-            break
-          }
-        }
-      }
+      violations.add(
+        createViolation(
+          element = call.element,
+          message = "'${call.name}' before '${laterInteraction.name}' reduces touch target area",
+          tooltip = """
+            Modifier order matters! When '${call.name}' comes before '${laterInteraction.name}':
+            - The touch target is reduced by the padding amount
+            - Users may have difficulty tapping the element
+
+            Recommended order:
+            1. clickable/selectable (interaction handlers)
+            2. padding (visual spacing)
+
+            Example fix:
+            ❌ modifier.padding(16.dp).clickable { }
+            ✅ modifier.clickable { }.padding(16.dp)
+          """.trimIndent(),
+          quickFixes = listOf(
+            ReorderModifiersFix(call.name, laterInteraction.name),
+            SuppressComposeRuleFix(id),
+          ),
+        ),
+      )
     }
   }
 

@@ -64,6 +64,21 @@ class ModifierOrderFalsePositiveTest : BasePlatformTestCase() {
     assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
+  fun test_order_paddingBeforeTwoInteractionModifiers_reportsPaddingOnce() {
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Chip() {
+          Box(modifier = Modifier.padding(16.dp).clickable { }.toggleable(value = true) { })
+        }
+      """.trimIndent(),
+    )
+    // The single padding precedes two interaction modifiers, but it is one ordering problem and
+    // should be reported once — not once per following interaction modifier.
+    assertEquals(1, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
+  }
+
   private fun configure(code: String): KtNamedFunction {
     val file = myFixture.configureByText("Sample.kt", code) as KtFile
     return PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "Chip" }
