@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <b>Catch Jetpack Compose mistakes as you type</b> — 36 best-practice rules from the
+  <b>Catch Jetpack Compose mistakes as you type</b> — 37 best-practice rules from the
   <a href="https://mrmans0n.github.io/compose-rules/">Compose Rules</a> guidelines, surfaced live in
   Android Studio &amp; IntelliJ IDEA with inline highlights, gutter icons, and one-click fixes.
 </p>
@@ -63,7 +63,7 @@ while the code is still fresh instead of discovering them in a build log or a co
 - **Hover tooltips** — every violation explains the problem, the reasoning, and the fix.
 - **Quick fixes** — rename, add a `modifier` parameter, wrap in `remember`, switch to a type-specific
   state, make a preview private, swap to an immutable collection, and more.
-- **36 rules across 6 categories** — see the full [Rule Reference](#rule-reference).
+- **37 rules across 6 categories** — see the full [Rule Reference](#rule-reference).
 
 ## Installation
 
@@ -128,7 +128,7 @@ use [Configuration](#configuration).
 
 ## Rule Reference
 
-ComposeGuard ships **36 rules** based on the [Compose Rules](https://mrmans0n.github.io/compose-rules/)
+ComposeGuard ships **37 rules** based on the [Compose Rules](https://mrmans0n.github.io/compose-rules/)
 guidelines. Severity legend: 🔴 Error · 🟠 Warning · ⚪ Weak warning · 🔵 Info.
 
 ### Naming
@@ -187,6 +187,7 @@ guidelines. Severity legend: 🔴 Error · 🟠 Warning · ⚪ Weak warning · �
 | `LambdaParameterInEffect` | Lambda parameters used in effects are wrapped in `rememberUpdatedState` | 🟠 |
 | `MovableContent` | `movableContentOf` is remembered | 🔴 |
 | `PreviewVisibility` | `@Preview` composables are `private` | 🟠 |
+| `ComponentDefaultsVisibility` | A `<Component>Defaults` object matches its composable's visibility | 🟠 |
 | `LazyListMissingKey` | Lazy list items provide a stable `key` | 🟠 |
 | `LazyListContentType` | Heterogeneous lazy lists set a `contentType` | 🔵 |
 

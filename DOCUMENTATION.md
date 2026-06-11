@@ -75,7 +75,7 @@ Press `Alt+Enter` (Windows/Linux) or `Cmd+Enter` (macOS) on any highlighted issu
 
 ## Rules Reference
 
-ComposeGuard includes **29 rules** organized into 6 categories.
+ComposeGuard includes **37 rules** organized into 6 categories.
 
 ### Naming Rules
 
@@ -214,6 +214,25 @@ fun Card(modifier: Modifier) { }
 // Correct
 @Composable
 fun Card(modifier: Modifier = Modifier) { }
+```
+
+#### ModifierNaming
+**Severity:** Weak Warning
+
+The main modifier parameter must be named `modifier`. Additional modifiers use an `xModifier` suffix.
+
+```kotlin
+// Wrong
+@Composable
+fun Card(mod: Modifier = Modifier) { }
+
+// Wrong - secondary modifier without a descriptive prefix
+@Composable
+fun Card(modifier: Modifier = Modifier, modifier2: Modifier = Modifier) { }
+
+// Correct
+@Composable
+fun Card(modifier: Modifier = Modifier, contentModifier: Modifier = Modifier) { }
 ```
 
 #### ModifierTopMost
@@ -381,6 +400,50 @@ fun TextField(
     value: String,
     onValueChange: (String) -> Unit
 ) { }
+```
+
+#### DerivedStateOfCandidate
+**Severity:** Warning
+
+Values computed from other state should be wrapped in `derivedStateOf` so they only trigger
+recomposition when the derived result actually changes.
+
+```kotlin
+// Wrong - recomposes on every scroll position change
+val showButton = listState.firstVisibleItemIndex > 0
+
+// Correct - only recomposes when the boolean flips
+val showButton by remember {
+    derivedStateOf { listState.firstVisibleItemIndex > 0 }
+}
+```
+
+#### FrequentRecomposition
+**Severity:** Warning
+
+Hot observable sources (`Flow`, `LiveData`) should be collected in a lifecycle-aware way so they
+don't drive excessive recomposition.
+
+```kotlin
+// Wrong - collects regardless of lifecycle state
+val state by viewModel.uiState.collectAsState()
+
+// Correct - pauses collection when the UI isn't visible
+val state by viewModel.uiState.collectAsStateWithLifecycle()
+```
+
+#### DeferStateReads
+**Severity:** Warning
+
+Defer reads of fast-changing state to the latest possible phase (e.g. a lambda-based modifier) so
+only layout/draw re-runs instead of the whole composable.
+
+```kotlin
+// Wrong - reads offset during composition, recomposing every frame
+Box(modifier = Modifier.offset(x = scrollState.value.dp))
+
+// Correct - reads offset in the layout phase via the lambda overload
+Box(modifier = Modifier.offset { IntOffset(scrollState.value, 0) })
 ```
 
 ---
@@ -654,6 +717,69 @@ fun CardPreview() { }
 @Preview
 @Composable
 private fun CardPreview() { }
+```
+
+#### ComponentDefaultsVisibility
+**Severity:** Warning
+
+A `<Component>Defaults` object should have the same visibility as the composable it accompanies, so
+callers can read and build on those defaults.
+
+```kotlin
+// Wrong - public composable, but its defaults are hidden
+@Composable
+fun Badge(modifier: Modifier = Modifier, color: Color = BadgeDefaults.color) { }
+
+private object BadgeDefaults {
+    val color = Color.Red
+}
+
+// Correct - defaults match the composable's visibility
+@Composable
+fun Badge(modifier: Modifier = Modifier, color: Color = BadgeDefaults.color) { }
+
+object BadgeDefaults {
+    val color = Color.Red
+}
+```
+
+#### LazyListMissingKey
+**Severity:** Warning
+
+`items` in a lazy list should provide a stable `key` so Compose can track items across data changes.
+
+```kotlin
+// Wrong
+LazyColumn {
+    items(users) { user -> UserRow(user) }
+}
+
+// Correct
+LazyColumn {
+    items(users, key = { it.id }) { user -> UserRow(user) }
+}
+```
+
+#### LazyListContentType
+**Severity:** Info
+
+Heterogeneous lazy lists should set a `contentType` so Compose can reuse compositions of the same
+type efficiently.
+
+```kotlin
+// Wrong - mixed item types with no contentType hint
+LazyColumn {
+    items(feed, key = { it.id }) { item -> FeedItem(item) }
+}
+
+// Correct
+LazyColumn {
+    items(
+        feed,
+        key = { it.id },
+        contentType = { it.type },
+    ) { item -> FeedItem(item) }
+}
 ```
 
 ---
