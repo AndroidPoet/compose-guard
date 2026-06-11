@@ -12,6 +12,9 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 - **HoistState** - State-usage detection is now identifier-aware instead of substring-based. A local state named `value` is no longer flagged because a child has a `value =` parameter (`Slider(value = 0f)`), and a state named `count` is no longer flagged because child names contain it as a substring (`AccountBadge`). State genuinely read by, passed to, or reassigned for children is still reported.
 - **DerivedStateOfCandidate** - Lambda-valued properties such as `val onSave = { items.sortedBy { ... } }` are no longer flagged. The expensive operation inside a function value runs when the lambda is invoked, not during composition, so it is not a `remember`/`derivedStateOf` candidate. Computations evaluated directly at composition time are still reported.
 
+### Tests
+- Added a **dead-rule sweep** that exercises every default-enabled rule against a canonical violating corpus and asserts each one fires — a regression guard against a rule silently going dead (as `LazyListMissingKey` had).
+
 ### Fixed (Detection)
 - **LazyListMissingKey** - The rule was silently non-functional: the trailing content lambda was mistaken for a positional `key` argument, so `items(list) { ... }` never reported. Detection now inspects only the in-parentheses arguments, so keyless `items`/`itemsIndexed` are correctly flagged while named and positional `key` forms stay clean. Severity lowered from Warning to **Info** so the now-working rule surfaces as a gentle hint rather than a noisy warning on every list.
 
