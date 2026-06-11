@@ -27,7 +27,10 @@ import io.androidpoet.composeguard.rules.nonEmittingEffectComposables
 import io.androidpoet.composeguard.rules.transparentComposableWrappers
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtWhenExpression
 
 public class MultipleContentRule : ComposableFunctionRule() {
   override val id: String = "MultipleContentEmitters"
@@ -61,7 +64,7 @@ public class MultipleContentRule : ComposableFunctionRule() {
 
     val body = function.bodyBlockExpression ?: return emptyList()
 
-    val topLevelEmissions = countTopLevelEmissions(body)
+    val topLevelEmissions = emissionsInBlock(body)
 
     if (topLevelEmissions > 1) {
       return listOf(
@@ -107,33 +110,42 @@ public class MultipleContentRule : ComposableFunctionRule() {
     return emptyList()
   }
 
-  private fun countTopLevelEmissions(body: KtBlockExpression): Int {
-    var count = 0
+  private fun emissionsInBlock(body: KtBlockExpression): Int {
+    val statements = PsiTreeUtil.getChildrenOfType(body, KtExpression::class.java) ?: return 0
+    return statements.sumOf { emissionsOf(it) }
+  }
 
-    val directCalls = PsiTreeUtil.getChildrenOfType(body, KtCallExpression::class.java) ?: return 0
+  private fun emissionsOf(element: KtExpression): Int = when (element) {
+    is KtCallExpression -> emissionsOfCall(element)
+    // Only one branch of a conditional runs, so its contribution is the heaviest single branch, not
+    // the sum — `if (c) Text() else Text()` is one emission, but an emitter alongside a conditional
+    // emitter, or two emitters in one branch, are genuinely multiple top-level emissions.
+    is KtIfExpression -> maxOf(branchEmissions(element.then), branchEmissions(element.`else`))
+    is KtWhenExpression -> element.entries.maxOfOrNull { branchEmissions(it.expression) } ?: 0
+    else -> 0
+  }
 
-    for (call in directCalls) {
-      val callName = call.calleeExpression?.text ?: continue
+  private fun branchEmissions(branch: KtExpression?): Int = when (branch) {
+    null -> 0
+    is KtBlockExpression -> emissionsInBlock(branch)
+    else -> emissionsOf(branch)
+  }
 
-      if (callName in nonEmittingEffectComposables) {
-        continue
-      }
+  private fun emissionsOfCall(call: KtCallExpression): Int {
+    val callName = call.calleeExpression?.text ?: return 0
 
-      if (callName in transparentComposableWrappers) {
-        // Transparent wrappers (CompositionLocalProvider, key) introduce no layout node, so content
-        // directly inside them is still top-level emission — see through them rather than ignoring.
-        val wrapperBody = call.lambdaArguments.lastOrNull()?.getLambdaExpression()?.bodyExpression
-        if (wrapperBody != null) count += countTopLevelEmissions(wrapperBody)
-        continue
-      }
+    if (callName in nonEmittingEffectComposables) return 0
 
-      if (callName in contentEmitters) {
-        count++
-      } else if (callName.firstOrNull()?.isUpperCase() == true && call.isContentEmittingStatement()) {
-        count++
-      }
+    if (callName in transparentComposableWrappers) {
+      // Transparent wrappers (CompositionLocalProvider, key) introduce no layout node, so content
+      // directly inside them is still top-level emission — see through them rather than ignoring.
+      val wrapperBody = call.lambdaArguments.lastOrNull()?.getLambdaExpression()?.bodyExpression
+      return if (wrapperBody != null) emissionsInBlock(wrapperBody) else 0
     }
 
-    return count
+    if (callName in contentEmitters) return 1
+    if (callName.firstOrNull()?.isUpperCase() == true && call.isContentEmittingStatement()) return 1
+
+    return 0
   }
 }
