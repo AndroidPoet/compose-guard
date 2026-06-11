@@ -90,7 +90,11 @@ public class EventParameterNamingRule : ComposableFunctionRule() {
       val secondLastChar = withoutEd[withoutEd.length - 2]
 
       if (lastChar == secondLastChar && lastChar.isConsonant()) {
-        return withoutEd.dropLast(1)
+        // English never doubles 's' for the past tense — a root ending in "ss" (press, miss,
+        // dismiss, pass, cross, address) already ends that way, so keep both and return as-is
+        // (dropping an 's' gives onPres; falling through to the silent-e logic gives onPresse).
+        // Other doubled finals come from past-tense doubling (stopped -> stop): strip one.
+        return if (lastChar.lowercaseChar() == 's') withoutEd else withoutEd.dropLast(1)
       }
     }
 

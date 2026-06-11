@@ -44,6 +44,24 @@ class EventParameterNamingBehaviorTest : BasePlatformTestCase() {
     assertEquals(0, analyze("@Composable fun S(loaded: Boolean) {}"))
   }
 
+  fun test_doubleSRootSuggestionNotTruncated_onPressed() {
+    // 'press' ends in 'ss' — never past-tense doubling — so the suggestion must be 'onPress',
+    // not 'onPres' (the doubled-consonant strip must not remove an 's').
+    val tooltip = singleTooltip("@Composable fun S(onPressed: () -> Unit) {}")
+    assertTrue(tooltip, tooltip.contains("'onPress' instead"))
+  }
+
+  fun test_doubleSRootSuggestionNotTruncated_onDismissed() {
+    val tooltip = singleTooltip("@Composable fun S(onDismissed: () -> Unit) {}")
+    assertTrue(tooltip, tooltip.contains("'onDismiss' instead"))
+  }
+
+  private fun singleTooltip(code: String): String {
+    val file = myFixture.configureByText("Sample.kt", "annotation class Composable\n$code") as KtFile
+    val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "S" }
+    return rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).single().tooltip ?: ""
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText("Sample.kt", "annotation class Composable\n$code") as KtFile
     val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "S" }
