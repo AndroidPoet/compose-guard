@@ -319,7 +319,7 @@ internal fun String.isMutableType(): Boolean {
 }
 
 /** True if the string contains a `->` that sits outside any `<...>` type-argument brackets. */
-private fun String.containsTopLevelArrow(): Boolean {
+internal fun String.containsTopLevelArrow(): Boolean {
   var depth = 0
   var i = 0
   while (i < length) {

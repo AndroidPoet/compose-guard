@@ -70,6 +70,41 @@ class EffectKeysFalsePositiveTest : BasePlatformTestCase() {
     assertEquals(1, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
   }
 
+  fun test_constantKeyCapturingLambdaParam_shouldNotViolate() {
+    // A lambda parameter captured in a constant-key effect is owned by LambdaParameterInEffect,
+    // which gives the correct rememberUpdatedState-or-key guidance. EffectKeys must not also flag
+    // it with one-sided "pass as key" advice.
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Screen(onTick: () -> Unit) {
+          LaunchedEffect(Unit) {
+            onTick()
+          }
+        }
+      """.trimIndent(),
+    )
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
+  }
+
+  fun test_constantKeyCapturingMapOfLambdas_shouldViolate() {
+    // The parameter is a Map (a changing value that should be a key), not a lambda — the nested
+    // arrow in its type argument must not exempt it.
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Screen(handlers: Map<String, () -> Unit>) {
+          LaunchedEffect(Unit) {
+            handlers.forEach { it.value() }
+          }
+        }
+      """.trimIndent(),
+    )
+    assertEquals(1, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
+  }
+
   private fun configure(code: String): KtNamedFunction {
     val file = myFixture.configureByText("Sample.kt", code) as KtFile
     return PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "Screen" }

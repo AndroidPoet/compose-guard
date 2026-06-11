@@ -22,6 +22,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.containsTopLevelArrow
 import io.androidpoet.composeguard.rules.isSuppressed
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
@@ -90,7 +91,16 @@ public class EffectKeysRule : ComposableFunctionRule() {
   }
 
   private fun capturedChangingParameters(call: KtCallExpression, function: KtNamedFunction): List<String> {
-    val paramNames = function.valueParameters.mapNotNull { it.name }.toSet()
+    // Lambda parameters are owned by LambdaParameterInEffect, which gives the correct
+    // rememberUpdatedState-or-key guidance. Excluding them avoids a redundant, one-sided
+    // "pass as key" warning on the same effect.
+    val paramNames = function.valueParameters
+      .filter { param ->
+        val typeText = param.typeReference?.text?.removeSuffix("?")?.trim()
+        typeText == null || !typeText.containsTopLevelArrow()
+      }
+      .mapNotNull { it.name }
+      .toSet()
     if (paramNames.isEmpty()) return emptyList()
 
     val keyTexts = call.valueArguments
