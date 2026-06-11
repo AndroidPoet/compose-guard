@@ -22,6 +22,7 @@ import io.androidpoet.composeguard.rules.ComposableFunctionRule
 import io.androidpoet.composeguard.rules.ComposeRuleViolation
 import io.androidpoet.composeguard.rules.RuleCategory
 import io.androidpoet.composeguard.rules.RuleSeverity
+import io.androidpoet.composeguard.rules.containsTopLevelArrow
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 
@@ -259,7 +260,9 @@ public class ParameterOrderingRule : ComposableFunctionRule() {
       return false
     }
 
-    return typeText.contains("@Composable") && typeText.contains("->")
+    // The arrow must be at the top level: `List<@Composable () -> Unit>` is a collection OF content
+    // lambdas, not itself a content slot, so it must not be forced to trail other parameters.
+    return typeText.contains("@Composable") && typeText.containsTopLevelArrow()
   }
 
   private fun isModifierParam(param: KtParameter): Boolean {

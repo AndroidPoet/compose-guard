@@ -38,6 +38,15 @@ class ParameterOrderingBehaviorTest : BasePlatformTestCase() {
     assertEquals(0, analyze("@Composable fun S(a: Int) {}"))
   }
 
+  fun test_listOfComposablesIsNotAContentLambda_shouldNotViolate() {
+    // 'pages' is a List<@Composable () -> Unit>, not a content slot — its arrow is inside the
+    // generic. It must not be required to trail a following non-lambda parameter.
+    assertEquals(
+      0,
+      analyze("@Composable fun S(pages: List<@Composable () -> Unit>, selectedIndex: Int) {}"),
+    )
+  }
+
   private fun analyze(code: String): Int {
     val file = myFixture.configureByText("Sample.kt", "annotation class Composable\n$code") as KtFile
     val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "S" }
