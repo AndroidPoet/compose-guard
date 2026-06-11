@@ -57,9 +57,13 @@ public class MoveModifierToRootFix(
 
     val factory = KtPsiFactory(project)
 
-    addModifierToCall(rootCall, modifierExpr, factory)
-
+    // Remove from the child FIRST. removeModifierFromCall replaces nestedCall in place, which
+    // leaves the ancestor rootCall attached and its subtree updated. If we added to the root
+    // first, rootCall.replace() would detach nestedCall, so the subsequent removal would be a
+    // no-op on a detached node and the modifier would end up duplicated on both.
     removeModifierFromCall(nestedCall, modifierArg, factory)
+
+    addModifierToCall(rootCall, modifierExpr, factory)
   }
 
   private fun findRootContentEmitter(nestedCall: KtCallExpression): KtCallExpression? {
