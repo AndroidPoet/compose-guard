@@ -127,7 +127,8 @@ public class TypeSpecificStateRule : ComposableFunctionRule() {
   private fun inferPrimitiveType(argText: String): String? {
     return when {
       argText.matches(Regex("""-?\d+L""")) -> "Long"
-      argText.matches(Regex("""-?\d+\.\d*[fF]""")) -> "Float"
+      // Float literals may omit the decimal point: `0f`, `1f`, `100F` are as common as `1.5f`.
+      argText.matches(Regex("""-?\d+(\.\d*)?[fF]""")) -> "Float"
       argText.matches(Regex("""-?\d+\.\d+""")) -> "Double"
       argText.matches(Regex("""-?\d+""")) -> "Int"
       else -> null

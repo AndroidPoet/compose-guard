@@ -54,6 +54,22 @@ class TypeSpecificStateFalsePositiveTest : BasePlatformTestCase() {
     assertEquals(1, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
   }
 
+  fun test_mutableStateOfFloatLiteralWithoutDecimalPoint_shouldViolate() {
+    // `0f` / `1f` (no decimal point) are extremely common Float literals in Compose (alpha,
+    // progress, rotation). The inferred-type check previously required a decimal point, so these
+    // were missed and never suggested mutableFloatStateOf.
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Screen() {
+          val alpha = mutableStateOf(0f)
+        }
+      """.trimIndent(),
+    )
+    assertEquals(1, rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)).size)
+  }
+
   private fun configure(code: String): KtNamedFunction {
     val file = myFixture.configureByText("Sample.kt", code) as KtFile
     return PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == "Screen" }
