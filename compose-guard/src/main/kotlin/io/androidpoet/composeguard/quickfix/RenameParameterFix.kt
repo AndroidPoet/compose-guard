@@ -19,6 +19,9 @@ import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
+import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
@@ -36,8 +39,22 @@ public class RenameParameterFix(
       ?: return
 
     val nameIdentifier = parameter.nameIdentifier ?: return
+    val oldName = parameter.name
 
     val factory = KtPsiFactory(project)
+
+    // Rename the parameter's usages in the function body too. Renaming only the declaration
+    // would leave dangling references to the old name, producing non-compiling code.
+    val function = PsiTreeUtil.getParentOfType(parameter, KtNamedFunction::class.java)
+    val body = function?.bodyBlockExpression ?: function?.bodyExpression
+    if (oldName != null && oldName != suggestedName && body != null) {
+      val references = PsiTreeUtil.findChildrenOfType(body, KtNameReferenceExpression::class.java)
+        .filter { it.getReferencedName() == oldName }
+      for (ref in references) {
+        ref.replace(factory.createExpression(suggestedName))
+      }
+    }
+
     val newIdentifier = factory.createIdentifier(suggestedName)
     nameIdentifier.replace(newIdentifier)
   }
