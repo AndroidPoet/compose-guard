@@ -20,6 +20,7 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 
 ### Fixed (Quick Fixes)
 - **Add key parameter** - When a lazy list passed its content as a named `itemContent = { ... }` argument (rather than a trailing lambda), the "Add key parameter" quick fix dropped the content, producing `items(...) { }` with an empty body. The content is now preserved as the trailing lambda.
+- **Reorder modifiers** - The reorder quick fix no longer treats `offset` as a touch-target-reducing modifier, matching the rule. A chain like `Modifier.offset(...).padding(...).clickable { }` now moves only `padding` after `clickable`, leaving `offset` in place.
 
 ### Fixed (Detection)
 - **LazyListMissingKey** - The rule was silently non-functional: the trailing content lambda was mistaken for a positional `key` argument, so `items(list) { ... }` never reported. Detection now inspects only the in-parentheses arguments, so keyless `items`/`itemsIndexed` are correctly flagged while named and positional `key` forms stay clean. Severity lowered from Warning to **Info** so the now-working rule surfaces as a gentle hint rather than a noisy warning on every list.

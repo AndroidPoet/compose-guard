@@ -99,7 +99,9 @@ public class ReorderModifiersFix(
 
   private fun reorderModifiers(calls: List<ModifierCallInfo>): List<ModifierCallInfo> {
     val interactionModifiers = setOf("clickable", "selectable", "toggleable", "combinedClickable")
-    val boundReducingModifiers = setOf("padding", "offset")
+    // Must match ModifierOrderRule: `offset` translates without reducing the touch target, so it is
+    // not reordered. Including it here would move an offset the rule never flagged.
+    val boundReducingModifiers = setOf("padding")
 
     val result = calls.toMutableList()
 
