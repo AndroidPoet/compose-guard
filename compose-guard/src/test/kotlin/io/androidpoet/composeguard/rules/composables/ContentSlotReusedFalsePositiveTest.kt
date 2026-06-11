@@ -43,6 +43,21 @@ class ContentSlotReusedFalsePositiveTest : BasePlatformTestCase() {
     assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
   }
 
+  fun test_nullableSlotInvokedOnceViaSafeCall_shouldNotViolate() {
+    // A single `content?.invoke()` is one invocation. It must not be double-counted (once as the
+    // safe-qualified call, once again as the receiver reference) into a phantom "reused" report.
+    val fn = configure(
+      """
+        annotation class Composable
+        @Composable
+        fun Foo(content: (@Composable () -> Unit)?) {
+          content?.invoke()
+        }
+      """.trimIndent(),
+    )
+    assertEmpty(rule.analyzeFunction(fn, AnalysisContext(fn.containingKtFile)))
+  }
+
   fun test_slotInvokedTwiceOnSamePath_shouldViolate() {
     val fn = configure(
       """

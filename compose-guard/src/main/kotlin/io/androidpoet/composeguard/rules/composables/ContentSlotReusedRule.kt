@@ -79,6 +79,11 @@ public class ContentSlotReusedRule : ComposableFunctionRule() {
         if (parent is KtCallExpression && parent.calleeExpression == ref) {
           continue
         }
+        // A safe-qualified invoke (`slot?.invoke()`) is already counted above; don't also count its
+        // receiver reference here, or a single invocation looks like two.
+        if (parent is KtSafeQualifiedExpression && parent.receiverExpression == ref) {
+          continue
+        }
         if (parent?.text?.contains(".invoke()") == true) {
           invocationCounts.getOrPut(refName) { mutableListOf() }.add(ref)
         }
