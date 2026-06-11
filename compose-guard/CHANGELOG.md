@@ -16,7 +16,7 @@ All notable changes to the IntelliJ IDEA plugin will be documented in this file.
 ### Tests
 - Added a **dead-rule sweep** that exercises every default-enabled rule against a canonical violating corpus and asserts each one fires — a regression guard against a rule silently going dead (as `LazyListMissingKey` had).
 - Added a **clean-code false-positive sweep** that runs every default-enabled rule over idiomatic, rule-following Compose and asserts nothing fires — a regression guard against new false positives.
-- Added **behavioral quick-fix tests** that actually apply `AddModifierParameter`, `HoistState`, and `ReorderParameters` fixes to real PSI and assert the result is syntactically valid and correctly ordered (previously these fixes had only string-comparison stubs).
+- Added **behavioral quick-fix tests** that actually apply `AddModifierParameter`, `HoistState`, `ReorderParameters`, `AddKeyParameter`, `MoveToTrailingLambda`, and `AddContentType` fixes to real PSI and assert the result is syntactically valid, correctly ordered, and preserves item content (previously these fixes had only string-comparison stubs).
 
 ### Fixed (Quick Fixes)
 - **Add key parameter** - When a lazy list passed its content as a named `itemContent = { ... }` argument (rather than a trailing lambda), the "Add key parameter" quick fix dropped the content, producing `items(...) { }` with an empty body. The content is now preserved as the trailing lambda.
