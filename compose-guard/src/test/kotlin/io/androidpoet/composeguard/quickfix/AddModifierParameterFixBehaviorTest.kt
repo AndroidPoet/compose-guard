@@ -62,6 +62,19 @@ class AddModifierParameterFixBehaviorTest : BasePlatformTestCase() {
     assertNoSyntaxErrors()
   }
 
+  fun test_requiredLambdaListParam_modifierInsertedAfterIt() {
+    // `items` is a REQUIRED parameter (a list of lambdas) — its nested arrow must not make it look
+    // like a trailing content lambda, so modifier belongs after it, before the real content slot.
+    val text = applyTo(
+      "@Composable fun Foo(items: List<() -> Unit>, content: @Composable () -> Unit) { content() }",
+      "Foo",
+    )
+    assertTrue(text, text.contains("modifier: Modifier = Modifier"))
+    assertTrue("modifier must come after the required list param", text.indexOf("items:") < text.indexOf("modifier"))
+    assertTrue("modifier must still precede the content slot", text.indexOf("modifier") < text.indexOf("content:"))
+    assertNoSyntaxErrors()
+  }
+
   private fun assertContainsModifier(text: String) {
     assertTrue(text, text.contains("modifier: Modifier = Modifier"))
   }

@@ -19,7 +19,9 @@ import com.intellij.codeInsight.intention.HighPriorityAction
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
+import io.androidpoet.composeguard.rules.containsTopLevelArrow
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
 public class AddModifierParameterFix : LocalQuickFix, HighPriorityAction {
@@ -56,26 +58,29 @@ public class AddModifierParameterFix : LocalQuickFix, HighPriorityAction {
     addModifierImportIfNeeded(project, function)
   }
 
-  private fun findModifierInsertIndex(parameters: List<org.jetbrains.kotlin.psi.KtParameter>): Int {
+  private fun findModifierInsertIndex(parameters: List<KtParameter>): Int {
     for ((index, param) in parameters.withIndex()) {
-      val hasDefault = param.hasDefaultValue()
-      val isLambda = param.typeReference?.text?.contains("->") == true ||
-        param.typeReference?.text?.startsWith("@Composable") == true
-
-      if (hasDefault && !isLambda) {
+      if (param.hasDefaultValue() && !isFunctionTypeParam(param)) {
         return index
       }
     }
 
     for ((index, param) in parameters.withIndex()) {
-      val isLambda = param.typeReference?.text?.contains("->") == true ||
-        param.typeReference?.text?.startsWith("@Composable") == true
-      if (isLambda) {
+      if (isFunctionTypeParam(param)) {
         return index
       }
     }
 
     return parameters.size
+  }
+
+  // A function-type parameter. The arrow must be top-level: a required `items: List<() -> Unit>`
+  // is a list, not a content lambda, so its nested arrow must not push modifier in front of it.
+  // NB: named `isFunctionTypeParam` (not `isLambdaParameter`) to avoid colliding with the Kotlin
+  // PSI's own `KtParameter.isLambdaParameter()` extension, which would silently win resolution.
+  private fun isFunctionTypeParam(param: KtParameter): Boolean {
+    val typeText = param.typeReference?.text ?: return false
+    return typeText.containsTopLevelArrow() || typeText.startsWith("@Composable")
   }
 
   private fun addModifierImportIfNeeded(project: Project, function: KtNamedFunction) {
