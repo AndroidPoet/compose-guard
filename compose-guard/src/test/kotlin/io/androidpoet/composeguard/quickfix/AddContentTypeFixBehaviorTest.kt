@@ -72,7 +72,12 @@ class AddContentTypeFixBehaviorTest : BasePlatformTestCase() {
       .first { it.calleeExpression?.text == callee }
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      call.calleeExpression ?: call, "test", arrayOf(fix), ProblemHighlightType.WARNING, true, false,
+      call.calleeExpression ?: call,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) { fix.applyFix(project, descriptor) }
     return file.text

@@ -76,7 +76,7 @@ fun BadEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
- fun GoodEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun GoodEvent(onClick: () -> Unit, modifier: Modifier = Modifier) {
   Button(onClick = onClick, modifier = modifier) { Text("Click") }
 }
 
@@ -89,7 +89,7 @@ fun BFormField(
   errorMessage: String = "",
   isError: Boolean = false,
   enabled: Boolean = true,
-  placeholder: String = ""
+  placeholder: String = "",
 ) {
 }
 

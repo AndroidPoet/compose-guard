@@ -17,6 +17,7 @@ plugins {
   kotlin("jvm")
   id("org.jetbrains.intellij.platform") version "2.10.1"
   id(libs.plugins.spotless.get().pluginId)
+  id(libs.plugins.kover.get().pluginId)
 }
 
 kotlin {

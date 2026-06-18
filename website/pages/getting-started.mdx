@@ -1,0 +1,67 @@
+---
+title: Getting Started
+description: Install ComposeGuard in Android Studio or IntelliJ IDEA and see your first violation.
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Getting Started
+
+ComposeGuard is an IDE plugin — there's nothing to add to your Gradle build. Install it once
+and every Kotlin file with `@Composable` functions is analyzed automatically.
+
+## Install
+
+<Steps>
+
+### Open the plugins marketplace
+
+In **Android Studio** or **IntelliJ IDEA**, go to **Settings** → **Plugins** → **Marketplace**.
+
+### Search and install
+
+Search for **ComposeGuard**, click **Install**, and restart the IDE when prompted.
+
+### That's it
+
+Open any file containing `@Composable` functions. Violations appear as colored underlines
+right away — no configuration required.
+
+</Steps>
+
+You can also install it directly from the
+[JetBrains Marketplace](https://plugins.jetbrains.com/plugin/29308-composeguard).
+
+## Your first violation
+
+Paste this into a Compose file and watch ComposeGuard react as you type:
+
+```kotlin
+@Composable
+fun Counter() {
+    val count = mutableStateOf(0)   // 🔴 RememberState
+}
+```
+
+The `mutableStateOf(0)` is underlined because state must be remembered or it resets on every
+recomposition. Press <kbd>Alt</kbd>+<kbd>Enter</kbd> and ComposeGuard offers to wrap it in
+`remember { }` for you.
+
+<Callout type="info">
+  Hover any highlight for the full explanation — the problem, the reasoning, and the fix.
+</Callout>
+
+## Requirements
+
+- **IntelliJ IDEA 2024.2+** or **Android Studio Ladybug (2024.2)+**
+- The bundled **Kotlin** plugin (enabled by default)
+
+| ComposeGuard | Supported IDE builds |
+|--------------|----------------------|
+| 1.2.x        | 2024.2 – 2026.2      |
+
+## Next steps
+
+- [Usage](/usage) — how highlights, gutter icons, inlay hints, and quick fixes work.
+- [Rule Reference](/rules) — every rule, what it checks, and its severity.
+- [Configuration](/configuration) — turn rules on or off, project-wide.

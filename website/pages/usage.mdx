@@ -1,0 +1,66 @@
+---
+title: Usage
+description: How ComposeGuard surfaces violations — highlights, gutter icons, inlay hints, quick fixes, and the statistics dashboard.
+---
+
+import { Callout } from 'nextra/components'
+
+# Usage
+
+ComposeGuard analyzes every Kotlin file with `@Composable` functions in the background and
+surfaces what it finds through several complementary editor affordances.
+
+## Severity legend
+
+Every rule reports at one of four severities, color-coded throughout the UI:
+
+- 🔴 **Error** — almost always a real bug (e.g. unremembered state).
+- 🟠 **Warning** — a likely mistake or anti-pattern.
+- ⚪ **Weak warning** — a style or convention nudge.
+- 🔵 **Info** — an optional improvement.
+
+## In the editor
+
+- **Real-time highlighting** — violations appear as colored underlines while you edit.
+- **Gutter icons** — a color-coded dot next to each `@Composable` summarizes its status at a
+  glance.
+- **Inline hints** — compact badges next to function names show the rule that fired.
+- **Hover tooltips** — every violation explains the problem, the reasoning, and the fix.
+
+## Quick fixes
+
+Most violations carry a quick fix. Put the caret on the highlight and press
+<kbd>Alt</kbd>+<kbd>Enter</kbd>:
+
+```kotlin
+// Before — 🟠 ModifierRequired
+@Composable
+fun ProductCard(product: Product) {
+    Column { Text(product.name) }
+}
+
+// After the quick fix
+@Composable
+fun ProductCard(product: Product, modifier: Modifier = Modifier) {
+    Column(modifier) { Text(product.name) }
+}
+```
+
+Other fixes rename composables, wrap state in `remember`, switch to a type-specific state
+factory, make a preview `private`, swap a `List` for an immutable collection, reorder
+parameters, and more.
+
+<Callout type="info">
+  When a violation has no safe automatic rewrite, ComposeGuard still offers a **Suppress**
+  action so you can acknowledge it explicitly. See [Suppressing Rules](/suppressing-rules).
+</Callout>
+
+## Statistics dashboard
+
+A tool window tracks violations across the whole project. Open it from **View** → **Tool
+Windows** → **ComposeGuard Statistics**.
+
+- **Real-time statistics** — counts update as you code.
+- **Category breakdown** — violations grouped by rule category.
+- **Rule-level details** — drill into a specific rule.
+- **Project overview** — track overall code-quality trends.

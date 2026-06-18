@@ -58,7 +58,12 @@ class ReorderParametersFixBehaviorTest : BasePlatformTestCase() {
     val fn = PsiTreeUtil.findChildrenOfType(file, KtNamedFunction::class.java).first { it.name == fnName }
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      fn.nameIdentifier ?: fn, "test", arrayOf(fix), ProblemHighlightType.WARNING, true, false,
+      fn.nameIdentifier ?: fn,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) { fix.applyFix(project, descriptor) }
     return file.text

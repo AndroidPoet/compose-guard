@@ -67,7 +67,12 @@ class ReorderModifiersFixBehaviorTest : BasePlatformTestCase() {
       .first { it.calleeExpression?.text == boundReducingCallee }
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      call, "test", arrayOf(fix), ProblemHighlightType.WARNING, true, false,
+      call,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) { fix.applyFix(project, descriptor) }
     return file.text

@@ -8,7 +8,7 @@ on:
 
 jobs:
   formatting:
-    name: Formatting
+    name: Formatting & Static Analysis
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -20,6 +20,8 @@ jobs:
           java-version: 21
       - name: spotless
         run: ./gradlew spotlessCheck
+      - name: detekt
+        run: ./gradlew detekt
 
   sample-app:
     name: Sample App
@@ -62,3 +64,6 @@ jobs:
 
       - name: Validate plugin project configuration
         run: ./gradlew --stacktrace compose-guard:check
+
+      - name: Coverage report
+        run: ./gradlew --stacktrace koverXmlReport koverVerify

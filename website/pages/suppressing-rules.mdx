@@ -1,0 +1,45 @@
+---
+title: Suppressing Rules
+description: Acknowledge an intentional ComposeGuard violation with @Suppress at the function, property, or class level.
+---
+
+import { Callout } from 'nextra/components'
+
+# Suppressing Rules
+
+Sometimes a violation is intentional. To allow one without turning the rule off everywhere,
+annotate the declaration with `@Suppress` using the **rule id** — the same id shown in the
+warning and listed in the [Rule Reference](/rules).
+
+```kotlin
+@Suppress("ModifierRequired")
+@Composable
+fun SplashLogo() {
+    Image(painterResource(R.drawable.logo), contentDescription = null)
+}
+```
+
+Suppress several rules on one declaration by listing their ids:
+
+```kotlin
+@Suppress("ModifierRequired", "ComposableNaming")
+@Composable
+fun splash() { /* ... */ }
+```
+
+## Scope
+
+`@Suppress` applies at the **function**, **property**, or **class** level — the violation is
+silenced for everything inside the annotated declaration.
+
+<Callout type="info">
+  The quick fix can insert the right `@Suppress` for you: put the caret on a violation, press
+  <kbd>Alt</kbd>+<kbd>Enter</kbd>, and choose the **Suppress** action. ComposeGuard fills in the
+  correct rule id.
+</Callout>
+
+## Suppress vs. configure
+
+- Use **`@Suppress`** for individual, intentional exceptions in specific code.
+- Use **[Configuration](/configuration)** to turn a rule (or a whole category) off
+  project-wide.

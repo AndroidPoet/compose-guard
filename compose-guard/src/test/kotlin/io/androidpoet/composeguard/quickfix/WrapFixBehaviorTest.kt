@@ -74,7 +74,12 @@ class WrapFixBehaviorTest : BasePlatformTestCase() {
     val target = property.initializer ?: property
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      target, "test", arrayOf(fix), ProblemHighlightType.WARNING, true, false,
+      target,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) { fix.applyFix(project, descriptor) }
     return file.text

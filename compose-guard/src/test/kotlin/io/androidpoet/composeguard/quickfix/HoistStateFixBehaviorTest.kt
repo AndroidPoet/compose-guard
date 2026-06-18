@@ -22,7 +22,6 @@ import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 
 class HoistStateFixBehaviorTest : BasePlatformTestCase() {
@@ -91,8 +90,12 @@ class HoistStateFixBehaviorTest : BasePlatformTestCase() {
     val fix = HoistStateFix(propertyName)
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      property.nameIdentifier ?: property, "test", arrayOf(fix),
-      ProblemHighlightType.WARNING, true, false,
+      property.nameIdentifier ?: property,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) {
       fix.applyFix(project, descriptor)

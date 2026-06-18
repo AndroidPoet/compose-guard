@@ -1,0 +1,58 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongParameterList:
+    # IntelliJ extension points (annotators, inspections, inlay providers) are
+    # called by the platform with many positional arguments.
+    functionThreshold: 12
+    constructorThreshold: 14
+    ignoreDefaultParameters: true
+  LongMethod:
+    # PSI traversal / rule-matching visitors are inherently long branchy walks.
+    threshold: 120
+  LargeClass:
+    excludes: ['**/test/**', '**/*Test.kt']
+  TooManyFunctions:
+    active: false
+  CyclomaticComplexMethod:
+    # Rule detectors branch heavily over PSI element shapes.
+    threshold: 24
+  NestedBlockDepth:
+    threshold: 6
+
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    max: 8
+  MaxLineLength:
+    maxLineLength: 150
+  UnusedPrivateMember:
+    active: true
+  ForbiddenComment:
+    active: false
+  UnusedParameter:
+    # Extension-point overrides keep platform-mandated signatures.
+    active: false
+
+naming:
+  FunctionNaming:
+    active: true
+    # @Composable functions are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: false
+  ThrowingExceptionsWithoutMessageOrCause:
+    active: false
+  TooGenericExceptionThrown:
+    active: false

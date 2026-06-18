@@ -1,0 +1,45 @@
+---
+title: ComposeGuard
+description: An Android Studio & IntelliJ IDEA plugin that catches Jetpack Compose best-practice mistakes as you type — inline highlights, gutter icons, and one-click fixes.
+---
+
+import { Hero } from '../components/Hero'
+import { Cards } from 'nextra/components'
+
+<Hero />
+
+**ComposeGuard** brings the [Compose Rules](https://mrmans0n.github.io/compose-rules/)
+best-practice guidelines straight into the editor. As you type, it surfaces the subtle
+Jetpack Compose mistakes — a missing `Modifier` parameter, un-remembered state, an unstable
+collection, a reused modifier — with inline highlights, gutter icons, and quick fixes, so you
+fix them while the code is still fresh instead of in a build log or a code review.
+
+```kotlin
+// 🔴 State: state must be remembered
+@Composable
+fun Counter() {
+    val count = mutableStateOf(0)   // → Alt+Enter → wrap in remember { }
+}
+```
+
+## Why ComposeGuard
+
+- **Instant.** Analysis runs as you type — no build, no Gradle task, no CI round-trip.
+- **Accurate.** Rules are PSI-based and tuned to avoid false positives on valid patterns
+  (overrides, scoped slots, mutually-exclusive branches, run-once effects).
+- **Actionable.** Most violations come with a quick fix (<kbd>Alt</kbd>+<kbd>Enter</kbd>) and
+  an explanation of *why* it matters.
+- **Configurable.** Enable or disable any rule, toggle a whole category, or suppress per
+  declaration with `@Suppress`.
+- **37 rules across 6 categories.** Naming, modifiers, state, parameters, composables &
+  effects, and stricter style checks.
+
+## Explore the docs
+
+<Cards>
+  <Cards.Card title="Getting Started" href="/getting-started" arrow />
+  <Cards.Card title="Usage" href="/usage" arrow />
+  <Cards.Card title="Rule Reference" href="/rules" arrow />
+  <Cards.Card title="Suppressing Rules" href="/suppressing-rules" arrow />
+  <Cards.Card title="Configuration" href="/configuration" arrow />
+</Cards>
