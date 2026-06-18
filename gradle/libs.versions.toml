@@ -16,6 +16,8 @@ androidxComposeBom = "2025.12.00"
 jetbrains-compose = "1.9.3"
 spotless = "6.21.0"
 shadow = "8.1.1"
+detekt = "1.23.8"
+kover = "0.9.1"
 
 [libraries]
 androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compiler" }
@@ -51,3 +53,5 @@ dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 nexus-plugin = { id = "com.vanniktech.maven.publish", version.ref = "nexusPlugin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

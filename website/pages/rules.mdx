@@ -1,0 +1,84 @@
+---
+title: Rule Reference
+description: All 37 ComposeGuard rules across six categories, what each checks, and its severity.
+---
+
+# Rule Reference
+
+ComposeGuard ships **37 rules** based on the
+[Compose Rules](https://mrmans0n.github.io/compose-rules/) guidelines. Each table lists the
+**rule id** (the same id shown in the warning and used by `@Suppress`), what it checks, and its
+severity.
+
+Severity legend: 🔴 Error · 🟠 Warning · ⚪ Weak warning · 🔵 Info.
+
+## Naming
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ComposableNaming` | Unit-returning composables use PascalCase; value-returning use camelCase | 🟠 |
+| `CompositionLocalNaming` | `CompositionLocal` properties are prefixed with `Local` | 🟠 |
+| `PreviewNaming` | `@Preview` functions reference `Preview` in their name | ⚪ |
+| `MultipreviewNaming` | Multipreview annotation classes reference `Preview` | ⚪ |
+| `ComposableAnnotationNaming` | `@ComposableTargetMarker` annotations end with `Composable` | ⚪ |
+| `EventParameterNaming` | Event lambdas use present tense (`onClick`, not `onClicked`) | ⚪ |
+
+## Modifiers
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ModifierRequired` | Public, UI-emitting composables expose a `Modifier` parameter | 🟠 |
+| `ModifierDefaultValue` | `modifier` parameters default to `Modifier` | 🟠 |
+| `ModifierNaming` | The main modifier is named `modifier`; others follow `xModifier` | ⚪ |
+| `ModifierTopMost` | The modifier is applied to the root-most layout | 🟠 |
+| `ModifierReuse` | The same modifier isn't applied to multiple live nodes | 🟠 |
+| `ModifierOrder` | Modifier chain order is intentional (e.g. `padding` before `clickable`) | 🟠 |
+| `AvoidComposed` | Prefer `Modifier.Node` over the deprecated `composed { }` factory | 🟠 |
+
+## State
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `RememberState` | `mutableStateOf` and friends are wrapped in `remember { }` | 🔴 |
+| `TypeSpecificState` | Primitives use `mutableIntStateOf` / `mutableFloatStateOf` / … | 🟠 |
+| `DerivedStateOfCandidate` | Values computed from state use `derivedStateOf` | 🟠 |
+| `FrequentRecomposition` | Hot observable sources use lifecycle-aware collection | 🟠 |
+| `DeferStateReads` | Fast-changing state reads are deferred to lambda modifiers | 🟠 |
+| `HoistState` | State is hoisted to the appropriate level | 🔵 |
+| `MutableStateParameter` | Pass `value` + callback instead of a `MutableState` parameter | 🟠 |
+
+## Parameters
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ParameterOrdering` | Order is required → `modifier` → optional → trailing content | ⚪ |
+| `TrailingLambda` | The content slot is the trailing lambda; event handlers are not | ⚪ |
+| `MutableParameter` | Avoid inherently mutable types (`MutableList`, `ArrayList`, …) as parameters | 🟠 |
+| `ExplicitDependencies` | Make injected ViewModels explicit parameters | ⚪ |
+| `ViewModelForwarding` | Don't forward a ViewModel into another composable | 🟠 |
+
+## Composables & Effects
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `ContentEmission` | A composable emits content **or** returns a value, not both | 🟠 |
+| `MultipleContentEmitters` | A composable emits a single piece of content | 🟠 |
+| `ContentSlotReused` | A content slot isn't invoked more than once on the same pass | 🟠 |
+| `EffectKeys` | Changing captured values are passed as effect keys | 🟠 |
+| `LambdaParameterInEffect` | Lambda parameters used in effects are wrapped in `rememberUpdatedState` | 🟠 |
+| `MovableContent` | `movableContentOf` is remembered | 🔴 |
+| `PreviewVisibility` | `@Preview` composables are `private` | 🟠 |
+| `ComponentDefaultsVisibility` | A `<Component>Defaults` object matches its composable's visibility | 🟠 |
+| `LazyListMissingKey` | Lazy list items provide a stable `key` | 🟠 |
+| `LazyListContentType` | Heterogeneous lazy lists set a `contentType` | 🔵 |
+
+## Stricter
+
+| Rule id | Checks | Severity |
+|---------|--------|:--------:|
+| `UnstableCollections` | Prefer `ImmutableList` / `PersistentList` over `List`, `Set`, `Map` | 🟠 |
+| `Material2Usage` | Migrate `androidx.compose.material` (M2) imports to Material 3 | 🔵 |
+
+Every rule can be suppressed with `@Suppress("<RuleId>")` (see
+[Suppressing Rules](/suppressing-rules)) or toggled in
+**Settings → Tools → ComposeGuard** (see [Configuration](/configuration)).

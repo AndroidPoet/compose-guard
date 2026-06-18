@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://androidpoet.github.io/compose-guard/sitemap.xml

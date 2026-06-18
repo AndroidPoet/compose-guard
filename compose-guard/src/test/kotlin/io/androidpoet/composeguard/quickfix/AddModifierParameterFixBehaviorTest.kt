@@ -95,7 +95,12 @@ class AddModifierParameterFixBehaviorTest : BasePlatformTestCase() {
   private fun applyFix(fix: LocalQuickFix, target: PsiElement) {
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      target, "test", arrayOf(fix), ProblemHighlightType.WARNING, true, false,
+      target,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) {
       fix.applyFix(project, descriptor)

@@ -156,7 +156,6 @@ public class ExplicitDependenciesRule : ComposableFunctionRule() {
           ),
         )
       }
-
     }
 
     // A CompositionLocal read is `LocalFoo.current` — a property access, NOT a call. Scanning only

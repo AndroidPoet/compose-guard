@@ -1,0 +1,47 @@
+---
+title: Configuration
+description: Enable or disable ComposeGuard rules and categories, and roll the plugin out gradually in an existing codebase.
+---
+
+import { Steps, Callout } from 'nextra/components'
+
+# Configuration
+
+Configure ComposeGuard at **Settings** → **Tools** → **ComposeGuard**.
+
+- **Enable ComposeGuard** — master toggle for the whole plugin.
+- **Display options** — toggle gutter icons and inlay hints independently.
+- **Rule configuration** — enable or disable individual rules, or whole categories. The
+  category checkbox acts as a select-all / none for the rules in that group, and parent
+  checkbox states are derived from their children.
+
+Rule states persist across IDE restarts.
+
+## Adopting ComposeGuard in an existing codebase
+
+Adding the plugin to a large legacy project? Roll it out gradually instead of facing every
+warning at once:
+
+<Steps>
+
+### Start with the Stricter category off
+
+Disable `Material2Usage` and `UnstableCollections` first — these tend to fire the most on
+mature codebases.
+
+### Enable categories one at a time
+
+As you refactor, turn categories back on one group at a time. The category checkbox toggles
+the whole group, so you can adopt at a comfortable pace.
+
+### Suppress intentional exceptions
+
+For one-off intentional violations, use `@Suppress("<RuleId>")` instead of disabling the rule
+project-wide. See [Suppressing Rules](/suppressing-rules).
+
+</Steps>
+
+<Callout type="info">
+  Disabling a rule in Settings affects the whole project. Use `@Suppress` when you only want to
+  allow a violation in one specific place.
+</Callout>

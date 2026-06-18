@@ -92,7 +92,12 @@ class StateAndModifierFixBehaviorTest : BasePlatformTestCase() {
   private fun apply(fix: LocalQuickFix, target: PsiElement): String {
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      target, "test", arrayOf(fix), ProblemHighlightType.WARNING, true, false,
+      target,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) { fix.applyFix(project, descriptor) }
     return myFixture.file.text

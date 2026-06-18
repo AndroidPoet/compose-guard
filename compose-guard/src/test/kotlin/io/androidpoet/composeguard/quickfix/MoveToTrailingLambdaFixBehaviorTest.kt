@@ -23,7 +23,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtParameter
 
 class MoveToTrailingLambdaFixBehaviorTest : BasePlatformTestCase() {
 
@@ -64,7 +63,12 @@ class MoveToTrailingLambdaFixBehaviorTest : BasePlatformTestCase() {
     val param = fn.valueParameters.first { it.name == paramName }
     val manager = InspectionManager.getInstance(project)
     val descriptor = manager.createProblemDescriptor(
-      param, "test", arrayOf(fix), ProblemHighlightType.WARNING, true, false,
+      param,
+      "test",
+      arrayOf(fix),
+      ProblemHighlightType.WARNING,
+      true,
+      false,
     )
     WriteCommandAction.runWriteCommandAction(project) { fix.applyFix(project, descriptor) }
     return file.text

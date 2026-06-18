@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Designed and developed by 2025 androidpoet (Ranbir Singh)
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:ModifierTopMostRule.kt$ModifierTopMostRule$(argName == "modifier" || argName == null) &amp;&amp; (argExpr == modifierName || argExpr.startsWith("$modifierName."))</ID>
+    <ID>CyclomaticComplexMethod:ContentSlotReusedRule.kt$ContentSlotReusedRule$override fun doAnalyze(function: KtNamedFunction, context: AnalysisContext): List&lt;ComposeRuleViolation&gt;</ID>
+    <ID>CyclomaticComplexMethod:LazyListContentTypeRule.kt$LazyListContentTypeRule$override fun doAnalyze( function: KtNamedFunction, context: AnalysisContext, ): List&lt;ComposeRuleViolation&gt;</ID>
+    <ID>CyclomaticComplexMethod:ModifierReuseRule.kt$ModifierReuseRule$override fun doAnalyze( function: KtNamedFunction, context: AnalysisContext, ): List&lt;ComposeRuleViolation&gt;</ID>
+    <ID>EmptyCatchBlock:ComposeGuardAnnotator.kt$ComposeGuardAnnotator${ }</ID>
+    <ID>EmptyCatchBlock:ComposeGuardInlayHintsProvider.kt${ }</ID>
+    <ID>EmptyCatchBlock:ComposeGuardInspection.kt$ComposeGuardInspection.&lt;no name provided&gt;${ }</ID>
+    <ID>EmptyCatchBlock:ComposeGuardLineMarkerProvider.kt$ComposeGuardLineMarkerProvider${ }</ID>
+    <ID>EmptyCatchBlock:ComposeGuardStatisticsService.kt$ComposeGuardStatisticsService.&lt;no name provided&gt;${ }</ID>
+    <ID>ImplicitDefaultLocale:DeadRuleSweepTest.kt$DeadRuleSweepTest$String.format("%-28s %s%n", rule.id, if (count == 0) "*** ZERO ***" else count.toString())</ID>
+    <ID>LoopWithTooManyJumpStatements:AddContentTypeFix.kt$AddContentTypeFix$for</ID>
+    <ID>LoopWithTooManyJumpStatements:AddKeyParameterFix.kt$AddKeyParameterFix$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ComposeRuleExtensions.kt$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ContentSlotReusedRule.kt$ContentSlotReusedRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:DerivedStateOfCandidateRule.kt$DerivedStateOfCandidateRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:EffectKeysRule.kt$EffectKeysRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:EventParameterNamingRule.kt$EventParameterNamingRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ExplicitDependenciesRule.kt$ExplicitDependenciesRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:FrequentRecompositionRule.kt$FrequentRecompositionRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:HoistStateRule.kt$HoistStateRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:LambdaParameterInEffectRule.kt$LambdaParameterInEffectRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:LazyListContentTypeRule.kt$LazyListContentTypeRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:LazyListMissingKeyRule.kt$LazyListMissingKeyRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:Material2Rule.kt$Material2Rule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ModifierOrderRule.kt$ModifierOrderRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ModifierTopMostRule.kt$ModifierTopMostRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MovableContentRule.kt$MovableContentRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MoveModifierToRootFix.kt$MoveModifierToRootFix$for</ID>
+    <ID>LoopWithTooManyJumpStatements:MutableStateParameterRule.kt$MutableStateParameterRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ParameterOrderingRule.kt$ParameterOrderingRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:RememberStateRule.kt$RememberStateRule$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ViewModelForwardingRule.kt$ViewModelForwardingRule$for</ID>
+    <ID>MaxLineLength:LambdaParameterInEffectRule.kt$LambdaParameterInEffectRule$override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#lambdas-used-in-restartable-effects-should-be-checked"</ID>
+    <ID>MaxLineLength:TrailingLambdaRule.kt$TrailingLambdaRule$override val documentationUrl: String = "https://mrmans0n.github.io/compose-rules/latest/rules/#slots-for-main-content-should-be-the-trailing-lambda"</ID>
+    <ID>NestedBlockDepth:LazyListContentTypeRule.kt$LazyListContentTypeRule$override fun doAnalyze( function: KtNamedFunction, context: AnalysisContext, ): List&lt;ComposeRuleViolation&gt;</ID>
+    <ID>SpreadOperator:ComposeGuardInspection.kt$ComposeGuardInspection.&lt;no name provided&gt;$( violation.element, "[${rule.id}] ${violation.message}", violation.highlightType, *violation.quickFixes.toTypedArray(), )</ID>
+    <ID>UnusedPrivateProperty:AddContentTypeFixTest.kt$AddContentTypeFixTest$val inputDescription = "item { Text(\"Header\") }"</ID>
+    <ID>UnusedPrivateProperty:AddContentTypeFixTest.kt$AddContentTypeFixTest$val inputDescription = "item(content = { Text(\"Header\") })"</ID>
+    <ID>UnusedPrivateProperty:AddContentTypeFixTest.kt$AddContentTypeFixTest$val inputDescription = "item(key = \"myKey\") { Text(\"Header\") }"</ID>
+    <ID>UnusedPrivateProperty:AddContentTypeFixTest.kt$AddContentTypeFixTest$val inputDescription = "items(users) { Text(it.name) }"</ID>
+    <ID>UnusedPrivateProperty:AddContentTypeFixTest.kt$AddContentTypeFixTest$val inputDescription = "items(users, key = { it.id }) { Text(it.name) }"</ID>
+    <ID>UnusedPrivateProperty:AddContentTypeFixTest.kt$AddContentTypeFixTest$val inputDescription = "itemsIndexed(users) { index, user -&gt; Text(user.name) }"</ID>
+    <ID>UnusedPrivateProperty:AddContentTypeFixTest.kt$AddContentTypeFixTest$val inputDescription = "stickyHeader { Text(\"Header\") }"</ID>
+    <ID>UnusedPrivateProperty:AddLambdaAsEffectKeyFix.kt$AddLambdaAsEffectKeyFix$val trailingLambda = effectCall.lambdaArguments.firstOrNull()?.getLambdaExpression() ?: effectCall.valueArguments.lastOrNull()?.getArgumentExpression() as? KtLambdaExpression</ID>
+    <ID>UnusedPrivateProperty:HoistStateRule.kt$HoistStateRule$private val containerComposables = setOf( "Box", "Column", "Row", "Surface", "Card", "Scaffold", "LazyColumn", "LazyRow", "LazyVerticalGrid", "LazyHorizontalGrid", "ConstraintLayout", "FlowRow", "FlowColumn", "BoxWithConstraints", "AlertDialog", "Dialog", "ModalBottomSheet", "BottomSheet", )</ID>
+  </CurrentIssues>
+</SmellBaseline>
