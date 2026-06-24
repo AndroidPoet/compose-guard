@@ -258,6 +258,10 @@ Contributions are welcome — issues and pull requests both.
 Built on the excellent [Compose Rules](https://mrmans0n.github.io/compose-rules/) guidelines by
 [Nacho Lopez (mrmans0n)](https://github.com/mrmans0n).
 
+## Find this repository useful? :heart:
+Support it by joining __[stargazers](https://github.com/androidpoet/compose-guard/stargazers)__ for this repository. :star: <br>
+Also, __[follow me](https://github.com/androidpoet)__ on GitHub for my next creations! 🤩
+
 ## License
 
 ```
